@@ -1,32 +1,56 @@
 #/*
+<<<<<<< HEAD
 # *    This file is part of Motion.
 # *
 # *    Motion is free software: you can redistribute it and/or modify
+=======
+# *    This file is part of MotionPlus.
+# *
+# *    MotionPlus is free software: you can redistribute it and/or modify
+>>>>>>> plus/upstream__May25
 # *    it under the terms of the GNU General Public License as published by
 # *    the Free Software Foundation, either version 3 of the License, or
 # *    (at your option) any later version.
 # *
+<<<<<<< HEAD
 # *    Motion is distributed in the hope that it will be useful,
+=======
+# *    MotionPlus is distributed in the hope that it will be useful,
+>>>>>>> plus/upstream__May25
 # *    but WITHOUT ANY WARRANTY; without even the implied warranty of
 # *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # *    GNU General Public License for more details.
 # *
 # *    You should have received a copy of the GNU General Public License
+<<<<<<< HEAD
 # *    along with Motion.  If not, see <https://www.gnu.org/licenses/>.
+=======
+# *    along with MotionPlus.  If not, see <https://www.gnu.org/licenses/>.
+>>>>>>> plus/upstream__May25
 # *
 # */
 
 
 AM_CPPFLAGS= \
 	-Dconfigdir=\"$(localstatedir)/lib/@PACKAGE@\" \
+<<<<<<< HEAD
 	-Dsysconfdir=\"$(sysconfdir)/motion\" \
+=======
+	-Dsysconfdir=\"$(sysconfdir)/motionplus\" \
+>>>>>>> plus/upstream__May25
 	-DLOCALEDIR=\"$(localedir)\"
 
 LDADD = $(LIBINTL)
 
+<<<<<<< HEAD
 bin_PROGRAMS = motion
 
 motion_SOURCES = \
+=======
+bin_PROGRAMS = motionplus
+
+motionplus_SOURCES = \
+>>>>>>> plus/upstream__May25
 	alg.hpp            alg.cpp \
 	alg_sec.hpp        alg_sec.cpp \
 	conf.hpp           conf.cpp \
@@ -35,7 +59,11 @@ motion_SOURCES = \
 	jpegutils.hpp      jpegutils.cpp \
 	libcam.hpp         libcam.cpp \
 	logger.hpp         logger.cpp \
+<<<<<<< HEAD
 	motion.hpp         motion.cpp \
+=======
+	motionplus.hpp     motionplus.cpp \
+>>>>>>> plus/upstream__May25
 	allcam.hpp         allcam.cpp \
 	schedule.hpp       schedule.cpp \
 	camera.hpp         camera.cpp \
@@ -53,7 +81,10 @@ motion_SOURCES = \
 	webu_file.hpp      webu_file.cpp \
 	webu_html.hpp      webu_html.cpp \
 	webu_json.hpp      webu_json.cpp \
+<<<<<<< HEAD
 	webu_text.hpp      webu_text.cpp \
+=======
+>>>>>>> plus/upstream__May25
 	webu_post.hpp      webu_post.cpp \
 	webu_stream.hpp    webu_stream.cpp \
 	webu_getimg.hpp    webu_getimg.cpp \

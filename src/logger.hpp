@@ -1,18 +1,32 @@
 /*
+<<<<<<< HEAD
  *    This file is part of Motion.
  *
  *    Motion is free software: you can redistribute it and/or modify
+=======
+ *    This file is part of MotionPlus.
+ *
+ *    MotionPlus is free software: you can redistribute it and/or modify
+>>>>>>> plus/upstream__May25
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation, either version 3 of the License, or
  *    (at your option) any later version.
  *
+<<<<<<< HEAD
  *    Motion is distributed in the hope that it will be useful,
+=======
+ *    MotionPlus is distributed in the hope that it will be useful,
+>>>>>>> plus/upstream__May25
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
  *    You should have received a copy of the GNU General Public License
+<<<<<<< HEAD
  *    along with Motion.  If not, see <https://www.gnu.org/licenses/>.
+=======
+ *    along with MotionPlus.  If not, see <https://www.gnu.org/licenses/>.
+>>>>>>> plus/upstream__May25
  *
  */
 #ifndef _INCLUDE_LOGGER_HPP_
@@ -51,8 +65,13 @@
     #define TYPE_DEFAULT            TYPE_ALL      /* Default type      */
     #define TYPE_DEFAULT_STR        "ALL"         /* Default name logs */
 
+<<<<<<< HEAD
     #define MOTION_LOG(x, y, z, ...) motlog->write_msg(x, y, z, 1, __FUNCTION__, __VA_ARGS__)
     #define MOTION_SHT(x, y, z, ...) motlog->write_msg(x, y, z, 0, __VA_ARGS__)
+=======
+    #define MOTPLS_LOG(x, y, z, ...) motlog->write_msg(x, y, z, 1, __FUNCTION__, __VA_ARGS__)
+    #define MOTPLS_SHT(x, y, z, ...) motlog->write_msg(x, y, z, 0, __VA_ARGS__)
+>>>>>>> plus/upstream__May25
 
     struct ctx_log_item {
         uint64_t    log_nbr;

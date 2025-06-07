@@ -1,18 +1,32 @@
 /*
+<<<<<<< HEAD
  *    This file is part of Motion.
  *
  *    Motion is free software: you can redistribute it and/or modify
+=======
+ *    This file is part of MotionPlus.
+ *
+ *    MotionPlus is free software: you can redistribute it and/or modify
+>>>>>>> plus/upstream__May25
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation, either version 3 of the License, or
  *    (at your option) any later version.
  *
+<<<<<<< HEAD
  *    Motion is distributed in the hope that it will be useful,
+=======
+ *    MotionPlus is distributed in the hope that it will be useful,
+>>>>>>> plus/upstream__May25
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
  *    You should have received a copy of the GNU General Public License
+<<<<<<< HEAD
  *    along with Motion.  If not, see <https://www.gnu.org/licenses/>.
+=======
+ *    along with MotionPlus.  If not, see <https://www.gnu.org/licenses/>.
+>>>>>>> plus/upstream__May25
  *
 */
 
@@ -33,10 +47,17 @@
             std::string     lang;           /* Two character abbreviation for locale language*/
 
             std::string     url;            /* The URL sent from the client */
+<<<<<<< HEAD
             std::string     uri_cmd0;       /* Parsed command1 from the url eg /cmd0/cmd1/cmd2/cmd3 */
             std::string     uri_cmd1;       /* Parsed command1 from the url eg /cmd0/cmd1/cmd2/cmd3 */
             std::string     uri_cmd2;       /* Parsed command2 from the url eg /cmd0/cmd1/cmd2/cmd3 */
             std::string     uri_cmd3;       /* Parsed command3 from the url eg /cmd0/cmd1/cmd2/cmd3 */
+=======
+            std::string     uri_camid;      /* Parsed camera number from the url eg /camid/cmd1/cmd2/cmd3 */
+            std::string     uri_cmd1;       /* Parsed command1 from the url eg /camid/cmd1/cmd2/cmd3 */
+            std::string     uri_cmd2;       /* Parsed command2 from the url eg /camid/cmd1/cmd2/cmd3 */
+            std::string     uri_cmd3;       /* Parsed command3 from the url eg /camid/cmd1/cmd2/cmd3 */
+>>>>>>> plus/upstream__May25
 
             enum WEBUI_RESP resp_type;      /* indicator for the type of response to provide. */
             std::string     resp_page;      /* The response that will be sent */
@@ -59,7 +80,10 @@
             cls_webu_html   *webu_html;
             cls_webu_json   *webu_json;
             cls_webu_post   *webu_post;
+<<<<<<< HEAD
             cls_webu_text   *webu_text;
+=======
+>>>>>>> plus/upstream__May25
             cls_webu_stream *webu_stream;
 
             int             mhd_first;      /* Boolean for whether it is the first connection*/

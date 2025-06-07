@@ -1,22 +1,40 @@
 /*
+<<<<<<< HEAD
  *    This file is part of Motion.
  *
  *    Motion is free software: you can redistribute it and/or modify
+=======
+ *    This file is part of MotionPlus.
+ *
+ *    MotionPlus is free software: you can redistribute it and/or modify
+>>>>>>> plus/upstream__May25
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation, either version 3 of the License, or
  *    (at your option) any later version.
  *
+<<<<<<< HEAD
  *    Motion is distributed in the hope that it will be useful,
+=======
+ *    MotionPlus is distributed in the hope that it will be useful,
+>>>>>>> plus/upstream__May25
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
  *    You should have received a copy of the GNU General Public License
+<<<<<<< HEAD
  *    along with Motion.  If not, see <https://www.gnu.org/licenses/>.
  *
 */
 
 #include "motion.hpp"
+=======
+ *    along with MotionPlus.  If not, see <https://www.gnu.org/licenses/>.
+ *
+*/
+
+#include "motionplus.hpp"
+>>>>>>> plus/upstream__May25
 #include "util.hpp"
 #include "camera.hpp"
 #include "conf.hpp"
@@ -53,7 +71,11 @@ void cls_webu_file::main() {
     for (indx=0;indx<webu->wb_actions->params_cnt;indx++) {
         if (webu->wb_actions->params_array[indx].param_name == "movies") {
             if (webu->wb_actions->params_array[indx].param_value == "off") {
+<<<<<<< HEAD
                 MOTION_LOG(INF, TYPE_ALL, NO_ERRNO, "Movies via webcontrol disabled");
+=======
+                MOTPLS_LOG(INF, TYPE_ALL, NO_ERRNO, "Movies via webcontrol disabled");
+>>>>>>> plus/upstream__May25
                 webua->bad_request();
                 return;
             } else {
@@ -63,7 +85,11 @@ void cls_webu_file::main() {
     }
 
 
+<<<<<<< HEAD
     sql  = " select * from motion ";
+=======
+    sql  = " select * from motionplus ";
+>>>>>>> plus/upstream__May25
     sql += " where device_id = " + std::to_string(webua->cam->cfg->device_id);
     sql += " order by file_dtl, file_tml;";
     app->dbse->filelist_get(sql, flst);
@@ -83,7 +109,11 @@ void cls_webu_file::main() {
         webua->req_file = myfopen(full_nm.c_str(), "rbe");
     } else {
         webua->req_file = nullptr;
+<<<<<<< HEAD
         MOTION_LOG(NTC, TYPE_STREAM, NO_ERRNO
+=======
+        MOTPLS_LOG(NTC, TYPE_STREAM, NO_ERRNO
+>>>>>>> plus/upstream__May25
             ,"Security warning: Client IP %s requested file: %s"
             ,webua->clientip.c_str(), webua->uri_cmd2.c_str());
     }
@@ -111,7 +141,11 @@ void cls_webu_file::main() {
         MHD_destroy_response (response);
     }
     if (retcd == MHD_NO) {
+<<<<<<< HEAD
         MOTION_LOG(INF, TYPE_ALL, NO_ERRNO, "Error processing file request");
+=======
+        MOTPLS_LOG(INF, TYPE_ALL, NO_ERRNO, "Error processing file request");
+>>>>>>> plus/upstream__May25
     }
 
 }

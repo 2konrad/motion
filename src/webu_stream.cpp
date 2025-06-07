@@ -1,22 +1,40 @@
 /*
+<<<<<<< HEAD
  *    This file is part of Motion.
  *
  *    Motion is free software: you can redistribute it and/or modify
+=======
+ *    This file is part of MotionPlus.
+ *
+ *    MotionPlus is free software: you can redistribute it and/or modify
+>>>>>>> plus/upstream__May25
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation, either version 3 of the License, or
  *    (at your option) any later version.
  *
+<<<<<<< HEAD
  *    Motion is distributed in the hope that it will be useful,
+=======
+ *    MotionPlus is distributed in the hope that it will be useful,
+>>>>>>> plus/upstream__May25
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
  *    You should have received a copy of the GNU General Public License
+<<<<<<< HEAD
  *    along with Motion.  If not, see <https://www.gnu.org/licenses/>.
  *
 */
 
 #include "motion.hpp"
+=======
+ *    along with MotionPlus.  If not, see <https://www.gnu.org/licenses/>.
+ *
+*/
+
+#include "motionplus.hpp"
+>>>>>>> plus/upstream__May25
 #include "util.hpp"
 #include "camera.hpp"
 #include "allcam.hpp"
@@ -152,7 +170,11 @@ bool cls_webu_stream::all_ready()
                 indx1++;
             }
             if (p_cam->passflag == false) {
+<<<<<<< HEAD
                 MOTION_LOG(DBG, TYPE_STREAM, NO_ERRNO
+=======
+                MOTPLS_LOG(DBG, TYPE_STREAM, NO_ERRNO
+>>>>>>> plus/upstream__May25
                     , "Camera %d not ready", p_cam->cfg->device_id);
                 return false;
             }
@@ -160,7 +182,11 @@ bool cls_webu_stream::all_ready()
     }
     if ((webua->app->allcam->all_sizes.dst_h == 0) ||
         (webua->app->allcam->all_sizes.dst_w == 0)) {
+<<<<<<< HEAD
             MOTION_LOG(DBG, TYPE_STREAM, NO_ERRNO, "All cameras not ready");
+=======
+            MOTPLS_LOG(DBG, TYPE_STREAM, NO_ERRNO, "All cameras not ready");
+>>>>>>> plus/upstream__May25
             return false;
     }
 
@@ -489,13 +515,21 @@ bool cls_webu_stream::valid_request()
 
     pthread_mutex_lock(&app->mutex_camlst);
         if (webua->device_id < 0) {
+<<<<<<< HEAD
             MOTION_LOG(ERR, TYPE_STREAM, NO_ERRNO
+=======
+            MOTPLS_LOG(ERR, TYPE_STREAM, NO_ERRNO
+>>>>>>> plus/upstream__May25
                 , _("Invalid camera specified: %s"), webua->url.c_str());
             pthread_mutex_unlock(&app->mutex_camlst);
             return false;
         }
         if ((webua->device_id > 0) && (webua->cam == NULL)) {
+<<<<<<< HEAD
             MOTION_LOG(ERR, TYPE_STREAM, NO_ERRNO
+=======
+            MOTPLS_LOG(ERR, TYPE_STREAM, NO_ERRNO
+>>>>>>> plus/upstream__May25
                 , _("Invalid camera specified: %s"), webua->url.c_str());
             pthread_mutex_unlock(&app->mutex_camlst);
             return false;
@@ -600,7 +634,11 @@ mhdrslt cls_webu_stream::stream_mjpeg()
     response = MHD_create_response_from_callback (MHD_SIZE_UNKNOWN, 1024
         , &webu_mjpeg_response, (void *)this, NULL);
     if (response == NULL) {
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_STREAM, NO_ERRNO, _("Invalid response"));
+=======
+        MOTPLS_LOG(ERR, TYPE_STREAM, NO_ERRNO, _("Invalid response"));
+>>>>>>> plus/upstream__May25
         return MHD_NO;
     }
 
@@ -630,7 +668,11 @@ mhdrslt cls_webu_stream::stream_static()
     int indx;
 
     if (resp_used == 0) {
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_STREAM, NO_ERRNO, _("Could not get image to stream."));
+=======
+        MOTPLS_LOG(ERR, TYPE_STREAM, NO_ERRNO, _("Could not get image to stream."));
+>>>>>>> plus/upstream__May25
         return MHD_NO;
     }
 
@@ -638,7 +680,11 @@ mhdrslt cls_webu_stream::stream_static()
             resp_size,(void *)resp_image
             , MHD_RESPMEM_MUST_COPY);
     if (response == NULL) {
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_STREAM, NO_ERRNO, _("Invalid response"));
+=======
+        MOTPLS_LOG(ERR, TYPE_STREAM, NO_ERRNO, _("Invalid response"));
+>>>>>>> plus/upstream__May25
         return MHD_NO;
     }
 

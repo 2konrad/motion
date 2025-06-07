@@ -1,18 +1,32 @@
 /*
+<<<<<<< HEAD
  *    This file is part of Motion.
  *
  *    Motion is free software: you can redistribute it and/or modify
+=======
+ *    This file is part of MotionPlus.
+ *
+ *    MotionPlus is free software: you can redistribute it and/or modify
+>>>>>>> plus/upstream__May25
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation, either version 3 of the License, or
  *    (at your option) any later version.
  *
+<<<<<<< HEAD
  *    Motion is distributed in the hope that it will be useful,
+=======
+ *    MotionPlus is distributed in the hope that it will be useful,
+>>>>>>> plus/upstream__May25
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
  *    You should have received a copy of the GNU General Public License
+<<<<<<< HEAD
  *    along with Motion.  If not, see <https://www.gnu.org/licenses/>.
+=======
+ *    along with MotionPlus.  If not, see <https://www.gnu.org/licenses/>.
+>>>>>>> plus/upstream__May25
  *
  */
 
@@ -71,7 +85,11 @@ struct ctx_file_item {
 };
 typedef std::vector<ctx_file_item> vec_files;
 
+<<<<<<< HEAD
 /* Column item attributes in the motion table */
+=======
+/* Column item attributes in the motionplus table */
+>>>>>>> plus/upstream__May25
 struct ctx_col_item {
     bool        found;      /*Bool for whether the col in existing db*/
     std::string col_nm;     /*Name of the column*/
@@ -155,8 +173,13 @@ class cls_dbse {
         void item_default();
         void item_assign(std::string col_nm, std::string col_val);
 
+<<<<<<< HEAD
         void sql_motion(std::string &sql);
         void sql_motion(std::string &sql, std::string col_p1, std::string col_p2);
+=======
+        void sql_motpls(std::string &sql);
+        void sql_motpls(std::string &sql, std::string col_p1, std::string col_p2);
+>>>>>>> plus/upstream__May25
 };
 
 #endif /* _INCLUDE_DBSE_HPP_ */

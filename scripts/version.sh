@@ -1,5 +1,9 @@
 #!/bin/sh
+<<<<<<< HEAD
 BASE_VERSION="5.0.0"
+=======
+BASE_VERSION="0.2.0"
+>>>>>>> plus/upstream__May25
 if [ -d .git ]; then
     if test "`git diff --name-only`" = "" ; then
         GIT_COMMIT="git-"
@@ -15,3 +19,7 @@ else
 fi
 #printf "$BASE_VERSION"
 printf "$BASE_VERSION"-"$GIT_COMMIT"
+<<<<<<< HEAD
+=======
+
+>>>>>>> plus/upstream__May25

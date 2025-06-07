@@ -1,18 +1,32 @@
 /*
+<<<<<<< HEAD
  *    This file is part of Motion.
  *
  *    Motion is free software: you can redistribute it and/or modify
+=======
+ *    This file is part of MotionPlus.
+ *
+ *    MotionPlus is free software: you can redistribute it and/or modify
+>>>>>>> plus/upstream__May25
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation, either version 3 of the License, or
  *    (at your option) any later version.
  *
+<<<<<<< HEAD
  *    Motion is distributed in the hope that it will be useful,
+=======
+ *    MotionPlus is distributed in the hope that it will be useful,
+>>>>>>> plus/upstream__May25
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
  *    You should have received a copy of the GNU General Public License
+<<<<<<< HEAD
  *    along with Motion.  If not, see <https://www.gnu.org/licenses/>.
+=======
+ *    along with MotionPlus.  If not, see <https://www.gnu.org/licenses/>.
+>>>>>>> plus/upstream__May25
  *
  *
 */
@@ -20,6 +34,16 @@
 #ifndef _INCLUDE_CAMERA_HPP_
 #define _INCLUDE_CAMERA_HPP_
 
+<<<<<<< HEAD
+=======
+#define IMAGE_MOTION     1
+#define IMAGE_TRIGGER    2
+#define IMAGE_SAVE       4
+#define IMAGE_SAVED      8
+#define IMAGE_PRECAP    16
+#define IMAGE_POSTCAP   32
+
+>>>>>>> plus/upstream__May25
 enum CAMERA_TYPE {
     CAMERA_TYPE_UNKNOWN,
     CAMERA_TYPE_V4L2,
@@ -59,12 +83,16 @@ struct ctx_image_data {
     struct timespec     monots;         /* Montonic clock for timing */
     int                 shot;           /* Sub second timestamp count */
     unsigned long       cent_dist;      /* Movement center to img center distance * Note: Dist is calculated distX*distX + distY*distY */
+<<<<<<< HEAD
     bool                trigger;
     bool                motion;
     bool                precap;
     bool                postcap;
     bool                save_pic;
     bool                save_movie;
+=======
+    unsigned int        flags;          /* See IMAGE_* defines */
+>>>>>>> plus/upstream__May25
     ctx_coord           location;       /* coordinates for center and size of last motion detection*/
     int                 total_labels;
 };
@@ -201,6 +229,10 @@ class cls_camera {
         enum DEVICE_STATUS      device_status;
         enum CAMERA_TYPE        camera_type;
         struct timespec         connectionlosttime;
+<<<<<<< HEAD
+=======
+        int             util_exec_command_child_PID;
+>>>>>>> plus/upstream__May25
 
     private:
         cls_movie       *movie_norm;
@@ -210,6 +242,10 @@ class cls_camera {
         cls_v4l2cam     *v4l2cam;
         cls_libcam      *libcam;
 
+<<<<<<< HEAD
+=======
+        pthread_t       thread_id;
+>>>>>>> plus/upstream__May25
         int             track_posx;
         int             track_posy;
         int             threshold_maximum;

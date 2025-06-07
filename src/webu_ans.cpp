@@ -1,22 +1,40 @@
 /*
+<<<<<<< HEAD
  *    This file is part of Motion.
  *
  *    Motion is free software: you can redistribute it and/or modify
+=======
+ *    This file is part of MotionPlus.
+ *
+ *    MotionPlus is free software: you can redistribute it and/or modify
+>>>>>>> plus/upstream__May25
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation, either version 3 of the License, or
  *    (at your option) any later version.
  *
+<<<<<<< HEAD
  *    Motion is distributed in the hope that it will be useful,
+=======
+ *    MotionPlus is distributed in the hope that it will be useful,
+>>>>>>> plus/upstream__May25
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
  *    You should have received a copy of the GNU General Public License
+<<<<<<< HEAD
  *    along with Motion.  If not, see <https://www.gnu.org/licenses/>.
  *
 */
 
 #include "motion.hpp"
+=======
+ *    along with MotionPlus.  If not, see <https://www.gnu.org/licenses/>.
+ *
+*/
+
+#include "motionplus.hpp"
+>>>>>>> plus/upstream__May25
 #include "util.hpp"
 #include "camera.hpp"
 #include "allcam.hpp"
@@ -28,7 +46,10 @@
 #include "webu_stream.hpp"
 #include "webu_mpegts.hpp"
 #include "webu_json.hpp"
+<<<<<<< HEAD
 #include "webu_text.hpp"
+=======
+>>>>>>> plus/upstream__May25
 #include "webu_post.hpp"
 #include "webu_file.hpp"
 #include "video_v4l2.hpp"
@@ -86,7 +107,11 @@ int cls_webu_ans::check_tls()
     }
 
     if (file_chk != webu->info_tls) {
+<<<<<<< HEAD
         MOTION_LOG(INF, TYPE_ALL, NO_ERRNO
+=======
+        MOTPLS_LOG(INF, TYPE_ALL, NO_ERRNO
+>>>>>>> plus/upstream__May25
             , _("Webcontrol files have changed.  Restarting webcontrol"));
         webu->restart = true;
         return -1;
@@ -103,12 +128,20 @@ int cls_webu_ans::parseurl()
     size_t  pos_slash1, pos_slash2, baselen;
 
     /* Example:  /camid/cmd1/cmd2/cmd3   */
+<<<<<<< HEAD
     uri_cmd0 = "";
+=======
+    uri_camid = "";
+>>>>>>> plus/upstream__May25
     uri_cmd1 = "";
     uri_cmd2 = "";
     uri_cmd3 = "";
 
+<<<<<<< HEAD
     MOTION_LOG(DBG, TYPE_STREAM, NO_ERRNO, _("Sent url: %s"),url.c_str());
+=======
+    MOTPLS_LOG(DBG, TYPE_STREAM, NO_ERRNO, _("Sent url: %s"),url.c_str());
+>>>>>>> plus/upstream__May25
 
     tmpurl = (char*)mymalloc(url.length()+1);
     memcpy(tmpurl, url.c_str(), url.length());
@@ -118,7 +151,11 @@ int cls_webu_ans::parseurl()
     url.assign(tmpurl);
     free(tmpurl);
 
+<<<<<<< HEAD
     MOTION_LOG(DBG, TYPE_STREAM, NO_ERRNO, _("Decoded url: %s"),url.c_str());
+=======
+    MOTPLS_LOG(DBG, TYPE_STREAM, NO_ERRNO, _("Decoded url: %s"),url.c_str());
+>>>>>>> plus/upstream__May25
 
     baselen = app->cfg->webcontrol_base_path.length();
 
@@ -150,9 +187,15 @@ int cls_webu_ans::parseurl()
 
     pos_slash1 = url.find("/", baselen+1);
     if (pos_slash1 != std::string::npos) {
+<<<<<<< HEAD
         uri_cmd0 = url.substr(baselen+1, pos_slash1-baselen- 1);
     } else {
         uri_cmd0 = url.substr(baselen+1);
+=======
+        uri_camid = url.substr(baselen+1, pos_slash1-baselen- 1);
+    } else {
+        uri_camid = url.substr(baselen+1);
+>>>>>>> plus/upstream__May25
         return 0;
     }
 
@@ -202,22 +245,37 @@ void cls_webu_ans::parms_edit()
     int indx, is_nbr;
 
     if (parseurl() != 0) {
+<<<<<<< HEAD
         uri_cmd0 = "";
+=======
+        uri_camid = "";
+>>>>>>> plus/upstream__May25
         uri_cmd1 = "";
         uri_cmd2 = "";
         uri_cmd3 = "";
         url = "";
     }
 
+<<<<<<< HEAD
     if (uri_cmd0.length() > 0) {
         is_nbr = true;
         for (indx=0; indx < (int)uri_cmd0.length(); indx++) {
             if ((uri_cmd0[(uint)indx] > '9') || (uri_cmd0[(uint)indx] < '0')) {
+=======
+    if (uri_camid.length() > 0) {
+        is_nbr = true;
+        for (indx=0; indx < (int)uri_camid.length(); indx++) {
+            if ((uri_camid[(uint)indx] > '9') || (uri_camid[(uint)indx] < '0')) {
+>>>>>>> plus/upstream__May25
                 is_nbr = false;
             }
         }
         if (is_nbr) {
+<<<<<<< HEAD
             device_id = atoi(uri_cmd0.c_str());
+=======
+            device_id = atoi(uri_camid.c_str());
+>>>>>>> plus/upstream__May25
         }
     }
 
@@ -228,11 +286,19 @@ void cls_webu_ans::parms_edit()
         }
     }
 
+<<<<<<< HEAD
     MOTION_LOG(DBG, TYPE_STREAM, NO_ERRNO
         , "cmd0: >%s< cmd1: >%s< cmd2: >%s< cmd3: >%s< camindx: >%d< "
         , uri_cmd0.c_str(), uri_cmd1.c_str()
         , uri_cmd2.c_str(), uri_cmd3.c_str()
         , camindx );
+=======
+    MOTPLS_LOG(DBG, TYPE_STREAM, NO_ERRNO
+        , "camid: >%s< camindx: >%d< cmd1: >%s< cmd2: >%s< cmd3: >%s<"
+        , uri_camid.c_str(), camindx
+        , uri_cmd1.c_str(), uri_cmd2.c_str()
+        , uri_cmd3.c_str());
+>>>>>>> plus/upstream__May25
 
 }
 
@@ -290,7 +356,11 @@ void cls_webu_ans::hostname_get()
             app->cfg->webcontrol_base_path;
     }
 
+<<<<<<< HEAD
     MOTION_LOG(DBG,TYPE_ALL, NO_ERRNO, _("Full Host:  %s"), hostfull.c_str());
+=======
+    MOTPLS_LOG(DBG,TYPE_ALL, NO_ERRNO, _("Full Host:  %s"), hostfull.c_str());
+>>>>>>> plus/upstream__May25
 
     return;
 }
@@ -302,7 +372,11 @@ void cls_webu_ans::failauth_log(bool userid_fail)
     ctx_webu_clients    clients;
     std::list<ctx_webu_clients>::iterator   it;
 
+<<<<<<< HEAD
     MOTION_LOG(ALR, TYPE_STREAM, NO_ERRNO
+=======
+    MOTPLS_LOG(ALR, TYPE_STREAM, NO_ERRNO
+>>>>>>> plus/upstream__May25
             ,_("Failed authentication from %s"), clientip.c_str());
 
     clock_gettime(CLOCK_MONOTONIC, &tm_cnct);
@@ -363,7 +437,11 @@ void cls_webu_ans::client_connect()
     while (it != webu->wb_clients.end()) {
         if (it->clientip == clientip) {
             if (it->authenticated == false) {
+<<<<<<< HEAD
                 MOTION_LOG(INF,TYPE_ALL, NO_ERRNO, _("Connection from: %s"),clientip.c_str());
+=======
+                MOTPLS_LOG(INF,TYPE_ALL, NO_ERRNO, _("Connection from: %s"),clientip.c_str());
+>>>>>>> plus/upstream__May25
             }
             it->authenticated = true;
             it->conn_nbr = 1;
@@ -382,7 +460,11 @@ void cls_webu_ans::client_connect()
     clients.authenticated = true;
     webu->wb_clients.push_back(clients);
 
+<<<<<<< HEAD
     MOTION_LOG(INF,TYPE_ALL, NO_ERRNO, _("Connection from: %s"),clientip.c_str());
+=======
+    MOTPLS_LOG(INF,TYPE_ALL, NO_ERRNO, _("Connection from: %s"),clientip.c_str());
+>>>>>>> plus/upstream__May25
 
     return;
 
@@ -407,7 +489,11 @@ mhdrslt cls_webu_ans::failauth_check()
              (app->cfg->webcontrol_lock_minutes*60)) &&
             (it->authenticated == false) &&
             (it->conn_nbr > app->cfg->webcontrol_lock_attempts)) {
+<<<<<<< HEAD
             MOTION_LOG(EMG, TYPE_STREAM, NO_ERRNO
+=======
+            MOTPLS_LOG(EMG, TYPE_STREAM, NO_ERRNO
+>>>>>>> plus/upstream__May25
                 , "Ignoring connection from: %s"
                 , clientip.c_str());
             it->conn_time = tm_cnct;
@@ -596,7 +682,11 @@ mhdrslt cls_webu_ans::mhd_auth()
     if (app->cfg->webcontrol_authentication == "") {
         authenticated = true;
         if (app->cfg->webcontrol_auth_method != "none") {
+<<<<<<< HEAD
             MOTION_LOG(NTC, TYPE_STREAM, NO_ERRNO ,_("No webcontrol user:pass provided"));
+=======
+            MOTPLS_LOG(NTC, TYPE_STREAM, NO_ERRNO ,_("No webcontrol user:pass provided"));
+>>>>>>> plus/upstream__May25
         }
         return MHD_YES;
     }
@@ -649,7 +739,11 @@ void cls_webu_ans::gzip_deflate()
 
     retcd = deflate(&zs, Z_FINISH);
     if (retcd < Z_OK) {
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_STREAM, NO_ERRNO
+=======
+        MOTPLS_LOG(ERR, TYPE_STREAM, NO_ERRNO
+>>>>>>> plus/upstream__May25
             , _("deflate failed: %d") ,retcd);
         gzip_size = 0;
     } else {
@@ -658,13 +752,21 @@ void cls_webu_ans::gzip_deflate()
 
     retcd = deflateEnd(&zs);
     if (retcd < Z_OK) {
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_STREAM, NO_ERRNO
+=======
+        MOTPLS_LOG(ERR, TYPE_STREAM, NO_ERRNO
+>>>>>>> plus/upstream__May25
             , _("deflateEnd failed: %d"), retcd);
         gzip_size = 0;
     }
 
     if (zs.avail_in != 0) {
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_STREAM, NO_ERRNO
+=======
+        MOTPLS_LOG(ERR, TYPE_STREAM, NO_ERRNO
+>>>>>>> plus/upstream__May25
             , _("deflate failed avail in: %d"), zs.avail_in);
         gzip_size = 0;
     }
@@ -695,7 +797,11 @@ void cls_webu_ans::mhd_send()
             ,(void *)resp_page.c_str(), MHD_RESPMEM_PERSISTENT);
     }
     if (response == NULL) {
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_STREAM, NO_ERRNO, _("Invalid response"));
+=======
+        MOTPLS_LOG(ERR, TYPE_STREAM, NO_ERRNO, _("Invalid response"));
+>>>>>>> plus/upstream__May25
         return;
     }
 
@@ -711,10 +817,13 @@ void cls_webu_ans::mhd_send()
         MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, "text/plain;");
     } else if (resp_type == WEBUI_RESP_JSON) {
         MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, "application/json;");
+<<<<<<< HEAD
     } else if (resp_type == WEBUI_RESP_CSS) {
         MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, "text/css;");
     } else if (resp_type == WEBUI_RESP_JS) {
         MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, "text/javascript;");
+=======
+>>>>>>> plus/upstream__May25
     } else {
         MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, "text/html");
     }
@@ -727,7 +836,11 @@ void cls_webu_ans::mhd_send()
     MHD_destroy_response (response);
 
     if (retcd == MHD_NO) {
+<<<<<<< HEAD
         MOTION_LOG(NTC, TYPE_STREAM, NO_ERRNO ,_("send page failed."));
+=======
+        MOTPLS_LOG(NTC, TYPE_STREAM, NO_ERRNO ,_("send page failed."));
+>>>>>>> plus/upstream__May25
     }
 }
 
@@ -747,7 +860,11 @@ void cls_webu_ans::bad_request()
 /* Answer the get request from the user */
 void cls_webu_ans::answer_get()
 {
+<<<<<<< HEAD
     MOTION_LOG(DBG, TYPE_STREAM, NO_ERRNO
+=======
+    MOTPLS_LOG(DBG, TYPE_STREAM, NO_ERRNO
+>>>>>>> plus/upstream__May25
         ,"processing get: %s",uri_cmd1.c_str());
 
     if ((uri_cmd1 == "mjpg") || (uri_cmd1 == "mpegts") ||
@@ -772,12 +889,15 @@ void cls_webu_ans::answer_get()
         }
         webu_json->main();
 
+<<<<<<< HEAD
     } else if ((uri_cmd1 == "detection") || (uri_cmd1 == "action")) {
         if (webu_text == nullptr) {
             webu_text = new cls_webu_text(this);
         }
         webu_text->main();
 
+=======
+>>>>>>> plus/upstream__May25
     } else {
         if (webu_html == nullptr) {
             webu_html = new cls_webu_html(this);
@@ -805,7 +925,11 @@ mhdrslt cls_webu_ans::answer_main(struct MHD_Connection *p_connection
 
     if (cam != NULL) {
         if (cam->finish) {
+<<<<<<< HEAD
            MOTION_LOG(NTC, TYPE_STREAM, NO_ERRNO ,_("Shutting down camera"));
+=======
+           MOTPLS_LOG(NTC, TYPE_STREAM, NO_ERRNO ,_("Shutting down camera"));
+>>>>>>> plus/upstream__May25
            return MHD_NO;
         }
     }
@@ -962,7 +1086,11 @@ cls_webu_ans::cls_webu_ans(cls_motapp *p_app, const char *uri)
     char *tmplang;
 
     url           = "";
+<<<<<<< HEAD
     uri_cmd0      = "";
+=======
+    uri_camid     = "";
+>>>>>>> plus/upstream__May25
     uri_cmd1      = "";
     uri_cmd2      = "";
     uri_cmd3      = "";
@@ -999,7 +1127,10 @@ cls_webu_ans::cls_webu_ans(cls_motapp *p_app, const char *uri)
     webu_file = nullptr;
     webu_html = nullptr;
     webu_json = nullptr;
+<<<<<<< HEAD
     webu_text = nullptr;
+=======
+>>>>>>> plus/upstream__May25
     webu_post = nullptr;
     webu_stream = nullptr;
 
@@ -1017,7 +1148,10 @@ cls_webu_ans::~cls_webu_ans()
     mydelete(webu_file);
     mydelete(webu_html);
     mydelete(webu_json);
+<<<<<<< HEAD
     mydelete(webu_text);
+=======
+>>>>>>> plus/upstream__May25
     mydelete(webu_post);
     mydelete(webu_stream);
 

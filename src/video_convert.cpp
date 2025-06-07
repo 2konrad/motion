@@ -1,22 +1,40 @@
 /*
+<<<<<<< HEAD
  *    This file is part of Motion.
  *
  *    Motion is free software: you can redistribute it and/or modify
+=======
+ *    This file is part of MotionPlus.
+ *
+ *    MotionPlus is free software: you can redistribute it and/or modify
+>>>>>>> plus/upstream__May25
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation, either version 3 of the License, or
  *    (at your option) any later version.
  *
+<<<<<<< HEAD
  *    Motion is distributed in the hope that it will be useful,
+=======
+ *    MotionPlus is distributed in the hope that it will be useful,
+>>>>>>> plus/upstream__May25
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
  *    You should have received a copy of the GNU General Public License
+<<<<<<< HEAD
  *    along with Motion.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 #include "motion.hpp"
+=======
+ *    along with MotionPlus.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+
+#include "motionplus.hpp"
+>>>>>>> plus/upstream__May25
 #include "util.hpp"
 #include "camera.hpp"
 #include "logger.hpp"
@@ -452,7 +470,11 @@ int cls_convert::mjpegtoyuv420p(u_char *img_dst, u_char *img_src, int size)
 
     ptr_buffer =(u_char*) memmem(img_src, (uint)size, "\xff\xd8", 2);
     if (ptr_buffer == NULL) {
+<<<<<<< HEAD
         MOTION_LOG(CRT, TYPE_VIDEO, NO_ERRNO,_("Corrupt image ... continue"));
+=======
+        MOTPLS_LOG(CRT, TYPE_VIDEO, NO_ERRNO,_("Corrupt image ... continue"));
+>>>>>>> plus/upstream__May25
         return 1;
     }
     /**
@@ -467,7 +489,11 @@ int cls_convert::mjpegtoyuv420p(u_char *img_dst, u_char *img_src, int size)
     }
 
     if (soi_pos != 0) {
+<<<<<<< HEAD
         MOTION_LOG(INF, TYPE_VIDEO, NO_ERRNO,_("SOI position adjusted by %d bytes."), soi_pos);
+=======
+        MOTPLS_LOG(INF, TYPE_VIDEO, NO_ERRNO,_("SOI position adjusted by %d bytes."), soi_pos);
+>>>>>>> plus/upstream__May25
     }
 
     memmove(img_src, img_src + soi_pos, (uint)size - soi_pos);
@@ -476,7 +502,11 @@ int cls_convert::mjpegtoyuv420p(u_char *img_dst, u_char *img_src, int size)
     ret = jpgutl_decode_jpeg(img_src,size, (uint)width, (uint)height, img_dst);
 
     if (ret == -1) {
+<<<<<<< HEAD
         MOTION_LOG(CRT, TYPE_VIDEO, NO_ERRNO,_("Corrupt image ... continue"));
+=======
+        MOTPLS_LOG(CRT, TYPE_VIDEO, NO_ERRNO,_("Corrupt image ... continue"));
+>>>>>>> plus/upstream__May25
         ret = 1;
     }
     return ret;

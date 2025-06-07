@@ -1,21 +1,38 @@
 /*
+<<<<<<< HEAD
  *    This file is part of Motion.
  *
  *    Motion is free software: you can redistribute it and/or modify
+=======
+ *    This file is part of MotionPlus.
+ *
+ *    MotionPlus is free software: you can redistribute it and/or modify
+>>>>>>> plus/upstream__May25
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation, either version 3 of the License, or
  *    (at your option) any later version.
  *
+<<<<<<< HEAD
  *    Motion is distributed in the hope that it will be useful,
+=======
+ *    MotionPlus is distributed in the hope that it will be useful,
+>>>>>>> plus/upstream__May25
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
  *    You should have received a copy of the GNU General Public License
+<<<<<<< HEAD
  *    along with Motion.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #include "motion.hpp"
+=======
+ *    along with MotionPlus.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+#include "motionplus.hpp"
+>>>>>>> plus/upstream__May25
 #include "util.hpp"
 #include "camera.hpp"
 #include "conf.hpp"
@@ -38,7 +55,11 @@ void cls_picture::picname(char* fullname, std::string fmtstr
     retcd = snprintf(fullname, PATH_MAX, fmtstr.c_str()
         , cam->cfg->target_dir.c_str(), filename, extname.c_str());
     if ((retcd < 0) || (retcd >= PATH_MAX)) {
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_EVENTS, NO_ERRNO
+=======
+        MOTPLS_LOG(ERR, TYPE_EVENTS, NO_ERRNO
+>>>>>>> plus/upstream__May25
             ,_("Error creating picture file name"));
         return;
     }
@@ -50,7 +71,11 @@ void cls_picture::picname(char* fullname, std::string fmtstr
 
 void cls_picture::on_picture_save_command(char *fname)
 {
+<<<<<<< HEAD
     MOTION_LOG(NTC, TYPE_EVENTS, NO_ERRNO, _("File saved to: %s"), fname);
+=======
+    MOTPLS_LOG(NTC, TYPE_EVENTS, NO_ERRNO, _("File saved to: %s"), fname);
+>>>>>>> plus/upstream__May25
 
     if (cam->cfg->on_picture_save != "") {
         util_exec_command(cam, cam->cfg->on_picture_save.c_str(), fname);
@@ -131,7 +156,11 @@ void cls_picture::process_snapshot()
             , "lastsnap", cam->cfg->picture_type);
         remove(linkpath);
         if (symlink(filename, linkpath)) {
+<<<<<<< HEAD
             MOTION_LOG(ERR, TYPE_EVENTS, SHOW_ERRNO
+=======
+            MOTPLS_LOG(ERR, TYPE_EVENTS, SHOW_ERRNO
+>>>>>>> plus/upstream__May25
                 ,_("Could not create symbolic link [%s]"), filename);
             return;
         }
@@ -202,7 +231,11 @@ void cls_picture::webp_exif(WebPMux* webp_mux
 
         WebPMuxError err = WebPMuxSetChunk(webp_mux, "EXIF", &webp_exif, 1);
         if (err != WEBP_MUX_OK) {
+<<<<<<< HEAD
             MOTION_LOG(ERR, TYPE_CORE, NO_ERRNO
+=======
+            MOTPLS_LOG(ERR, TYPE_CORE, NO_ERRNO
+>>>>>>> plus/upstream__May25
                 , _("Unable to set set EXIF to webp chunk"));
         }
         free(exif);
@@ -219,14 +252,22 @@ void cls_picture::save_webp(FILE *fp, u_char *image, int width, int height
         WebPConfig webp_config;
         if (!WebPConfigPreset(&webp_config, WEBP_PRESET_DEFAULT
             , (float) cam->cfg->picture_quality)) {
+<<<<<<< HEAD
             MOTION_LOG(ERR, TYPE_CORE, NO_ERRNO, _("libwebp version error"));
+=======
+            MOTPLS_LOG(ERR, TYPE_CORE, NO_ERRNO, _("libwebp version error"));
+>>>>>>> plus/upstream__May25
             return;
         }
 
         /* Create the input data structure and check for compatible library version */
         WebPPicture webp_image;
         if (!WebPPictureInit(&webp_image)) {
+<<<<<<< HEAD
             MOTION_LOG(ERR, TYPE_CORE, NO_ERRNO,_("libwebp version error"));
+=======
+            MOTPLS_LOG(ERR, TYPE_CORE, NO_ERRNO,_("libwebp version error"));
+>>>>>>> plus/upstream__May25
             return;
         }
 
@@ -234,7 +275,11 @@ void cls_picture::save_webp(FILE *fp, u_char *image, int width, int height
         webp_image.width = width;
         webp_image.height = height;
         if (!WebPPictureAlloc(&webp_image)) {
+<<<<<<< HEAD
             MOTION_LOG(ERR, TYPE_CORE, NO_ERRNO,_("libwebp image buffer allocation error"));
+=======
+            MOTPLS_LOG(ERR, TYPE_CORE, NO_ERRNO,_("libwebp image buffer allocation error"));
+>>>>>>> plus/upstream__May25
             return;
         }
 
@@ -251,7 +296,11 @@ void cls_picture::save_webp(FILE *fp, u_char *image, int width, int height
 
         /* Encode the YUV image as webp */
         if (!WebPEncode(&webp_config, &webp_image)) {
+<<<<<<< HEAD
             MOTION_LOG(WRN, TYPE_CORE, NO_ERRNO,_("libwebp image compression error"));
+=======
+            MOTPLS_LOG(WRN, TYPE_CORE, NO_ERRNO,_("libwebp image compression error"));
+>>>>>>> plus/upstream__May25
         }
         /* A bitstream object is needed for the muxing proces */
         WebPData webp_bitstream;
@@ -266,12 +315,20 @@ void cls_picture::save_webp(FILE *fp, u_char *image, int width, int height
         WebPData webp_output;
         WebPMuxError err = WebPMuxAssemble(webp_mux, &webp_output);
         if (err != WEBP_MUX_OK) {
+<<<<<<< HEAD
             MOTION_LOG(ERR, TYPE_CORE, NO_ERRNO,_("unable to assemble webp image"));
+=======
+            MOTPLS_LOG(ERR, TYPE_CORE, NO_ERRNO,_("unable to assemble webp image"));
+>>>>>>> plus/upstream__May25
         }
 
         /* Write the webp final bitstream to the file */
         if (fwrite(webp_output.bytes, sizeof(uint8_t), webp_output.size, fp) != webp_output.size) {
+<<<<<<< HEAD
             MOTION_LOG(ERR, TYPE_CORE, NO_ERRNO,_("unable to save webp image to file"));
+=======
+            MOTPLS_LOG(ERR, TYPE_CORE, NO_ERRNO,_("unable to save webp image to file"));
+>>>>>>> plus/upstream__May25
         }
 
         #if WEBP_ENCODER_ABI_VERSION > 0x0202
@@ -451,7 +508,11 @@ void cls_picture::save_norm(char *file, u_char *image)
 
     picture = myfopen(file, "wbe");
     if (!picture) {
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_ALL, SHOW_ERRNO
+=======
+        MOTPLS_LOG(ERR, TYPE_ALL, SHOW_ERRNO
+>>>>>>> plus/upstream__May25
             ,_("Can't write picture to file %s"), file);
         return;
     }
@@ -477,7 +538,11 @@ void cls_picture::save_roi(char *file, u_char *image)
 
     picture = myfopen(file, "wbe");
     if (!picture) {
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_ALL, SHOW_ERRNO
+=======
+        MOTPLS_LOG(ERR, TYPE_ALL, SHOW_ERRNO
+>>>>>>> plus/upstream__May25
             ,_("Can't write picture to file %s"), file);
         return;
     }
@@ -516,12 +581,20 @@ u_char *cls_picture::load_pgm(FILE *picture, int width, int height)
     line[255] = 0;
 
     if (!fgets(line, 255, picture)) {
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_ALL, SHOW_ERRNO,_("Could not read from pgm file"));
+=======
+        MOTPLS_LOG(ERR, TYPE_ALL, SHOW_ERRNO,_("Could not read from pgm file"));
+>>>>>>> plus/upstream__May25
         return NULL;
     }
 
     if (strncmp(line, "P5", 2)) {
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_ALL, SHOW_ERRNO
+=======
+        MOTPLS_LOG(ERR, TYPE_ALL, SHOW_ERRNO
+>>>>>>> plus/upstream__May25
             ,_("This is not a pgm file, starts with '%s'"), line);
         return NULL;
     }
@@ -535,7 +608,11 @@ u_char *cls_picture::load_pgm(FILE *picture, int width, int height)
 
     /* Read image size */
     if (sscanf(line, "%d %d", &mask_width, &mask_height) != 2) {
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_ALL, SHOW_ERRNO
+=======
+        MOTPLS_LOG(ERR, TYPE_ALL, SHOW_ERRNO
+>>>>>>> plus/upstream__May25
             ,_("Failed reading size in pgm file"));
         return NULL;
     }
@@ -548,7 +625,11 @@ u_char *cls_picture::load_pgm(FILE *picture, int width, int height)
         }
 
     if (sscanf(line, "%d", &maxval) != 1) {
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_ALL, SHOW_ERRNO
+=======
+        MOTPLS_LOG(ERR, TYPE_ALL, SHOW_ERRNO
+>>>>>>> plus/upstream__May25
             ,_("Failed reading maximum value in pgm file"));
         return NULL;
     }
@@ -562,7 +643,11 @@ u_char *cls_picture::load_pgm(FILE *picture, int width, int height)
 
     for (y = 0; y < mask_height; y++) {
         if ((int)fread(&image[y * mask_width], 1, (uint)mask_width, picture) != mask_width) {
+<<<<<<< HEAD
             MOTION_LOG(ERR, TYPE_ALL, SHOW_ERRNO, "Failed reading image data from pgm file");
+=======
+            MOTPLS_LOG(ERR, TYPE_ALL, SHOW_ERRNO, "Failed reading image data from pgm file");
+>>>>>>> plus/upstream__May25
         }
 
         for (x = 0; x < mask_width; x++) {
@@ -573,9 +658,15 @@ u_char *cls_picture::load_pgm(FILE *picture, int width, int height)
 
     /* Resize mask if required */
     if (mask_width != width || mask_height != height) {
+<<<<<<< HEAD
         MOTION_LOG(WRN, TYPE_ALL, NO_ERRNO
             ,_("The mask file specified is not the same size as image from camera."));
         MOTION_LOG(WRN, TYPE_ALL, NO_ERRNO
+=======
+        MOTPLS_LOG(WRN, TYPE_ALL, NO_ERRNO
+            ,_("The mask file specified is not the same size as image from camera."));
+        MOTPLS_LOG(WRN, TYPE_ALL, NO_ERRNO
+>>>>>>> plus/upstream__May25
             ,_("Attempting to resize mask image from %dx%d to %dx%d")
             ,mask_width, mask_height, width, height);
 
@@ -604,12 +695,20 @@ void cls_picture::write_mask(const char *file)
     if (!picture) {
         /* Report to syslog - suggest solution if the problem is access rights to target dir. */
         if (errno ==  EACCES) {
+<<<<<<< HEAD
             MOTION_LOG(ERR, TYPE_ALL, SHOW_ERRNO
+=======
+            MOTPLS_LOG(ERR, TYPE_ALL, SHOW_ERRNO
+>>>>>>> plus/upstream__May25
                 ,_("can't write mask file %s - check access rights to target directory")
                 ,file);
         } else {
             /* If target dir is temporarily unavailable we may survive. */
+<<<<<<< HEAD
             MOTION_LOG(ERR, TYPE_ALL, SHOW_ERRNO
+=======
+            MOTPLS_LOG(ERR, TYPE_ALL, SHOW_ERRNO
+>>>>>>> plus/upstream__May25
                 ,_("can't write mask file %s"), file);
         }
         return;
@@ -623,14 +722,22 @@ void cls_picture::write_mask(const char *file)
 
     /* Write pgm image data at once. */
     if ((int)fwrite(cam->imgs.image_motion.image_norm, (uint)cam->cfg->width, (uint)cam->cfg->height, picture) != cam->cfg->height) {
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_ALL, SHOW_ERRNO
+=======
+        MOTPLS_LOG(ERR, TYPE_ALL, SHOW_ERRNO
+>>>>>>> plus/upstream__May25
             ,_("Failed writing default mask as pgm file"));
         return;
     }
 
     myfclose(picture);
 
+<<<<<<< HEAD
     MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
+=======
+    MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO
+>>>>>>> plus/upstream__May25
         ,_("Creating empty mask %s\nPlease edit this file and "
         "re-run motion to enable mask feature"), cam->cfg->mask_file.c_str());
 }
@@ -708,7 +815,11 @@ void cls_picture::init_privacy()
 
     if (cam->cfg->mask_privacy != "") {
         if ((picture = myfopen(cam->cfg->mask_privacy.c_str(), "rbe"))) {
+<<<<<<< HEAD
             MOTION_LOG(INF, TYPE_ALL, NO_ERRNO, _("Opening privacy mask file"));
+=======
+            MOTPLS_LOG(INF, TYPE_ALL, NO_ERRNO, _("Opening privacy mask file"));
+>>>>>>> plus/upstream__May25
             /*
              * NOTE: The mask is expected to have the output dimensions. I.e., the mask
              * applies to the already rotated image, not the capture image. Thus, use
@@ -720,7 +831,11 @@ void cls_picture::init_privacy()
             cam->imgs.mask_privacy_uv =(u_char*) mymalloc((uint)
                 ((cam->imgs.height * cam->imgs.width) / 2));
             if (cam->imgs.size_high > 0) {
+<<<<<<< HEAD
                 MOTION_LOG(INF, TYPE_ALL, NO_ERRNO
+=======
+                MOTPLS_LOG(INF, TYPE_ALL, NO_ERRNO
+>>>>>>> plus/upstream__May25
                     ,_("Opening high resolution privacy mask file"));
                 rewind(picture);
                 cam->imgs.mask_privacy_high = load_pgm(picture, cam->imgs.width_high, cam->imgs.height_high);
@@ -730,17 +845,28 @@ void cls_picture::init_privacy()
 
             myfclose(picture);
         } else {
+<<<<<<< HEAD
             MOTION_LOG(ERR, TYPE_ALL, SHOW_ERRNO
+=======
+            MOTPLS_LOG(ERR, TYPE_ALL, SHOW_ERRNO
+>>>>>>> plus/upstream__May25
                 ,_("Error opening mask file %s"), cam->cfg->mask_privacy.c_str());
             /* Try to write an empty mask file to make it easier for the user to edit it */
             write_mask(cam->cfg->mask_privacy.c_str() );
         }
 
         if (!cam->imgs.mask_privacy) {
+<<<<<<< HEAD
             MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
                 ,_("Failed to read mask privacy image. Mask privacy feature disabled."));
         } else {
             MOTION_LOG(INF, TYPE_ALL, NO_ERRNO
+=======
+            MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO
+                ,_("Failed to read mask privacy image. Mask privacy feature disabled."));
+        } else {
+            MOTPLS_LOG(INF, TYPE_ALL, NO_ERRNO
+>>>>>>> plus/upstream__May25
             ,_("Mask privacy file \"%s\" loaded."), cam->cfg->mask_privacy.c_str());
 
             indx_img = 1;
@@ -814,7 +940,11 @@ void cls_picture::init_mask()
             cam->imgs.mask = load_pgm(picture, cam->imgs.width, cam->imgs.height);
             myfclose(picture);
         } else {
+<<<<<<< HEAD
             MOTION_LOG(ERR, TYPE_ALL, SHOW_ERRNO
+=======
+            MOTPLS_LOG(ERR, TYPE_ALL, SHOW_ERRNO
+>>>>>>> plus/upstream__May25
                 ,_("Error opening mask file %s")
                 ,cam->cfg->mask_file.c_str());
             /*
@@ -825,15 +955,30 @@ void cls_picture::init_mask()
         }
 
         if (!cam->imgs.mask) {
+<<<<<<< HEAD
             MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
                 ,_("Failed to read mask image. Mask feature disabled."));
         } else {
             MOTION_LOG(INF, TYPE_ALL, NO_ERRNO
+=======
+            MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO
+                ,_("Failed to read mask image. Mask feature disabled."));
+        } else {
+            MOTPLS_LOG(INF, TYPE_ALL, NO_ERRNO
+>>>>>>> plus/upstream__May25
                 ,_("Maskfile \"%s\" loaded.")
                 ,cam->cfg->mask_file.c_str());
         }
     } else {
+<<<<<<< HEAD
         cam->imgs.mask = NULL;
+=======
+        //cam->imgs.mask = NULL;
+        //put an empty mask
+        cam->imgs.mask =(unsigned char*) mymalloc((cam->imgs.width * cam->imgs.height  * 3) / 2);
+        memset(cam->imgs.mask, 255,  (cam->imgs.width * cam->imgs.height  * 3) / 2);
+
+>>>>>>> plus/upstream__May25
     }
 }
 

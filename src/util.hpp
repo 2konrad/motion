@@ -1,18 +1,32 @@
 /*
+<<<<<<< HEAD
  *    This file is part of Motion.
  *
  *    Motion is free software: you can redistribute it and/or modify
+=======
+ *    This file is part of MotionPlus.
+ *
+ *    MotionPlus is free software: you can redistribute it and/or modify
+>>>>>>> plus/upstream__May25
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation, either version 3 of the License, or
  *    (at your option) any later version.
  *
+<<<<<<< HEAD
  *    Motion is distributed in the hope that it will be useful,
+=======
+ *    MotionPlus is distributed in the hope that it will be useful,
+>>>>>>> plus/upstream__May25
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
  *    You should have received a copy of the GNU General Public License
+<<<<<<< HEAD
  *    along with Motion.  If not, see <https://www.gnu.org/licenses/>.
+=======
+ *    along with MotionPlus.  If not, see <https://www.gnu.org/licenses/>.
+>>>>>>> plus/upstream__May25
  *
  *
 */
@@ -30,10 +44,15 @@
 
 #if (MYFFVER <= 60016)
     typedef uint8_t myuint;         /* Version independent uint */
+<<<<<<< HEAD
     #define MY_PROFILE_H264_HIGH   FF_PROFILE_H264_HIGH
 #else
     typedef const uint8_t myuint;   /* Version independent uint */
     #define MY_PROFILE_H264_HIGH   AV_PROFILE_H264_HIGH
+=======
+#else
+    typedef const uint8_t myuint;   /* Version independent uint */
+>>>>>>> plus/upstream__May25
 #endif
 
 
@@ -96,7 +115,10 @@ struct ctx_params {
     int mystrcne(const char* var1, const char* var2);
     int mystreq(const char* var1, const char* var2);
     int mystrne(const char* var1, const char* var2);
+<<<<<<< HEAD
     void mylower(std::string &parm);
+=======
+>>>>>>> plus/upstream__May25
     void myltrim(std::string &parm);
     void myrtrim(std::string &parm);
     void mytrim(std::string &parm);

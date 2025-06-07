@@ -1,22 +1,40 @@
 /*
+<<<<<<< HEAD
  *    This file is part of Motion.
  *
  *    Motion is free software: you can redistribute it and/or modify
+=======
+ *    This file is part of MotionPlus.
+ *
+ *    MotionPlus is free software: you can redistribute it and/or modify
+>>>>>>> plus/upstream__May25
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation, either version 3 of the License, or
  *    (at your option) any later version.
  *
+<<<<<<< HEAD
  *    Motion is distributed in the hope that it will be useful,
+=======
+ *    MotionPlus is distributed in the hope that it will be useful,
+>>>>>>> plus/upstream__May25
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
  *    You should have received a copy of the GNU General Public License
+<<<<<<< HEAD
  *    along with Motion.  If not, see <https://www.gnu.org/licenses/>.
  *
 */
 
 #include "motion.hpp"
+=======
+ *    along with MotionPlus.  If not, see <https://www.gnu.org/licenses/>.
+ *
+*/
+
+#include "motionplus.hpp"
+>>>>>>> plus/upstream__May25
 #include "util.hpp"
 #include "camera.hpp"
 #include "conf.hpp"
@@ -89,6 +107,7 @@ void cls_webu::mhd_features_basic()
         mhdrslt retcd;
         retcd = MHD_is_feature_supported (MHD_FEATURE_BASIC_AUTH);
         if (retcd == MHD_YES) {
+<<<<<<< HEAD
             MOTION_LOG(DBG, TYPE_STREAM, NO_ERRNO ,_("Basic authentication: available"));
         } else {
             if (app->cfg->webcontrol_auth_method == "basic") {
@@ -96,6 +115,15 @@ void cls_webu::mhd_features_basic()
                 app->cfg->webcontrol_auth_method = "none";
             } else {
                 MOTION_LOG(INF, TYPE_STREAM, NO_ERRNO ,_("Basic authentication: disabled"));
+=======
+            MOTPLS_LOG(DBG, TYPE_STREAM, NO_ERRNO ,_("Basic authentication: available"));
+        } else {
+            if (app->cfg->webcontrol_auth_method == "basic") {
+                MOTPLS_LOG(NTC, TYPE_STREAM, NO_ERRNO ,_("Basic authentication: disabled"));
+                app->cfg->webcontrol_auth_method = "none";
+            } else {
+                MOTPLS_LOG(INF, TYPE_STREAM, NO_ERRNO ,_("Basic authentication: disabled"));
+>>>>>>> plus/upstream__May25
             }
         }
     #endif
@@ -110,6 +138,7 @@ void cls_webu::mhd_features_digest()
         mhdrslt retcd;
         retcd = MHD_is_feature_supported (MHD_FEATURE_DIGEST_AUTH);
         if (retcd == MHD_YES) {
+<<<<<<< HEAD
             MOTION_LOG(DBG, TYPE_STREAM, NO_ERRNO ,_("Digest authentication: available"));
         } else {
             if (app->cfg->webcontrol_auth_method == "digest") {
@@ -117,6 +146,15 @@ void cls_webu::mhd_features_digest()
                 app->cfg->webcontrol_auth_method = "none";
             } else {
                 MOTION_LOG(INF, TYPE_STREAM, NO_ERRNO ,_("Digest authentication: disabled"));
+=======
+            MOTPLS_LOG(DBG, TYPE_STREAM, NO_ERRNO ,_("Digest authentication: available"));
+        } else {
+            if (app->cfg->webcontrol_auth_method == "digest") {
+                MOTPLS_LOG(NTC, TYPE_STREAM, NO_ERRNO ,_("Digest authentication: disabled"));
+                app->cfg->webcontrol_auth_method = "none";
+            } else {
+                MOTPLS_LOG(INF, TYPE_STREAM, NO_ERRNO ,_("Digest authentication: disabled"));
+>>>>>>> plus/upstream__May25
             }
         }
     #endif
@@ -127,7 +165,11 @@ void cls_webu::mhd_features_ipv6()
 {
     #if MHD_VERSION < 0x00094400
         if (mhdst->ipv6) {
+<<<<<<< HEAD
             MOTION_LOG(INF, TYPE_STREAM, NO_ERRNO ,_("libmicrohttpd libary too old ipv6 disabled"));
+=======
+            MOTPLS_LOG(INF, TYPE_STREAM, NO_ERRNO ,_("libmicrohttpd libary too old ipv6 disabled"));
+>>>>>>> plus/upstream__May25
             if (mhdst->ipv6) {
                 mhdst->ipv6 = 0;
             }
@@ -136,9 +178,15 @@ void cls_webu::mhd_features_ipv6()
         mhdrslt retcd;
         retcd = MHD_is_feature_supported (MHD_FEATURE_IPv6);
         if (retcd == MHD_YES) {
+<<<<<<< HEAD
             MOTION_LOG(DBG, TYPE_STREAM, NO_ERRNO ,_("IPV6: available"));
         } else {
             MOTION_LOG(NTC, TYPE_STREAM, NO_ERRNO ,_("IPV6: disabled"));
+=======
+            MOTPLS_LOG(DBG, TYPE_STREAM, NO_ERRNO ,_("IPV6: available"));
+        } else {
+            MOTPLS_LOG(NTC, TYPE_STREAM, NO_ERRNO ,_("IPV6: disabled"));
+>>>>>>> plus/upstream__May25
             if (mhdst->ipv6) {
                 mhdst->ipv6 = 0;
             }
@@ -151,13 +199,18 @@ void cls_webu::mhd_features_tls()
 {
     #if MHD_VERSION < 0x00094400
         if (mhdst->tls_use) {
+<<<<<<< HEAD
             MOTION_LOG(INF, TYPE_STREAM, NO_ERRNO ,_("libmicrohttpd libary too old SSL/TLS disabled"));
+=======
+            MOTPLS_LOG(INF, TYPE_STREAM, NO_ERRNO ,_("libmicrohttpd libary too old SSL/TLS disabled"));
+>>>>>>> plus/upstream__May25
             mhdst->tls_use = false;
         }
     #else
         mhdrslt retcd;
         retcd = MHD_is_feature_supported (MHD_FEATURE_SSL);
         if (retcd == MHD_YES) {
+<<<<<<< HEAD
             MOTION_LOG(DBG, TYPE_STREAM, NO_ERRNO ,_("SSL/TLS: available"));
         } else {
             if (mhdst->tls_use) {
@@ -165,6 +218,15 @@ void cls_webu::mhd_features_tls()
                 mhdst->tls_use = false;
             } else {
                 MOTION_LOG(INF, TYPE_STREAM, NO_ERRNO ,_("SSL/TLS: disabled"));
+=======
+            MOTPLS_LOG(DBG, TYPE_STREAM, NO_ERRNO ,_("SSL/TLS: available"));
+        } else {
+            if (mhdst->tls_use) {
+                MOTPLS_LOG(NTC, TYPE_STREAM, NO_ERRNO ,_("SSL/TLS: disabled"));
+                mhdst->tls_use = false;
+            } else {
+                MOTPLS_LOG(INF, TYPE_STREAM, NO_ERRNO ,_("SSL/TLS: disabled"));
+>>>>>>> plus/upstream__May25
             }
         }
     #endif
@@ -205,7 +267,11 @@ void cls_webu::mhd_loadfile(std::string fname, std::string &filestr)
                     file_char[file_size] = 0;
                     filestr.assign(file_char, file_size);
                 } else {
+<<<<<<< HEAD
                     MOTION_LOG(ERR, TYPE_STREAM, NO_ERRNO
+=======
+                    MOTPLS_LOG(ERR, TYPE_STREAM, NO_ERRNO
+>>>>>>> plus/upstream__May25
                         ,_("Error reading file for SSL/TLS support."));
                 }
                 free(file_char);
@@ -229,12 +295,20 @@ void cls_webu::mhd_checktls()
 {
     if (mhdst->tls_use) {
         if ((app->cfg->webcontrol_cert == "") || (mhdst->tls_cert == "")) {
+<<<<<<< HEAD
             MOTION_LOG(NTC, TYPE_STREAM, NO_ERRNO
+=======
+            MOTPLS_LOG(NTC, TYPE_STREAM, NO_ERRNO
+>>>>>>> plus/upstream__May25
                 ,_("SSL/TLS requested but no cert file provided.  SSL/TLS disabled"));
             mhdst->tls_use = false;
         }
         if ((app->cfg->webcontrol_key == "") || (mhdst->tls_key == "")) {
+<<<<<<< HEAD
             MOTION_LOG(NTC, TYPE_STREAM, NO_ERRNO
+=======
+            MOTPLS_LOG(NTC, TYPE_STREAM, NO_ERRNO
+>>>>>>> plus/upstream__May25
                 ,_("SSL/TLS requested but no key file provided.  SSL/TLS disabled"));
             mhdst->tls_use = false;
         }
@@ -420,6 +494,7 @@ void cls_webu::start_daemon_port1()
 
     free(mhdst->mhd_ops);
     if (wb_daemon == nullptr) {
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_STREAM, NO_ERRNO
             ,_("Unable to start webserver on port %d")
             ,app->cfg->webcontrol_port);
@@ -428,6 +503,16 @@ void cls_webu::start_daemon_port1()
             ,app->cfg->webcontrol_port);
     } else {
         MOTION_LOG(NTC, TYPE_STREAM, NO_ERRNO
+=======
+        MOTPLS_LOG(ERR, TYPE_STREAM, NO_ERRNO
+            ,_("Unable to start webserver on port %d")
+            ,app->cfg->webcontrol_port);
+        MOTPLS_LOG(ERR, TYPE_STREAM, NO_ERRNO
+            ,_("Validate no other applications/instances are using port %d")
+            ,app->cfg->webcontrol_port);
+    } else {
+        MOTPLS_LOG(NTC, TYPE_STREAM, NO_ERRNO
+>>>>>>> plus/upstream__May25
             ,_("Started webcontrol on port %d")
             ,app->cfg->webcontrol_port);
     }
@@ -442,7 +527,11 @@ void cls_webu::start_daemon_port2()
         return;
     }
 
+<<<<<<< HEAD
     MOTION_LOG(NTC, TYPE_STREAM, NO_ERRNO
+=======
+    MOTPLS_LOG(NTC, TYPE_STREAM, NO_ERRNO
+>>>>>>> plus/upstream__May25
         , _("Starting secondary webcontrol on port %d")
         , app->cfg->webcontrol_port2);
 
@@ -454,7 +543,11 @@ void cls_webu::start_daemon_port2()
     mhdst->tls_use = false;
 
     if (app->cfg->webcontrol_tls) {
+<<<<<<< HEAD
         MOTION_LOG(NTC, TYPE_STREAM, NO_ERRNO
+=======
+        MOTPLS_LOG(NTC, TYPE_STREAM, NO_ERRNO
+>>>>>>> plus/upstream__May25
             , _("TLS will be disabled on webcontrol port %d")
             , app->cfg->webcontrol_port2);
     }
@@ -473,6 +566,7 @@ void cls_webu::start_daemon_port2()
 
     free(mhdst->mhd_ops);
     if (wb_daemon2 == nullptr) {
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_STREAM, NO_ERRNO
             ,_("Unable to start secondary webserver on port %d")
             ,app->cfg->webcontrol_port2);
@@ -481,6 +575,16 @@ void cls_webu::start_daemon_port2()
             ,app->cfg->webcontrol_port2);
     } else {
         MOTION_LOG(NTC, TYPE_STREAM, NO_ERRNO
+=======
+        MOTPLS_LOG(ERR, TYPE_STREAM, NO_ERRNO
+            ,_("Unable to start secondary webserver on port %d")
+            ,app->cfg->webcontrol_port2);
+        MOTPLS_LOG(ERR, TYPE_STREAM, NO_ERRNO
+            ,_("Validate no other applications/instances are using port %d")
+            ,app->cfg->webcontrol_port2);
+    } else {
+        MOTPLS_LOG(NTC, TYPE_STREAM, NO_ERRNO
+>>>>>>> plus/upstream__May25
             ,_("Started webcontrol on port %d")
             ,app->cfg->webcontrol_port2);
     }
@@ -504,7 +608,11 @@ void cls_webu::startup()
         return;
     }
 
+<<<<<<< HEAD
     MOTION_LOG(NTC, TYPE_STREAM, NO_ERRNO
+=======
+    MOTPLS_LOG(NTC, TYPE_STREAM, NO_ERRNO
+>>>>>>> plus/upstream__May25
         , _("Starting webcontrol on port %d")
         , app->cfg->webcontrol_port);
 
@@ -530,7 +638,11 @@ void cls_webu::shutdown()
 
     finish = true;
 
+<<<<<<< HEAD
     MOTION_LOG(NTC, TYPE_STREAM, NO_ERRNO, _("Closing webcontrol"));
+=======
+    MOTPLS_LOG(NTC, TYPE_STREAM, NO_ERRNO, _("Closing webcontrol"));
+>>>>>>> plus/upstream__May25
 
     chkcnt = 0;
     while ((chkcnt < 1000) && (cnct_cnt >0)) {
@@ -539,7 +651,11 @@ void cls_webu::shutdown()
     }
 
     if (chkcnt>=1000){
+<<<<<<< HEAD
         MOTION_LOG(NTC, TYPE_STREAM, NO_ERRNO, _("Excessive wait closing webcontrol"));
+=======
+        MOTPLS_LOG(NTC, TYPE_STREAM, NO_ERRNO, _("Excessive wait closing webcontrol"));
+>>>>>>> plus/upstream__May25
     }
 
     if (wb_daemon != nullptr) {

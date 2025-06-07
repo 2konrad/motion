@@ -1,22 +1,40 @@
 /*
+<<<<<<< HEAD
  *    This file is part of Motion.
  *
  *    Motion is free software: you can redistribute it and/or modify
+=======
+ *    This file is part of MotionPlus.
+ *
+ *    MotionPlus is free software: you can redistribute it and/or modify
+>>>>>>> plus/upstream__May25
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation, either version 3 of the License, or
  *    (at your option) any later version.
  *
+<<<<<<< HEAD
  *    Motion is distributed in the hope that it will be useful,
+=======
+ *    MotionPlus is distributed in the hope that it will be useful,
+>>>>>>> plus/upstream__May25
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
  *    You should have received a copy of the GNU General Public License
+<<<<<<< HEAD
  *    along with Motion.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 #include "motion.hpp"
+=======
+ *    along with MotionPlus.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+
+#include "motionplus.hpp"
+>>>>>>> plus/upstream__May25
 #include "util.hpp"
 #include "camera.hpp"
 #include "conf.hpp"
@@ -53,9 +71,15 @@ void cls_algsec::debug_notice(Mat &mat_dst, bool isdetect)
 
     if (cfg_log_level >= DBG) {
         if (first_pass == true) {
+<<<<<<< HEAD
             MOTION_LOG(DBG, TYPE_ALL, NO_ERRNO
                 , "Secondary detect and debug enabled.");
             MOTION_LOG(DBG, TYPE_ALL, NO_ERRNO
+=======
+            MOTPLS_LOG(DBG, TYPE_ALL, NO_ERRNO
+                , "Secondary detect and debug enabled.");
+            MOTPLS_LOG(DBG, TYPE_ALL, NO_ERRNO
+>>>>>>> plus/upstream__May25
                 , "Saving source and detected images to %s"
                 , cfg_target_dir.c_str());
             first_pass = false;
@@ -149,8 +173,13 @@ void cls_algsec::label_image(Mat &mat_dst
 
     } catch ( cv::Exception& e ) {
         const char* err_msg = e.what();
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO, _("Error %s"),err_msg);
         MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO, _("Disabling secondary detection"));
+=======
+        MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO, _("Error %s"),err_msg);
+        MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO, _("Disabling secondary detection"));
+>>>>>>> plus/upstream__May25
         method = "none";
     }
 
@@ -182,8 +211,13 @@ void cls_algsec::label_image(Mat &mat_dst, double confidence, Point classIdPoint
 
     } catch ( cv::Exception& e ) {
         const char* err_msg = e.what();
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO, _("Error %s"),err_msg);
         MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO, _("Disabling secondary detection"));
+=======
+        MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO, _("Error %s"),err_msg);
+        MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO, _("Disabling secondary detection"));
+>>>>>>> plus/upstream__May25
         method = "none";
     }
 
@@ -219,13 +253,21 @@ void cls_algsec::get_image_roi(Mat &mat_src, Mat &mat_dst)
     }
 
     /*
+<<<<<<< HEAD
     MOTION_LOG(INF, TYPE_ALL, NO_ERRNO, "Base %d %d (%dx%d) img(%dx%d)"
+=======
+    MOTPLS_LOG(INF, TYPE_ALL, NO_ERRNO, "Base %d %d (%dx%d) img(%dx%d)"
+>>>>>>> plus/upstream__May25
         ,cam->current_image->location.minx
         ,cam->current_image->location.miny
         ,cam->current_image->location.width
         ,cam->current_image->location.height
         ,width,height);
+<<<<<<< HEAD
     MOTION_LOG(INF, TYPE_ALL, NO_ERRNO, "Opencv %d %d %d %d"
+=======
+    MOTPLS_LOG(INF, TYPE_ALL, NO_ERRNO, "Opencv %d %d %d %d"
+>>>>>>> plus/upstream__May25
         ,roi.x,roi.y,roi.width,roi.height);
     */
     mat_dst = mat_src(roi);
@@ -289,8 +331,13 @@ void cls_algsec::detect_hog()
 
     } catch ( cv::Exception& e ) {
         const char* err_msg = e.what();
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO, _("Error %s"),err_msg);
         MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO, _("Disabling secondary detection"));
+=======
+        MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO, _("Error %s"),err_msg);
+        MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO, _("Disabling secondary detection"));
+>>>>>>> plus/upstream__May25
         method = "none";
     }
 }
@@ -319,8 +366,13 @@ void cls_algsec::detect_haar()
 
     } catch ( cv::Exception& e ) {
         const char* err_msg = e.what();
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO, _("Error %s"),err_msg);
         MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO, _("Disabling secondary detection"));
+=======
+        MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO, _("Error %s"),err_msg);
+        MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO, _("Disabling secondary detection"));
+>>>>>>> plus/upstream__May25
         method = "none";
     }
 }
@@ -355,8 +407,13 @@ void cls_algsec::detect_dnn()
 
     } catch ( cv::Exception& e ) {
         const char* err_msg = e.what();
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO, _("Error %s"),err_msg);
         MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO, _("Disabling secondary detection"));
+=======
+        MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO, _("Error %s"),err_msg);
+        MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO, _("Disabling secondary detection"));
+>>>>>>> plus/upstream__May25
         method = "none";
     }
 }
@@ -366,19 +423,32 @@ void cls_algsec::load_haar()
     try {
         if (model_file == "") {
             method = "none";
+<<<<<<< HEAD
             MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO, _("No secondary model specified."));
+=======
+            MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO, _("No secondary model specified."));
+>>>>>>> plus/upstream__May25
             return;
         }
         if (haar_cascade.load(model_file) == false) {
             /* Loading failed, reset method*/
             method = "none";
+<<<<<<< HEAD
             MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO, _("Failed loading model %s")
+=======
+            MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO, _("Failed loading model %s")
+>>>>>>> plus/upstream__May25
                 ,model_file.c_str());
         }
     } catch ( cv::Exception& e ) {
         const char* err_msg = e.what();
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO, _("Error %s"),err_msg);
         MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO, _("Failed loading model %s")
+=======
+        MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO, _("Error %s"),err_msg);
+        MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO, _("Failed loading model %s")
+>>>>>>> plus/upstream__May25
             , model_file.c_str());
         method = "none";
     }
@@ -403,7 +473,11 @@ void cls_algsec::load_dnn()
     try {
         if (model_file == "") {
             method = "none";
+<<<<<<< HEAD
             MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO, _("No secondary model specified."));
+=======
+            MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO, _("No secondary model specified."));
+>>>>>>> plus/upstream__May25
             return;
         }
         net = readNet(
@@ -416,7 +490,11 @@ void cls_algsec::load_dnn()
         ifs.open(dnn_classes_file.c_str());
             if (ifs.is_open() == false) {
                 method = "none";
+<<<<<<< HEAD
                 MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
+=======
+                MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO
+>>>>>>> plus/upstream__May25
                     , _("Classes file not found: %s")
                     ,dnn_classes_file.c_str());
                 return;
@@ -428,8 +506,13 @@ void cls_algsec::load_dnn()
 
     } catch ( cv::Exception& e ) {
         const char* err_msg = e.what();
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO, _("Error %s"),err_msg);
         MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO, _("Failed loading model %s")
+=======
+        MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO, _("Error %s"),err_msg);
+        MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO, _("Failed loading model %s")
+>>>>>>> plus/upstream__May25
             , model_file.c_str());
         method = "none";
     }
@@ -443,7 +526,11 @@ void cls_algsec::params_log()
     if (method != "none") {
         for (indx=0;indx<params->params_cnt;indx++) {
             itm = &params->params_array[indx];
+<<<<<<< HEAD
             MOTION_SHT(INF, TYPE_ALL, NO_ERRNO, "%-25s %s"
+=======
+            MOTPLS_SHT(INF, TYPE_ALL, NO_ERRNO, "%-25s %s"
+>>>>>>> plus/upstream__May25
                 ,itm->param_name.c_str(),itm->param_value.c_str());
         }
     }
@@ -596,7 +683,11 @@ void cls_algsec::handler()
 
     mythreadname_set("cv",cam->cfg->device_id, cam->cfg->device_name.c_str());
 
+<<<<<<< HEAD
     MOTION_LOG(INF, TYPE_ALL, NO_ERRNO,_("Secondary detection starting."));
+=======
+    MOTPLS_LOG(INF, TYPE_ALL, NO_ERRNO,_("Secondary detection starting."));
+>>>>>>> plus/upstream__May25
 
     handler_running = true;
     handler_stop = false;
@@ -622,7 +713,11 @@ void cls_algsec::handler()
     is_started = false;
     handler_stop = false;
     handler_running = false;
+<<<<<<< HEAD
     MOTION_LOG(INF, TYPE_ALL, NO_ERRNO,_("Secondary detection stopped."));
+=======
+    MOTPLS_LOG(INF, TYPE_ALL, NO_ERRNO,_("Secondary detection stopped."));
+>>>>>>> plus/upstream__May25
 
     pthread_exit(nullptr);
 }
@@ -643,7 +738,11 @@ void cls_algsec::handler_startup()
         pthread_attr_setdetachstate(&thread_attr, PTHREAD_CREATE_DETACHED);
         retcd = pthread_create(&handler_thread, &thread_attr, &algsec_handler, this);
         if (retcd != 0) {
+<<<<<<< HEAD
             MOTION_LOG(WRN, TYPE_ALL, NO_ERRNO,_("Unable to start secondary detection"));
+=======
+            MOTPLS_LOG(WRN, TYPE_ALL, NO_ERRNO,_("Unable to start secondary detection"));
+>>>>>>> plus/upstream__May25
             handler_running = false;
             handler_stop = true;
         }
@@ -663,10 +762,17 @@ void cls_algsec::handler_shutdown()
             waitcnt++;
         }
         if (waitcnt == cam->cfg->watchdog_tmo) {
+<<<<<<< HEAD
             MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
                 , _("Normal shutdown of camera failed"));
             if (cam->cfg->watchdog_kill > 0) {
                 MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
+=======
+            MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO
+                , _("Normal shutdown of camera failed"));
+            if (cam->cfg->watchdog_kill > 0) {
+                MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO
+>>>>>>> plus/upstream__May25
                     ,_("Waiting additional %d seconds (watchdog_kill).")
                     ,cam->cfg->watchdog_kill);
                 waitcnt = 0;
@@ -675,14 +781,24 @@ void cls_algsec::handler_shutdown()
                     waitcnt++;
                 }
                 if (waitcnt == cam->cfg->watchdog_kill) {
+<<<<<<< HEAD
                     MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
                         , _("No response to shutdown.  Killing it."));
                     MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
+=======
+                    MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO
+                        , _("No response to shutdown.  Killing it."));
+                    MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO
+>>>>>>> plus/upstream__May25
                         , _("Memory leaks will occur."));
                     pthread_kill(handler_thread, SIGVTALRM);
                 }
             } else {
+<<<<<<< HEAD
                 MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
+=======
+                MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO
+>>>>>>> plus/upstream__May25
                     , _("watchdog_kill set to terminate application."));
                 exit(1);
             }
@@ -726,12 +842,21 @@ void cls_algsec::detect()
                 frame_cnt = frame_interval;
                 if (frame_missed >10){
                     if (too_slow == 0) {
+<<<<<<< HEAD
                         MOTION_LOG(WRN, TYPE_ALL, NO_ERRNO
                             ,_("Your computer is too slow for these settings."));
                     } else if (too_slow == 10){
                         MOTION_LOG(WRN, TYPE_ALL, NO_ERRNO
                             ,_("Missed many frames for secondary detection."));
                         MOTION_LOG(WRN, TYPE_ALL, NO_ERRNO
+=======
+                        MOTPLS_LOG(WRN, TYPE_ALL, NO_ERRNO
+                            ,_("Your computer is too slow for these settings."));
+                    } else if (too_slow == 10){
+                        MOTPLS_LOG(WRN, TYPE_ALL, NO_ERRNO
+                            ,_("Missed many frames for secondary detection."));
+                        MOTPLS_LOG(WRN, TYPE_ALL, NO_ERRNO
+>>>>>>> plus/upstream__May25
                             ,_("Your computer is too slow."));
                     }
                     too_slow++;

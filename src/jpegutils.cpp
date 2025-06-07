@@ -1,23 +1,41 @@
 /*
+<<<<<<< HEAD
  *    This file is part of Motion.
  *
  *    Motion is free software: you can redistribute it and/or modify
+=======
+ *    This file is part of MotionPlus.
+ *
+ *    MotionPlus is free software: you can redistribute it and/or modify
+>>>>>>> plus/upstream__May25
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation, either version 3 of the License, or
  *    (at your option) any later version.
  *
+<<<<<<< HEAD
  *    Motion is distributed in the hope that it will be useful,
+=======
+ *    MotionPlus is distributed in the hope that it will be useful,
+>>>>>>> plus/upstream__May25
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
  *    You should have received a copy of the GNU General Public License
+<<<<<<< HEAD
  *    along with Motion.  If not, see <https://www.gnu.org/licenses/>.
+=======
+ *    along with MotionPlus.  If not, see <https://www.gnu.org/licenses/>.
+>>>>>>> plus/upstream__May25
  *
  *
 */
 
+<<<<<<< HEAD
 #include "motion.hpp"
+=======
+#include "motionplus.hpp"
+>>>>>>> plus/upstream__May25
 #include "util.hpp"
 #include "camera.hpp"
 #include "conf.hpp"
@@ -411,7 +429,11 @@ static void add_huff_table(j_decompress_ptr dinfo, JHUFF_TBL **htblptr, const UI
         nsymbols += bits[len];
 
     if (nsymbols < 1 || nsymbols > 256) {
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO, _("%s: Given jpeg buffer was too small"));
+=======
+        MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO, _("%s: Given jpeg buffer was too small"));
+>>>>>>> plus/upstream__May25
     }
 
     memcpy((*htblptr)->huffval, val, (uint)nsymbols * sizeof(UINT8));
@@ -613,7 +635,11 @@ static void jpgutl_error_exit(j_common_ptr cinfo)
      */
     (*cinfo->err->format_message) (cinfo, buffer);
 
+<<<<<<< HEAD
     MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO, "%s", buffer);
+=======
+    MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO, "%s", buffer);
+>>>>>>> plus/upstream__May25
 
     /* Return control to the setjmp point. */
     longjmp (myerr->setjmp_buffer, 1);
@@ -642,7 +668,11 @@ static void jpgutl_emit_message(j_common_ptr cinfo, int msg_level)
     if ((cinfo->err->msg_code != JWRN_EXTRANEOUS_DATA) && (msg_level < 0) ) {
         myerr->warning_seen++ ;
         (*cinfo->err->format_message) (cinfo, buffer);
+<<<<<<< HEAD
             MOTION_LOG(DBG, TYPE_VIDEO, NO_ERRNO, "msg_level: %d, %s", msg_level, buffer);
+=======
+            MOTPLS_LOG(DBG, TYPE_VIDEO, NO_ERRNO, "msg_level: %d, %s", msg_level, buffer);
+>>>>>>> plus/upstream__May25
     }
 
 }
@@ -785,13 +815,21 @@ int jpgutl_decode_jpeg (u_char *jpeg_data_in, int jpeg_data_len,
     jpeg_start_decompress (&dinfo);
 
     if ((dinfo.output_width == 0) || (dinfo.output_height == 0)) {
+<<<<<<< HEAD
         MOTION_LOG(WRN, TYPE_VIDEO, NO_ERRNO,_("Invalid JPEG image dimensions"));
+=======
+        MOTPLS_LOG(WRN, TYPE_VIDEO, NO_ERRNO,_("Invalid JPEG image dimensions"));
+>>>>>>> plus/upstream__May25
         jpeg_destroy_decompress(&dinfo);
         return -1;
     }
 
     if ((dinfo.output_width != width) || (dinfo.output_height != height)) {
+<<<<<<< HEAD
         MOTION_LOG(WRN, TYPE_VIDEO, NO_ERRNO
+=======
+        MOTPLS_LOG(WRN, TYPE_VIDEO, NO_ERRNO
+>>>>>>> plus/upstream__May25
             ,_("JPEG image size %dx%d, JPEG was %dx%d")
             ,width, height, dinfo.output_width, dinfo.output_height);
         jpeg_destroy_decompress(&dinfo);

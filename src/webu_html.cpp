@@ -1,22 +1,40 @@
 /*
+<<<<<<< HEAD
  *    This file is part of Motion.
  *
  *    Motion is free software: you can redistribute it and/or modify
+=======
+ *    This file is part of MotionPlus.
+ *
+ *    MotionPlus is free software: you can redistribute it and/or modify
+>>>>>>> plus/upstream__May25
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation, either version 3 of the License, or
  *    (at your option) any later version.
  *
+<<<<<<< HEAD
  *    Motion is distributed in the hope that it will be useful,
+=======
+ *    MotionPlus is distributed in the hope that it will be useful,
+>>>>>>> plus/upstream__May25
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
  *    You should have received a copy of the GNU General Public License
+<<<<<<< HEAD
  *    along with Motion.  If not, see <https://www.gnu.org/licenses/>.
  *
 */
 
 #include "motion.hpp"
+=======
+ *    along with MotionPlus.  If not, see <https://www.gnu.org/licenses/>.
+ *
+*/
+
+#include "motionplus.hpp"
+>>>>>>> plus/upstream__May25
 #include "util.hpp"
 #include "camera.hpp"
 #include "conf.hpp"
@@ -315,7 +333,11 @@ void cls_webu_html::head()
 {
     webua->resp_page += "<head> \n"
         "<meta charset='UTF-8'> \n"
+<<<<<<< HEAD
         "<title>Motion</title> \n"
+=======
+        "<title>MotionPlus</title> \n"
+>>>>>>> plus/upstream__May25
         "<meta name='viewport' content='width=device-width, initial-scale=1'> \n";
 
     style();
@@ -606,7 +628,11 @@ void cls_webu_html::script_assign_version()
 {
     webua->resp_page +=
         "    function assign_version() {\n"
+<<<<<<< HEAD
         "      var verstr ='<a>Motion \\n'+pData['version'] +'</a>';\n"
+=======
+        "      var verstr ='<a>MotionPlus \\n'+pData['version'] +'</a>';\n"
+>>>>>>> plus/upstream__May25
         "      document.getElementById('divnav_version').innerHTML = verstr;\n"
         "    }\n\n";
 }
@@ -1596,6 +1622,7 @@ void cls_webu_html::default_page()
 void cls_webu_html::user_page()
 {
     char response[PATH_MAX];
+<<<<<<< HEAD
     std::string fname, ext;
     size_t pos;
     FILE *fp = NULL;
@@ -1653,6 +1680,16 @@ void cls_webu_html::user_page()
             , fname.c_str());
         webua->resp_type = WEBUI_RESP_HTML;
         return;
+=======
+    FILE *fp = NULL;
+
+    webua->resp_page = "";
+    fp = myfopen(app->cfg->webcontrol_html.c_str(), "re");
+    if (fp == NULL) {
+        MOTPLS_LOG(ERR, TYPE_STREAM, NO_ERRNO
+            , _("Invalid user html file: %s")
+            , app->cfg->webcontrol_html.c_str());
+>>>>>>> plus/upstream__May25
     } else {
         while (fgets(response, PATH_MAX-1, fp)) {
             webua->resp_page += response;

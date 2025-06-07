@@ -1,22 +1,40 @@
 /*
+<<<<<<< HEAD
  *    This file is part of Motion.
  *
  *    Motion is free software: you can redistribute it and/or modify
+=======
+ *    This file is part of MotionPlus.
+ *
+ *    MotionPlus is free software: you can redistribute it and/or modify
+>>>>>>> plus/upstream__May25
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation, either version 3 of the License, or
  *    (at your option) any later version.
  *
+<<<<<<< HEAD
  *    Motion is distributed in the hope that it will be useful,
+=======
+ *    MotionPlus is distributed in the hope that it will be useful,
+>>>>>>> plus/upstream__May25
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
  *    You should have received a copy of the GNU General Public License
+<<<<<<< HEAD
  *    along with Motion.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 
 #include "motion.hpp"
+=======
+ *    along with MotionPlus.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+
+#include "motionplus.hpp"
+>>>>>>> plus/upstream__May25
 #include "util.hpp"
 #include "camera.hpp"
 #include "conf.hpp"
@@ -1225,7 +1243,11 @@ void cls_draw::init_scale()
         if (cam->text_scale <= 0) {
             cam->text_scale = 1;
         }
+<<<<<<< HEAD
         MOTION_LOG(WRN, TYPE_ALL, NO_ERRNO
+=======
+        MOTPLS_LOG(WRN, TYPE_ALL, NO_ERRNO
+>>>>>>> plus/upstream__May25
             ,_("Invalid text scale.  Adjusted to %d"), cam->text_scale);
     }
 
@@ -1234,7 +1256,11 @@ void cls_draw::init_scale()
         if (cam->text_scale <= 0) {
             cam->text_scale = 1;
         }
+<<<<<<< HEAD
         MOTION_LOG(WRN, TYPE_ALL, NO_ERRNO
+=======
+        MOTPLS_LOG(WRN, TYPE_ALL, NO_ERRNO
+>>>>>>> plus/upstream__May25
             ,_("Invalid text scale.  Adjusted to %d"), cam->text_scale);
     }
 
@@ -1414,16 +1440,30 @@ void cls_draw::locate()
 {
     ctx_images *imgs;
     ctx_coord *p_loc;
+<<<<<<< HEAD
     u_char *image_norm;
+=======
+    ctx_coord *p_loc_high;
+    u_char *image_norm;
+    u_char *image_high;
+>>>>>>> plus/upstream__May25
 
     if (cam->cfg->locate_motion_mode == "preview") {
         imgs = &cam->imgs;
         p_loc = &cam->imgs.image_preview.location;
         image_norm = cam->imgs.image_preview.image_norm;
+<<<<<<< HEAD
+=======
+        image_norm = cam->imgs.image_preview.image_high;
+>>>>>>> plus/upstream__May25
     } else if (cam->cfg->locate_motion_mode == "on") {
         imgs = &cam->imgs;
         p_loc = &cam->current_image->location;
         image_norm = cam->current_image->image_norm;
+<<<<<<< HEAD
+=======
+        image_high = cam->current_image->image_high;
+>>>>>>> plus/upstream__May25
     } else {
         return;
     }
@@ -1431,6 +1471,23 @@ void cls_draw::locate()
     if ((cam->cfg->locate_motion_style == "box") ||
         (cam->cfg->locate_motion_style == "cross")) {
         location(p_loc, imgs, imgs->width, image_norm);
+<<<<<<< HEAD
+=======
+        // neue ctxcoord anlagen und werte auf img high anpassen
+        p_loc_high =(ctx_coord *) malloc(sizeof(ctx_coord));
+        p_loc_high->x = p_loc->x * 2;
+        p_loc_high->y = p_loc->y * 2;
+        p_loc_high->width = p_loc->width * 2;
+        p_loc_high->height = p_loc->height * 2;
+        p_loc_high->minx = p_loc->minx * 2;
+        p_loc_high->maxx = p_loc->maxx * 2;
+        p_loc_high->miny = p_loc->miny * 2;
+        p_loc_high->maxy = p_loc->maxy * 2;
+        // stddev_x;
+        // stddev_y;
+        // stddev_xy;
+        location(p_loc_high, imgs, imgs->width_high, image_high);
+>>>>>>> plus/upstream__May25
     } else if ((cam->cfg->locate_motion_style == "redbox")||
         (cam->cfg->locate_motion_style == "redcross")) {
         red_location(p_loc, imgs, imgs->width, image_norm);

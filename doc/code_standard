@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 Formatting for Motion.
+=======
+Formatting for MotionPlus.
+>>>>>>> plus/upstream__May25
 
 --------------------
 RULE 1
@@ -14,12 +18,20 @@ the corresponding code above. Use common sense to enhance readability.
 --------------------
 RULE 3
 Never use TABS to align anything. A tab may be 4 positions in one editor
+<<<<<<< HEAD
 and 8 in another. A space is always a space.
+=======
+and 8 in another. A space is always a space. 
+>>>>>>> plus/upstream__May25
 
 --------------------
 RULE 4
 If blocks always use braces and follow K&R.  Braces are free and do not cost money,
+<<<<<<< HEAD
 use them to clarify what you are doing.
+=======
+use them to clarify what you are doing.  
+>>>>>>> plus/upstream__May25
 
 --------------------
 RULE 5
@@ -44,11 +56,20 @@ Use // style comments for something you add temporarily while testing.
 --------------------
 RULE 7
 Use variable names that say what the variable is used for.
+<<<<<<< HEAD
 Variable and function names are in lower case.
+=======
+Variable and function names are in lower case. 
+>>>>>>> plus/upstream__May25
 Use '_' to separate words.
 MACROS are in uppercase.
 Follow the naming scheme for functions
 
+<<<<<<< HEAD
 
 
+=======
+   
+  
+>>>>>>> plus/upstream__May25
 

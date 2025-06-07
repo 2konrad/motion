@@ -1,23 +1,41 @@
 /*
+<<<<<<< HEAD
  *    This file is part of Motion.
  *
  *    Motion is free software: you can redistribute it and/or modify
+=======
+ *    This file is part of MotionPlus.
+ *
+ *    MotionPlus is free software: you can redistribute it and/or modify
+>>>>>>> plus/upstream__May25
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation, either version 3 of the License, or
  *    (at your option) any later version.
  *
+<<<<<<< HEAD
  *    Motion is distributed in the hope that it will be useful,
+=======
+ *    MotionPlus is distributed in the hope that it will be useful,
+>>>>>>> plus/upstream__May25
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
  *    You should have received a copy of the GNU General Public License
+<<<<<<< HEAD
  *    along with Motion.  If not, see <https://www.gnu.org/licenses/>.
+=======
+ *    along with MotionPlus.  If not, see <https://www.gnu.org/licenses/>.
+>>>>>>> plus/upstream__May25
  *
  *
 */
 
+<<<<<<< HEAD
 #include "motion.hpp"
+=======
+#include "motionplus.hpp"
+>>>>>>> plus/upstream__May25
 #include "util.hpp"
 #include "conf.hpp"
 #include "logger.hpp"
@@ -111,7 +129,11 @@ void cls_schedule::cleandir_remove_dir(std::string dirnm)
             ep = readdir(dp);
         }
         closedir(dp);
+<<<<<<< HEAD
         MOTION_LOG(DBG, TYPE_ALL, NO_ERRNO
+=======
+        MOTPLS_LOG(DBG, TYPE_ALL, NO_ERRNO
+>>>>>>> plus/upstream__May25
             , _("Removing empty directory %s"),dirnm.c_str());
         rmdir(dirnm.c_str());
     }
@@ -127,10 +149,17 @@ void cls_schedule::cleandir_remove(std::string sql, bool removedir)
 
     for (indx=0;indx<flst.size();indx++) {
         if (stat(flst[indx].full_nm.c_str(), &statbuf) == 0) {
+<<<<<<< HEAD
             MOTION_LOG(DBG, TYPE_ALL, NO_ERRNO
                 , _("Removing %s"),flst[indx].full_nm.c_str());
             remove(flst[indx].full_nm.c_str());
             sql  = " delete from motion ";
+=======
+            MOTPLS_LOG(DBG, TYPE_ALL, NO_ERRNO
+                , _("Removing %s"),flst[indx].full_nm.c_str());
+            remove(flst[indx].full_nm.c_str());
+            sql  = " delete from motionplus ";
+>>>>>>> plus/upstream__May25
             sql += " where record_id  = ";
             sql += std::to_string(flst[indx].record_id);
             app->dbse->exec_sql(sql);
@@ -160,7 +189,11 @@ void cls_schedule::cleandir_sql(int device_id, std::string &sql, struct timespec
     tmp_tml = tmp;
 
     sql  = " select * ";
+<<<<<<< HEAD
     sql += " from motion ";
+=======
+    sql += " from motionplus ";
+>>>>>>> plus/upstream__May25
     sql += " where ";
     sql += " device_id = " + std::to_string(device_id);
     sql += " and ((file_dtl < " + tmp_dtl + ") ";
@@ -189,13 +222,21 @@ void cls_schedule::cleandir_run(cls_camera *p_cam)
     } else if (p_cam->cleandir->dur_unit == "w") {
         cdur = p_cam->cleandir->dur_val * (60 * 60 * 24 * 7);
     } else {
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
+=======
+        MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO
+>>>>>>> plus/upstream__May25
             , _("Invalid clean directory duration units %s")
             ,p_cam->cleandir->dur_unit.c_str());
         return;
     }
     if (cdur <= 0) {
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
+=======
+        MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO
+>>>>>>> plus/upstream__May25
             , _("Invalid clean directory duration %d%s")
             , p_cam->cleandir->dur_val
             , p_cam->cleandir->dur_unit.c_str());
@@ -242,7 +283,11 @@ void cls_schedule::cleandir_cam(cls_camera *p_cam)
         }
         localtime_r(&p_cam->cleandir->next_ts.tv_sec, &c_tm);
         if (p_cam->cleandir->action == "delete") {
+<<<<<<< HEAD
             MOTION_LOG(INF, TYPE_ALL, NO_ERRNO
+=======
+            MOTPLS_LOG(INF, TYPE_ALL, NO_ERRNO
+>>>>>>> plus/upstream__May25
                 , _("Cleandir next run:%04d-%02d-%02d %02d:%02d Criteria:%d%s RemoveDir:%s")
                 ,c_tm.tm_year+1900,c_tm.tm_mon+1,c_tm.tm_mday
                 ,c_tm.tm_hour,c_tm.tm_min
@@ -250,7 +295,11 @@ void cls_schedule::cleandir_cam(cls_camera *p_cam)
                 ,p_cam->cleandir->dur_unit.c_str()
                 ,p_cam->cleandir->removedir ? "Y":"N");
         } else {
+<<<<<<< HEAD
             MOTION_LOG(INF, TYPE_ALL, NO_ERRNO
+=======
+            MOTPLS_LOG(INF, TYPE_ALL, NO_ERRNO
+>>>>>>> plus/upstream__May25
                 , _("Clean directory set to run script at %04d-%02d-%02d %02d:%02d")
                 ,c_tm.tm_year+1900,c_tm.tm_mon+1,c_tm.tm_mday
                 ,c_tm.tm_hour,c_tm.tm_min);
@@ -285,7 +334,11 @@ void cls_schedule::handler()
         timing();
     }
 
+<<<<<<< HEAD
     MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO, _("Schedule process closed"));
+=======
+    MOTPLS_LOG(NTC, TYPE_ALL, NO_ERRNO, _("Schedule process closed"));
+>>>>>>> plus/upstream__May25
     handler_running = false;
     pthread_exit(NULL);
 }
@@ -303,7 +356,11 @@ void cls_schedule::handler_startup()
         pthread_attr_setdetachstate(&thread_attr, PTHREAD_CREATE_DETACHED);
         retcd = pthread_create(&handler_thread, &thread_attr, &schedule_handler, this);
         if (retcd != 0) {
+<<<<<<< HEAD
             MOTION_LOG(WRN, TYPE_ALL, NO_ERRNO,_("Unable to start schedule thread."));
+=======
+            MOTPLS_LOG(WRN, TYPE_ALL, NO_ERRNO,_("Unable to start schedule thread."));
+>>>>>>> plus/upstream__May25
             handler_running = false;
             handler_stop = true;
         }
@@ -323,10 +380,17 @@ void cls_schedule::handler_shutdown()
             waitcnt++;
         }
         if (waitcnt == app->cfg->watchdog_tmo) {
+<<<<<<< HEAD
             MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
                 , _("Normal shutdown of schedule thread failed"));
             if (app->cfg->watchdog_kill > 0) {
                 MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
+=======
+            MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO
+                , _("Normal shutdown of schedule thread failed"));
+            if (app->cfg->watchdog_kill > 0) {
+                MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO
+>>>>>>> plus/upstream__May25
                     ,_("Waiting additional %d seconds (watchdog_kill).")
                     ,app->cfg->watchdog_kill);
                 waitcnt = 0;
@@ -335,14 +399,24 @@ void cls_schedule::handler_shutdown()
                     waitcnt++;
                 }
                 if (waitcnt == app->cfg->watchdog_kill) {
+<<<<<<< HEAD
                     MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
                         , _("No response to shutdown.  Killing it."));
                     MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
+=======
+                    MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO
+                        , _("No response to shutdown.  Killing it."));
+                    MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO
+>>>>>>> plus/upstream__May25
                         , _("Memory leaks will occur."));
                     pthread_kill(handler_thread, SIGVTALRM);
                 }
             } else {
+<<<<<<< HEAD
                 MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
+=======
+                MOTPLS_LOG(ERR, TYPE_ALL, NO_ERRNO
+>>>>>>> plus/upstream__May25
                     , _("watchdog_kill set to terminate application."));
                 exit(1);
             }

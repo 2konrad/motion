@@ -889,6 +889,7 @@ void cls_alg::lightswitch()
             if (cam->frame_skip < cam->cfg->lightswitch_frames) {
                 cam->frame_skip = cam->cfg->lightswitch_frames;
             }
+                util_exec_command(cam, cam->cfg->on_lightswitch.c_str(), NULL);
             cam->current_image->diffs = 0;
             ref_frame_update();
         }

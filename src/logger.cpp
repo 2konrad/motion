@@ -1,21 +1,38 @@
 /*
+<<<<<<< HEAD
  *    This file is part of Motion.
  *
  *    Motion is free software: you can redistribute it and/or modify
+=======
+ *    This file is part of MotionPlus.
+ *
+ *    MotionPlus is free software: you can redistribute it and/or modify
+>>>>>>> plus/upstream__May25
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation, either version 3 of the License, or
  *    (at your option) any later version.
  *
+<<<<<<< HEAD
  *    Motion is distributed in the hope that it will be useful,
+=======
+ *    MotionPlus is distributed in the hope that it will be useful,
+>>>>>>> plus/upstream__May25
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
  *    You should have received a copy of the GNU General Public License
+<<<<<<< HEAD
  *    along with Motion.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
 #include "motion.hpp"
+=======
+ *    along with MotionPlus.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ */
+#include "motionplus.hpp"
+>>>>>>> plus/upstream__May25
 #include "util.hpp"
 #include "conf.hpp"
 #include "logger.hpp"
@@ -54,7 +71,11 @@ void ff_log(void *var1, int errnbr, const char *fmt, va_list vlist)
     fflvl = ((motlog->log_fflevel -2) * 8);
 
     if (errnbr <= fflvl ) {
+<<<<<<< HEAD
         MOTION_LOG(INF, TYPE_ALL, NO_ERRNO,"%s",buff );
+=======
+        MOTPLS_LOG(INF, TYPE_ALL, NO_ERRNO,"%s",buff );
+>>>>>>> plus/upstream__May25
     }
 }
 
@@ -147,9 +168,15 @@ void cls_log::add_errmsg(int flgerr, int err_save)
     }
 
     memset(err_buf, 0, sizeof(err_buf));
+<<<<<<< HEAD
     #if not defined(_GNU_SOURCE) /* XSI-compliant strerror_r() */
         (void)strerror_r(err_save, err_buf, sizeof(err_buf));
     #else /* GNU-specific strerror_r() */
+=======
+    #if defined(XSI_STRERROR_R) /* XSI-compliant strerror_r() */
+        (void)strerror_r(err_save, err_buf, sizeof(err_buf));
+    #else/* GNU-specific strerror_r() */
+>>>>>>> plus/upstream__May25
         (void)snprintf(err_buf, sizeof(err_buf),"%s"
             , strerror_r(err_save, err_buf, sizeof(err_buf)));
     #endif
@@ -168,7 +195,11 @@ void cls_log::add_errmsg(int flgerr, int err_save)
 void cls_log::set_mode(int mode_new)
 {
     if ((log_mode != LOGMODE_SYSLOG) && (mode_new == LOGMODE_SYSLOG)) {
+<<<<<<< HEAD
         openlog("motion", LOG_PID, LOG_USER);
+=======
+        openlog("motionplus", LOG_PID, LOG_USER);
+>>>>>>> plus/upstream__May25
     }
     if ((log_mode == LOGMODE_SYSLOG) && (mode_new != LOGMODE_SYSLOG)) {
         closelog();
@@ -186,7 +217,11 @@ void cls_log::set_log_file(std::string pname)
         if (log_file_name == "") {
             set_mode(LOGMODE_SYSLOG);
             log_file_name = "syslog";
+<<<<<<< HEAD
             MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO, "Logging to syslog");
+=======
+            MOTPLS_LOG(NTC, TYPE_ALL, NO_ERRNO, "Logging to syslog");
+>>>>>>> plus/upstream__May25
         }
 
     } else if ((pname != log_file_name) || (log_file_ptr == nullptr)) {
@@ -198,13 +233,21 @@ void cls_log::set_log_file(std::string pname)
         if (log_file_ptr != nullptr) {
             log_file_name = pname;
             set_mode(LOGMODE_SYSLOG);
+<<<<<<< HEAD
             MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO, "Logging to file (%s)"
+=======
+            MOTPLS_LOG(NTC, TYPE_ALL, NO_ERRNO, "Logging to file (%s)"
+>>>>>>> plus/upstream__May25
                 ,pname.c_str());
             set_mode(LOGMODE_FILE);
         } else {
             log_file_name = "syslog";
             set_mode(LOGMODE_SYSLOG);
+<<<<<<< HEAD
             MOTION_LOG(EMG, TYPE_ALL, SHOW_ERRNO, "Cannot create log file %s"
+=======
+            MOTPLS_LOG(EMG, TYPE_ALL, SHOW_ERRNO, "Cannot create log file %s"
+>>>>>>> plus/upstream__May25
                 , pname.c_str());
         }
     }

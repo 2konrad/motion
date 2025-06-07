@@ -93,5 +93,10 @@ jobs:
 
       - name: Run artifact
         run: |
+<<<<<<< HEAD
           file ./src/motion
           ./src/motion -h || true
+=======
+          file ./src/motionplus
+          ./src/motionplus -h || true
+>>>>>>> plus/upstream__May25

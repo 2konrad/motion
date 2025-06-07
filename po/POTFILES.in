@@ -21,6 +21,10 @@ src/draw.cpp
 src/camera.cpp
 src/sound.cpp
 src/webu_file.cpp
+<<<<<<< HEAD
 src/motion.cpp
+=======
+src/motionplus.cpp
+>>>>>>> plus/upstream__May25
 src/util.cpp
 src/webu_html.cpp

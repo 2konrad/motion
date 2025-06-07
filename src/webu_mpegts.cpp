@@ -1,22 +1,40 @@
 /*
+<<<<<<< HEAD
  *    This file is part of Motion.
  *
  *    Motion is free software: you can redistribute it and/or modify
+=======
+ *    This file is part of MotionPlus.
+ *
+ *    MotionPlus is free software: you can redistribute it and/or modify
+>>>>>>> plus/upstream__May25
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation, either version 3 of the License, or
  *    (at your option) any later version.
  *
+<<<<<<< HEAD
  *    Motion is distributed in the hope that it will be useful,
+=======
+ *    MotionPlus is distributed in the hope that it will be useful,
+>>>>>>> plus/upstream__May25
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  *
  *    You should have received a copy of the GNU General Public License
+<<<<<<< HEAD
  *    along with Motion.  If not, see <https://www.gnu.org/licenses/>.
  *
 */
 
 #include "motion.hpp"
+=======
+ *    along with MotionPlus.  If not, see <https://www.gnu.org/licenses/>.
+ *
+*/
+
+#include "motionplus.hpp"
+>>>>>>> plus/upstream__May25
 #include "util.hpp"
 #include "camera.hpp"
 #include "allcam.hpp"
@@ -84,7 +102,11 @@ int cls_webu_mpegts::pic_send(unsigned char *img)
     retcd = avcodec_send_frame(ctx_codec, picture);
     if (retcd < 0 ) {
         av_strerror(retcd, errstr, sizeof(errstr));
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_STREAM, NO_ERRNO
+=======
+        MOTPLS_LOG(ERR, TYPE_STREAM, NO_ERRNO
+>>>>>>> plus/upstream__May25
             , _("Error sending frame for encoding:%s"), errstr);
         av_frame_free(&picture);
         picture = NULL;
@@ -111,7 +133,11 @@ int cls_webu_mpegts::pic_get()
     }
     if (retcd < 0 ) {
         av_strerror(retcd, errstr, sizeof(errstr));
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_STREAM, NO_ERRNO
+=======
+        MOTPLS_LOG(ERR, TYPE_STREAM, NO_ERRNO
+>>>>>>> plus/upstream__May25
             ,_("Error receiving encoded packet video:%s"), errstr);
         //Packet is freed upon failure of encoding
         return -1;
@@ -122,7 +148,11 @@ int cls_webu_mpegts::pic_get()
     retcd =  av_interleaved_write_frame(fmtctx, pkt);
     if (retcd < 0 ) {
         av_strerror(retcd, errstr, sizeof(errstr));
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_STREAM, NO_ERRNO
+=======
+        MOTPLS_LOG(ERR, TYPE_STREAM, NO_ERRNO
+>>>>>>> plus/upstream__May25
             ,_("Error while writing video frame. %s"), errstr);
         return -1;
     }
@@ -227,7 +257,11 @@ int cls_webu_mpegts::avio_buf(myuint *buf, int buf_size)
         webus->resp_size = (size_t)buf_size + webus->resp_used;
         webus->resp_image = (unsigned char*)realloc(
             webus->resp_image, webus->resp_size);
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_STREAM, NO_ERRNO
+=======
+        MOTPLS_LOG(ERR, TYPE_STREAM, NO_ERRNO
+>>>>>>> plus/upstream__May25
             ,_("resp_image reallocated %d %d %d")
             ,webus->resp_size
             ,webus->resp_used
@@ -355,7 +389,11 @@ int cls_webu_mpegts::open_mpegts()
     retcd = avcodec_open2(ctx_codec, codec, &opts);
     if (retcd < 0) {
         av_strerror(retcd, errstr, sizeof(errstr));
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_STREAM, NO_ERRNO
+=======
+        MOTPLS_LOG(ERR, TYPE_STREAM, NO_ERRNO
+>>>>>>> plus/upstream__May25
             ,_("Failed to open codec context for %dx%d transport stream: %s")
             , img_w, img_h, errstr);
         av_dict_free(&opts);
@@ -365,7 +403,11 @@ int cls_webu_mpegts::open_mpegts()
     retcd = avcodec_parameters_from_context(strm->codecpar, ctx_codec);
     if (retcd < 0) {
         av_strerror(retcd, errstr, sizeof(errstr));
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_STREAM, NO_ERRNO
+=======
+        MOTPLS_LOG(ERR, TYPE_STREAM, NO_ERRNO
+>>>>>>> plus/upstream__May25
             ,_("Failed to copy decoder parameters!: %s"), errstr);
         av_dict_free(&opts);
         return -1;
@@ -387,7 +429,11 @@ int cls_webu_mpegts::open_mpegts()
     retcd = avformat_write_header(fmtctx, &opts);
     if (retcd < 0) {
         av_strerror(retcd, errstr, sizeof(errstr));
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_STREAM, NO_ERRNO
+=======
+        MOTPLS_LOG(ERR, TYPE_STREAM, NO_ERRNO
+>>>>>>> plus/upstream__May25
             ,_("Failed to write header!: %s"), errstr);
         av_dict_free(&opts);
         return -1;
@@ -414,7 +460,11 @@ mhdrslt cls_webu_mpegts::main()
     }
 
     if (open_mpegts() < 0 ) {
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_STREAM, NO_ERRNO, _("Unable to open mpegts"));
+=======
+        MOTPLS_LOG(ERR, TYPE_STREAM, NO_ERRNO, _("Unable to open mpegts"));
+>>>>>>> plus/upstream__May25
         return MHD_NO;
     }
 
@@ -423,7 +473,11 @@ mhdrslt cls_webu_mpegts::main()
     response = MHD_create_response_from_callback (MHD_SIZE_UNKNOWN, 4096
         ,&webu_mpegts_response, this, NULL);
     if (!response) {
+<<<<<<< HEAD
         MOTION_LOG(ERR, TYPE_STREAM, NO_ERRNO, _("Invalid response"));
+=======
+        MOTPLS_LOG(ERR, TYPE_STREAM, NO_ERRNO, _("Invalid response"));
+>>>>>>> plus/upstream__May25
         return MHD_NO;
     }
 

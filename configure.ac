@@ -1,10 +1,18 @@
+<<<<<<< HEAD
 AC_INIT(motion, esyscmd(['./scripts/version.sh']))
+=======
+AC_INIT(motionplus, esyscmd(['./scripts/version.sh']))
+>>>>>>> plus/upstream__May25
 AM_INIT_AUTOMAKE([subdir-objects foreign])
 CXXFLAGS="$CXXFLAGS -std=c++17"
 AC_PROG_CC
 AC_PROG_CXX
 AC_CONFIG_HEADERS([config.hpp])
+<<<<<<< HEAD
 AC_CONFIG_SRCDIR([src/motion.cpp])
+=======
+AC_CONFIG_SRCDIR([src/motionplus.cpp])
+>>>>>>> plus/upstream__May25
 AC_CANONICAL_HOST
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -28,7 +36,11 @@ AC_CHECK_HEADERS(stdio.h stdlib.h sys/time.h sys/wait.h \
 ##############################################################################
 AC_CHECK_PROG([PKGCONFIG],[pkgconf],[yes],[no])
 AS_IF([test "${PKGCONFIG}" = "no" ],[
+<<<<<<< HEAD
     AC_MSG_ERROR([Required package 'pkgconf' not found, please check motion_guide.html and install necessary dependencies.])
+=======
+    AC_MSG_ERROR([Required package 'pkgconf' not found, please check motionplus_guide.html and install necessary dependencies.])
+>>>>>>> plus/upstream__May25
   ]
 )
 
@@ -55,7 +67,11 @@ AC_CHECK_HEADERS(setjmp.h jerror.h jpeglib.h,[JPGS="yes"],[JPGS="no"])
 AC_MSG_CHECKING(jpg libraries)
 AC_MSG_RESULT($JPGS)
 AS_IF([test "${JPGS}" != "yes" ], [
+<<<<<<< HEAD
     AC_MSG_ERROR([Required jpeg headers not found, please check motion_guide.html and install necessary dependencies])
+=======
+    AC_MSG_ERROR([Required jpeg headers not found, please check motionplus_guide.html and install necessary dependencies])
+>>>>>>> plus/upstream__May25
   ]
 )
 CPPFLAGS="$HOLD_CPPFLAGS"
@@ -67,7 +83,11 @@ AS_IF([pkgconf libmicrohttpd ], [
     TEMP_CPPFLAGS="$TEMP_CPPFLAGS "`pkgconf --cflags libmicrohttpd`
     TEMP_LIBS="$TEMP_LIBS "`pkgconf --libs libmicrohttpd`
   ],[
+<<<<<<< HEAD
     AC_MSG_ERROR([Required package libmicrohttpd-dev not found, please check motion_guide.html and install necessary dependencies])
+=======
+    AC_MSG_ERROR([Required package libmicrohttpd-dev not found, please check motionplus_guide.html and install necessary dependencies])
+>>>>>>> plus/upstream__May25
   ]
 )
 HOLD_CPPFLAGS="$CPPFLAGS"
@@ -76,7 +96,11 @@ AC_CHECK_HEADERS(microhttpd.h,[MHTTP="yes"],[MHTTP="no"])
 AC_MSG_CHECKING(libmicrohttpd libraries)
 AC_MSG_RESULT($MHTTP)
 AS_IF([test "${MHTTP}" != "yes" ], [
+<<<<<<< HEAD
     AC_MSG_ERROR([Required package libmicrohttpd-dev not found, please check motion_guide.html and install necessary dependencies])
+=======
+    AC_MSG_ERROR([Required package libmicrohttpd-dev not found, please check motionplus_guide.html and install necessary dependencies])
+>>>>>>> plus/upstream__May25
   ]
 )
 CPPFLAGS="$HOLD_CPPFLAGS"
@@ -88,7 +112,11 @@ AS_IF([pkgconf zlib ], [
     TEMP_CPPFLAGS="$TEMP_CPPFLAGS "`pkgconf --cflags zlib`
     TEMP_LIBS="$TEMP_LIBS "`pkgconf --libs zlib`
   ],[
+<<<<<<< HEAD
     AC_MSG_ERROR([Required package zlib not found, please check motion_guide.html and install necessary dependencies])
+=======
+    AC_MSG_ERROR([Required package zlib not found, please check motionplus_guide.html and install necessary dependencies])
+>>>>>>> plus/upstream__May25
   ]
 )
 HOLD_CPPFLAGS="$CPPFLAGS"
@@ -97,7 +125,11 @@ AC_CHECK_HEADERS(zlib.h,[ZLIB="yes"],[ZLIB="no"])
 AC_MSG_CHECKING(zlib libraries)
 AC_MSG_RESULT($ZLIB)
 AS_IF([test "${ZLIB}" != "yes" ], [
+<<<<<<< HEAD
     AC_MSG_ERROR([Required package zlib not found, please check motion_guide.html and install necessary dependencies])
+=======
+    AC_MSG_ERROR([Required package zlib not found, please check motionplus_guide.html and install necessary dependencies])
+>>>>>>> plus/upstream__May25
   ]
 )
 CPPFLAGS="$HOLD_CPPFLAGS"
@@ -133,6 +165,35 @@ AC_LINK_IFELSE(
   ]
 )
 
+<<<<<<< HEAD
+=======
+##############################################################################
+###  Check XSI strerror_r.
+##############################################################################
+AC_MSG_CHECKING([for XSI strerror_r])
+HOLD_CPPFLAGS="$CPPFLAGS"
+CPPFLAGS="$CPPFLAGS -Werror"
+AC_LINK_IFELSE(
+  [AC_LANG_SOURCE([[
+    #include <string.h>
+    #include <errno.h>
+    int main(int argc, char** argv) {
+      char buf[1024];
+      int ret = strerror_r(ENOMEM, buf, sizeof(buf));
+      return ret;
+    }]])
+  ],[
+    AC_DEFINE([XSI_STRERROR_R], [1], [Define if you have XSI strerror_r function.])
+    XSI_STRERROR="yes"
+    AC_MSG_RESULT([yes])
+  ],[
+    XSI_STRERROR="no"
+    AC_MSG_RESULT([no])
+  ]
+)
+CPPFLAGS="$HOLD_CPPFLAGS"
+
+>>>>>>> plus/upstream__May25
 ###############################################################################
 ###  V4L2 Video System - Optional
 ###############################################################################
@@ -249,7 +310,11 @@ AS_IF([test "${FFMPEG}" = "no"], [
         AC_MSG_RESULT(yes)
       ],[
         AC_MSG_RESULT(no)
+<<<<<<< HEAD
         AC_MSG_ERROR([Required ffmpeg packages 'libavutil-dev libavformat-dev libavcodec-dev libswscale-dev libavdevice-dev' were not found.  Please check motion_guide.html and install necessary dependencies])
+=======
+        AC_MSG_ERROR([Required ffmpeg packages 'libavutil-dev libavformat-dev libavcodec-dev libswscale-dev libavdevice-dev' were not found.  Please check motionplus_guide.html and install necessary dependencies])
+>>>>>>> plus/upstream__May25
       ]
     )
     PKG_CONFIG_PATH=$TEMP_PATH
@@ -634,9 +699,14 @@ AC_CONFIG_FILES([
   data/camera2-dist.conf
   data/camera3-dist.conf
   data/sound1-dist.conf
+<<<<<<< HEAD
   data/motion-dist.conf
   data/motion-dist.service
   data/webcontrol/samplepage.html
+=======
+  data/motionplus-dist.conf
+  data/motionplus-dist.service
+>>>>>>> plus/upstream__May25
 ])
 
 AC_OUTPUT
@@ -661,6 +731,10 @@ echo "OS                    : $host_os"
 echo "pthread_np            : $PTHREAD_NP"
 echo "pthread_setname_np    : $PTHREAD_SETNAME_NP"
 echo "pthread_getname_np    : $PTHREAD_GETNAME_NP"
+<<<<<<< HEAD
+=======
+echo "XSI error             : $XSI_STRERROR"
+>>>>>>> plus/upstream__May25
 echo "V4L2                  : $V4L2"
 echo "webp                  : $WEBP$WEBP_VER"
 echo "libcamera             : $LIBCAM$LIBCAM_VER"
