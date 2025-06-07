@@ -1783,6 +1783,7 @@ void cls_config::edit_on_sound_alert(std::string &parm, enum PARM_ACT pact)
     }
     return;
     MOTION_LOG(DBG, TYPE_ALL, NO_ERRNO,"%s:%s","on_sound_alert",_("on_sound_alert"));
+}
 
 void cls_config::edit_on_lightswitch( std::string &parm, enum PARM_ACT pact)
 {
