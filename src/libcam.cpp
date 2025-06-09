@@ -534,6 +534,14 @@ int cls_libcam::start_config()
     config->at(0).bufferCount = 1;
     config->at(0).stride = 0;
 
+    auto model = camera->properties().get(properties::Model);
+    if (("imx708_wide" == *model) || ("imx708" == *model)) 
+    {
+        config->sensorConfig = libcamera::SensorConfiguration();
+        config->sensorConfig->outputSize = libcamera::Size(2304, 1296);
+        config->sensorConfig->bitDepth = 10;
+    }
+
     retcd = config->validate();
     if (retcd == CameraConfiguration::Adjusted) {
         if (config->at(0).pixelFormat != PixelFormat::fromString("YUV420")) {
