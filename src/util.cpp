@@ -674,7 +674,7 @@ void util_exec_command(cls_camera *cam, const char *command, const char *filenam
         /* Detach from parent */
         setsid();
 
-        execl("/bin/sh", "sh", "-c", stamp, " &",(char*)NULL);
+        execl("/bin/sh", "sh", "-c", "nohup", stamp, " &",  (char*)NULL);
 
         /* if above function succeeds the program never reach here */
         MOTION_LOG(ALR, TYPE_EVENTS, SHOW_ERRNO
@@ -688,7 +688,11 @@ void util_exec_command(cls_camera *cam, const char *command, const char *filenam
             ,_("Unable to start external command '%s'"), stamp);
     } else {
         MOTION_LOG(DBG, TYPE_EVENTS, NO_ERRNO
-            ,_("Executing external command '%s'"), stamp);
+            ,_("Executing external command '%s' PID %d"), stamp, pid);
+        waitpid(pid, NULL, 0);
+        MOTION_LOG(DBG, TYPE_EVENTS, NO_ERRNO
+            ,_("Waited for external command '%s'"), stamp);
+
     }
 }
 
