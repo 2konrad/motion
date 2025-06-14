@@ -665,35 +665,45 @@ AVPacket *mypacket_alloc(AVPacket *pkt)
 void util_exec_command(cls_camera *cam, const char *command, const char *filename)
 {
     char stamp[PATH_MAX];
-    int pid;
+    //char stamp2[PATH_MAX+20];
+    //int pid;
 
     mystrftime(cam, stamp, sizeof(stamp), command, filename);
-
-    pid = fork();
-    if (!pid) {
-        /* Detach from parent */
-        setsid();
-
-        execl("/bin/sh", "sh", "-c", "nohup", stamp, " &",  (char*)NULL);
-
-        /* if above function succeeds the program never reach here */
-        MOTION_LOG(ALR, TYPE_EVENTS, SHOW_ERRNO
-            ,_("Unable to start external command '%s'"), stamp);
-
-        exit(1);
-    }
-
-    if (pid == 0) {
-        MOTION_LOG(ALR, TYPE_EVENTS, SHOW_ERRNO
-            ,_("Unable to start external command '%s'"), stamp);
-    } else {
-        MOTION_LOG(DBG, TYPE_EVENTS, NO_ERRNO
-            ,_("Executing external command '%s' PID %d"), stamp, pid);
-        waitpid(pid, NULL, 0);
-        MOTION_LOG(DBG, TYPE_EVENTS, NO_ERRNO
-            ,_("Waited for external command '%s'"), stamp);
-
-    }
+    MOTION_LOG(DBG, TYPE_EVENTS, NO_ERRNO, _("Executing external command '%s' "), stamp);
+    system(strcat (stamp, " &"));
+    MOTION_LOG(DBG, TYPE_EVENTS, NO_ERRNO, _("Executed external command '%s' "), stamp);
+    
+//     pid = fork();
+//     if (!pid) {
+//         /* Detach from parent */
+//         setsid();
+// 
+//         //snprintf(stamp2, sizeof(stamp2), "%s%s%s", "\"nohup ", stamp,  " & \"");
+//         snprintf(stamp2, sizeof(stamp2), "%s%s%s", " ", stamp,  " & ");
+//         MOTION_LOG(ALR, TYPE_EVENTS, SHOW_ERRNO
+//             ,_("CMD:  '%s'"), stamp2);
+//         //execl("/bin/sh", "sh", "-c",  stamp2,  (char*)NULL);
+//         system(stamp2);
+// 
+//         /* if above function succeeds the program never reach here */
+//         MOTION_LOG(ALR, TYPE_EVENTS, SHOW_ERRNO
+//             ,_("Unable to start external command '%s'"), stamp);
+// 
+//         exit(1);
+//     }
+// 
+//     if (pid == 0) {
+//         MOTION_LOG(ALR, TYPE_EVENTS, SHOW_ERRNO
+//             ,_("Unable to start external command '%s'"), stamp);
+//     } else {
+//         MOTION_LOG(DBG, TYPE_EVENTS, NO_ERRNO
+//             ,_("Executing external command '%s' PID %d"), stamp, pid);
+//         waitpid(pid, NULL, 0);
+//         MOTION_LOG(DBG, TYPE_EVENTS, NO_ERRNO
+//             ,_("Waited for external command '%s'"), stamp);
+// 
+//     }
+    
 }
 
 void util_exec_command(cls_camera *cam, std::string cmd)
