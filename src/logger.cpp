@@ -54,7 +54,7 @@ void ff_log(void *var1, int errnbr, const char *fmt, va_list vlist)
     fflvl = ((motlog->log_fflevel -2) * 8);
 
     if (errnbr <= fflvl ) {
-        MOTION_LOG(INF, TYPE_ALL, NO_ERRNO,"%s",buff );
+        MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO,"%s",buff );
     }
 }
 
@@ -186,7 +186,7 @@ void cls_log::set_log_file(std::string pname)
         if (log_file_name == "") {
             set_mode(LOGMODE_SYSLOG);
             log_file_name = "syslog";
-            MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO, "Logging to syslog");
+            MOTION_LOG(NTC, LOG_TYPE_ALL, NO_ERRNO, "Logging to syslog");
         }
 
     } else if ((pname != log_file_name) || (log_file_ptr == nullptr)) {
@@ -198,13 +198,13 @@ void cls_log::set_log_file(std::string pname)
         if (log_file_ptr != nullptr) {
             log_file_name = pname;
             set_mode(LOGMODE_SYSLOG);
-            MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO, "Logging to file (%s)"
+            MOTION_LOG(NTC, LOG_TYPE_ALL, NO_ERRNO, "Logging to file (%s)"
                 ,pname.c_str());
             set_mode(LOGMODE_FILE);
         } else {
             log_file_name = "syslog";
             set_mode(LOGMODE_SYSLOG);
-            MOTION_LOG(EMG, TYPE_ALL, SHOW_ERRNO, "Cannot create log file %s"
+            MOTION_LOG(EMG, LOG_TYPE_ALL, SHOW_ERRNO, "Cannot create log file %s"
                 , pname.c_str());
         }
     }

@@ -20,6 +20,13 @@
 #ifndef _INCLUDE_CAMERA_HPP_
 #define _INCLUDE_CAMERA_HPP_
 
+#ifdef HAVE_OPENCV4
+    #include <opencv2/opencv.hpp>
+    #include <opencv2/dnn.hpp>
+    //#include <opencv2/highgui.hpp>
+    //#include <opencv2/core/ocl.hpp>
+#endif /* HAVE_OPENCV4 */
+
 enum CAMERA_TYPE {
     CAMERA_TYPE_UNKNOWN,
     CAMERA_TYPE_V4L2,
@@ -202,6 +209,8 @@ class cls_camera {
         enum CAMERA_TYPE        camera_type;
         struct timespec         connectionlosttime;
 
+        cv::dnn::Net net;
+
     private:
         cls_movie       *movie_norm;
         cls_movie       *movie_motion;
@@ -272,6 +281,7 @@ class cls_camera {
         void loopback();
         void check_schedule();
         void frametiming();
+        void detect_from_video(cv::Mat &src);
 };
 
 #endif /* _INCLUDE_CAMERA_HPP_ */

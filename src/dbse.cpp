@@ -1300,7 +1300,7 @@ void cls_dbse::handler()
         timing();
     }
 
-    MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO, _("Database handler closed"));
+    MOTION_LOG(NTC, LOG_TYPE_ALL, NO_ERRNO, _("Database handler closed"));
 
     handler_running = false;
     pthread_exit(NULL);
@@ -1319,7 +1319,7 @@ void cls_dbse::handler_startup()
         pthread_attr_setdetachstate(&thread_attr, PTHREAD_CREATE_DETACHED);
         retcd = pthread_create(&handler_thread, &thread_attr, &dbse_handler, this);
         if (retcd != 0) {
-            MOTION_LOG(WRN, TYPE_ALL, NO_ERRNO,_("Unable to start database handler thread."));
+            MOTION_LOG(WRN, LOG_TYPE_ALL, NO_ERRNO,_("Unable to start database handler thread."));
             handler_running = false;
             handler_stop = true;
         }
@@ -1339,10 +1339,10 @@ void cls_dbse::handler_shutdown()
             waitcnt++;
         }
         if (waitcnt == app->cfg->watchdog_tmo) {
-            MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
+            MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO
                 , _("Normal shutdown of database handler failed"));
             if (app->cfg->watchdog_kill > 0) {
-                MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
+                MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO
                     ,_("Waiting additional %d seconds (watchdog_kill).")
                     ,app->cfg->watchdog_kill);
                 waitcnt = 0;
@@ -1351,14 +1351,14 @@ void cls_dbse::handler_shutdown()
                     waitcnt++;
                 }
                 if (waitcnt == app->cfg->watchdog_kill) {
-                    MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
+                    MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO
                         , _("No response to shutdown.  Killing it."));
-                    MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
+                    MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO
                         , _("Memory leaks will occur."));
                     pthread_kill(handler_thread, SIGVTALRM);
                 }
             } else {
-                MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
+                MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO
                     , _("watchdog_kill set to terminate application."));
                 exit(1);
             }

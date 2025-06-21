@@ -175,6 +175,30 @@ AS_IF([test "${WEBP}" = "yes" ], [
 )
 
 ##############################################################################
+###  OPENCV - Optional.
+##############################################################################
+AC_ARG_WITH([opencv4],
+  AS_HELP_STRING([--with-opencv4],[Compile with Opencv4]),
+  [OPENCV4="$withval"],
+  [OPENCV4="yes]"
+)
+OPENCV4_VER=""
+AS_IF([test "${OPENCV4}" = "yes" ], [
+    AC_MSG_CHECKING(for opencv4)
+    AS_IF([pkgconf opencv4 ], [
+        AC_MSG_RESULT(yes)
+        AC_DEFINE([HAVE_OPENCV4], [1], [Define to 1 if OPENCV4 is around])
+        WEBP_VER="("`pkgconf --modversion opencv4`")"
+        TEMP_CPPFLAGS="$TEMP_CPPFLAGS "`pkgconf --cflags opencv4`
+        TEMP_LIBS="$TEMP_LIBS "`pkgconf --libs opencv4`
+      ],[
+        AC_MSG_RESULT(no)
+      ]
+    )
+  ]
+)
+
+##############################################################################
 ###  libcamera - Optional.
 ##############################################################################
 AC_ARG_WITH([libcam],
@@ -618,7 +642,7 @@ AS_IF([test "${DEVELOPER_FLAGS}" = "yes"], [
     AS_IF([test "${CLANG_FLAGS}" = "yes"], [
       TEMP_CPPFLAGS="$TEMP_CPPFLAGS -W -pedantic -Werror -Wall -Wextra -Wconversion -Wformat -Wshadow -Wpointer-arith -Wwrite-strings -Wredundant-decls -Wno-c11-extensions -Wno-sign-conversion -Wno-sign-compare -ggdb -g3 "
     ],[
-      TEMP_CPPFLAGS="$TEMP_CPPFLAGS -W -O3 -Wall -Wextra -Wconversion -Wformat -Wshadow -Wpointer-arith -Wwrite-strings -Wredundant-decls -Wno-sign-conversion -Wno-sign-compare -ggdb -g3 "
+      TEMP_CPPFLAGS="$TEMP_CPPFLAGS -W -O3 -Wall -Wextra  -Wformat -Wshadow -Wpointer-arith -Wwrite-strings -Wredundant-decls -Wno-sign-conversion -Wno-sign-compare -ggdb -g3 "
     ])
   ])
 

@@ -560,7 +560,7 @@ void cls_allcam::init_validate()
         if ((p_cam->all_loc.col == -1) ||
             (p_cam->all_loc.row == -1)) {
             cfg_valid = false;
-            MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO
+            MOTION_LOG(NTC, LOG_TYPE_ALL, NO_ERRNO
                 , "No stream_preview_params for cam %d"
                 , p_cam->cfg->device_id);
         } else {
@@ -569,7 +569,7 @@ void cls_allcam::init_validate()
                 if ((p_cam->all_loc.col == p_cam1->all_loc.col) &&
                     (p_cam->all_loc.row == p_cam1->all_loc.row) &&
                     (indx != indx1)) {
-                    MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO
+                    MOTION_LOG(NTC, LOG_TYPE_ALL, NO_ERRNO
                         , "Duplicate stream_preview_params "
                         " cam %d, cam %d row %d col %d"
                         , p_cam->cfg->device_id
@@ -581,14 +581,14 @@ void cls_allcam::init_validate()
             }
         }
         if (p_cam->all_loc.row == 0) {
-            MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO
+            MOTION_LOG(NTC, LOG_TYPE_ALL, NO_ERRNO
                 , "Invalid stream_preview_params row cam %d, row %d"
                 , p_cam->cfg->device_id
                 , p_cam->all_loc.row);
             cfg_valid = false;
         }
         if (p_cam->all_loc.col == 0) {
-            MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO
+            MOTION_LOG(NTC, LOG_TYPE_ALL, NO_ERRNO
                 , "Invalid stream_preview_params col cam %d, col %d"
                 , p_cam->cfg->device_id
                 , p_cam->all_loc.col);
@@ -605,7 +605,7 @@ void cls_allcam::init_validate()
             }
         }
         if (chk == false) {
-            MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO
+            MOTION_LOG(NTC, LOG_TYPE_ALL, NO_ERRNO
                 , "Invalid stream_preview_params combination. "
                 " Missing row %d", row);
             cfg_valid = false;
@@ -619,7 +619,7 @@ void cls_allcam::init_validate()
                     if ((col_chk+1) == col) {
                         col_chk = col;
                     } else {
-                        MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO
+                        MOTION_LOG(NTC, LOG_TYPE_ALL, NO_ERRNO
                             , "Invalid stream_preview_params combination. "
                             " Missing row %d column %d", row, col_chk+1);
                         cfg_valid = false;
@@ -630,7 +630,7 @@ void cls_allcam::init_validate()
     }
 
     if (cfg_valid == false) {
-        MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO
+        MOTION_LOG(NTC, LOG_TYPE_ALL, NO_ERRNO
             ,"Creating default stream preview values");
         row = 0;
         col = 0;
@@ -659,7 +659,7 @@ void cls_allcam::init_cams()
 
     for (indx=0; indx<active_cnt; indx++) {
         p_cam = active_cam[indx];
-        MOTION_LOG(DBG, TYPE_ALL, NO_ERRNO
+        MOTION_LOG(DBG, LOG_TYPE_ALL, NO_ERRNO
             ,"stream_preview_params values. Device %d row %d col %d"
             , p_cam->cfg->device_id
             , p_cam->all_loc.row
@@ -756,7 +756,7 @@ void cls_allcam::handler()
         timing();
     }
 
-    MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO, _("All camera closed"));
+    MOTION_LOG(NTC, LOG_TYPE_ALL, NO_ERRNO, _("All camera closed"));
 
     handler_running = false;
     pthread_exit(NULL);
@@ -775,7 +775,7 @@ void cls_allcam::handler_startup()
         pthread_attr_setdetachstate(&thread_attr, PTHREAD_CREATE_DETACHED);
         retcd = pthread_create(&handler_thread, &thread_attr, &allcam_handler, this);
         if (retcd != 0) {
-            MOTION_LOG(WRN, TYPE_ALL, NO_ERRNO,_("Unable to start all camera thread."));
+            MOTION_LOG(WRN, LOG_TYPE_ALL, NO_ERRNO,_("Unable to start all camera thread."));
             handler_running = false;
             handler_stop = true;
         }
@@ -795,10 +795,10 @@ void cls_allcam::handler_shutdown()
             waitcnt++;
         }
         if (waitcnt == app->cfg->watchdog_tmo) {
-            MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
+            MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO
                 , _("Normal shutdown of all camera failed"));
             if (app->cfg->watchdog_kill > 0) {
-                MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
+                MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO
                     ,_("Waiting additional %d seconds (watchdog_kill).")
                     ,app->cfg->watchdog_kill);
                 waitcnt = 0;
@@ -807,14 +807,14 @@ void cls_allcam::handler_shutdown()
                     waitcnt++;
                 }
                 if (waitcnt == app->cfg->watchdog_kill) {
-                    MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
+                    MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO
                         , _("No response to shutdown.  Killing it."));
-                    MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
+                    MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO
                         , _("Memory leaks will occur."));
                     pthread_kill(handler_thread, SIGVTALRM);
                 }
             } else {
-                MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
+                MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO
                     , _("watchdog_kill set to terminate application."));
                 exit(1);
             }

@@ -53,7 +53,7 @@ void cls_webu_file::main() {
     for (indx=0;indx<webu->wb_actions->params_cnt;indx++) {
         if (webu->wb_actions->params_array[indx].param_name == "movies") {
             if (webu->wb_actions->params_array[indx].param_value == "off") {
-                MOTION_LOG(INF, TYPE_ALL, NO_ERRNO, "Movies via webcontrol disabled");
+                MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "Movies via webcontrol disabled");
                 webua->bad_request();
                 return;
             } else {
@@ -111,7 +111,7 @@ void cls_webu_file::main() {
         MHD_destroy_response (response);
     }
     if (retcd == MHD_NO) {
-        MOTION_LOG(INF, TYPE_ALL, NO_ERRNO, "Error processing file request");
+        MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "Error processing file request");
     }
 
 }

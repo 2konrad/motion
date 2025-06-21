@@ -56,7 +56,7 @@ void cls_webu_post::cam_add()
     for (indx=0;indx<webu->wb_actions->params_cnt;indx++) {
         if (webu->wb_actions->params_array[indx].param_name == "camera_add") {
             if (webu->wb_actions->params_array[indx].param_value == "off") {
-                MOTION_LOG(INF, TYPE_ALL, NO_ERRNO, "Camera add action disabled");
+                MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "Camera add action disabled");
                 return;
             } else {
                 break;
@@ -64,7 +64,7 @@ void cls_webu_post::cam_add()
         }
     }
 
-    MOTION_LOG(INF, TYPE_ALL, NO_ERRNO, "Adding camera.");
+    MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "Adding camera.");
 
     maxcnt = 100;
 
@@ -77,11 +77,11 @@ void cls_webu_post::cam_add()
 
     if (indx == maxcnt) {
         app->cam_add = false;
-        MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO, "Error adding camera.  Timed out");
+        MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO, "Error adding camera.  Timed out");
         return;
     }
 
-    MOTION_LOG(INF, TYPE_ALL, NO_ERRNO, "New camera added.");
+    MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "New camera added.");
 
 }
 
@@ -93,7 +93,7 @@ void cls_webu_post::cam_delete()
     for (indx=0;indx<webu->wb_actions->params_cnt;indx++) {
         if (webu->wb_actions->params_array[indx].param_name == "camera_delete") {
             if (webu->wb_actions->params_array[indx].param_value == "off") {
-                MOTION_LOG(INF, TYPE_ALL, NO_ERRNO, "Camera delete action disabled");
+                MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "Camera delete action disabled");
                 return;
             } else {
                 break;
@@ -101,7 +101,7 @@ void cls_webu_post::cam_delete()
         }
     }
 
-    MOTION_LOG(INF, TYPE_ALL, NO_ERRNO, "Deleting camera.");
+    MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "Deleting camera.");
 
     app->cam_delete = webua->camindx;
 
@@ -112,7 +112,7 @@ void cls_webu_post::cam_delete()
         indx++;
     }
     if (indx == maxcnt) {
-        MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO, "Error stopping camera.  Timed out shutting down");
+        MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO, "Error stopping camera.  Timed out shutting down");
         app->cam_delete = -1;
         return;
     }
@@ -144,12 +144,12 @@ void cls_webu_post::parse_cmd()
     }
 
     if (post_cmd == "") {
-        MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
+        MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO
             , "Invalid post request.  No command");
         return;
     }
     if (webua->device_id == -1) {
-        MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
+        MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO
             , "Invalid post request.  No camera id provided");
         return;
     }
@@ -162,7 +162,7 @@ void cls_webu_post::parse_cmd()
             }
         }
         if (webua->camindx == -1) {
-            MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
+            MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO
                 , "Invalid request.  Device id %d not found"
                 , webua->device_id);
             webua->device_id = -1;
@@ -179,7 +179,7 @@ void cls_webu_post::action_eventend()
     for (indx=0;indx<webu->wb_actions->params_cnt;indx++) {
         if (webu->wb_actions->params_array[indx].param_name == "event") {
             if (webu->wb_actions->params_array[indx].param_value == "off") {
-                MOTION_LOG(INF, TYPE_ALL, NO_ERRNO, "Event end action disabled");
+                MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "Event end action disabled");
                 return;
             } else {
                 break;
@@ -205,7 +205,7 @@ void cls_webu_post::action_eventstart()
     for (indx=0;indx<webu->wb_actions->params_cnt;indx++) {
         if (webu->wb_actions->params_array[indx].param_name == "event") {
             if (webu->wb_actions->params_array[indx].param_value == "off") {
-                MOTION_LOG(INF, TYPE_ALL, NO_ERRNO, "Event start action disabled");
+                MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "Event start action disabled");
                 return;
             } else {
                 break;
@@ -232,7 +232,7 @@ void cls_webu_post::action_snapshot()
     for (indx=0;indx<webu->wb_actions->params_cnt;indx++) {
         if (webu->wb_actions->params_array[indx].param_name == "snapshot") {
             if (webu->wb_actions->params_array[indx].param_value == "off") {
-                MOTION_LOG(INF, TYPE_ALL, NO_ERRNO, "Snapshot action disabled");
+                MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "Snapshot action disabled");
                 return;
             } else {
                 break;
@@ -258,7 +258,7 @@ void cls_webu_post::action_pause_on()
     for (indx=0;indx<webu->wb_actions->params_cnt;indx++) {
         if (webu->wb_actions->params_array[indx].param_name == "pause") {
             if (webu->wb_actions->params_array[indx].param_value == "off") {
-                MOTION_LOG(INF, TYPE_ALL, NO_ERRNO, "Pause action disabled");
+                MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "Pause action disabled");
                 return;
             } else {
                 break;
@@ -283,7 +283,7 @@ void cls_webu_post::action_pause_off()
     for (indx=0;indx<webu->wb_actions->params_cnt;indx++) {
         if (webu->wb_actions->params_array[indx].param_name == "pause") {
             if (webu->wb_actions->params_array[indx].param_value == "off") {
-                MOTION_LOG(INF, TYPE_ALL, NO_ERRNO, "Pause action disabled");
+                MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "Pause action disabled");
                 return;
             } else {
                 break;
@@ -308,7 +308,7 @@ void cls_webu_post::action_pause_schedule()
     for (indx=0;indx<webu->wb_actions->params_cnt;indx++) {
         if (webu->wb_actions->params_array[indx].param_name == "pause") {
             if (webu->wb_actions->params_array[indx].param_value == "off") {
-                MOTION_LOG(INF, TYPE_ALL, NO_ERRNO, "Pause action disabled");
+                MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "Pause action disabled");
                 return;
             } else {
                 break;
@@ -334,7 +334,7 @@ void cls_webu_post::action_restart()
     for (indx=0;indx<webu->wb_actions->params_cnt;indx++) {
         if (webu->wb_actions->params_array[indx].param_name == "restart") {
             if (webu->wb_actions->params_array[indx].param_value == "off") {
-                MOTION_LOG(INF, TYPE_ALL, NO_ERRNO, "Restart action disabled");
+                MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "Restart action disabled");
                 return;
             } else {
                 break;
@@ -365,7 +365,7 @@ void cls_webu_post::action_stop()
     for (indx=0;indx<webu->wb_actions->params_cnt;indx++) {
         if (webu->wb_actions->params_array[indx].param_name == "stop") {
             if (webu->wb_actions->params_array[indx].param_value == "off") {
-                MOTION_LOG(INF, TYPE_ALL, NO_ERRNO, "Stop action disabled");
+                MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "Stop action disabled");
                 return;
             } else {
                 break;
@@ -405,7 +405,7 @@ void cls_webu_post::action_user()
     for (indx=0;indx<webu->wb_actions->params_cnt;indx++) {
         if (webu->wb_actions->params_array[indx].param_name == "action_user") {
             if (webu->wb_actions->params_array[indx].param_value == "off") {
-                MOTION_LOG(INF, TYPE_ALL, NO_ERRNO, "User action disabled");
+                MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "User action disabled");
                 return;
             } else {
                 break;
@@ -470,7 +470,7 @@ void cls_webu_post::write_config()
     for (indx=0;indx<webu->wb_actions->params_cnt;indx++) {
         if (webu->wb_actions->params_array[indx].param_name == "config_write") {
             if (webu->wb_actions->params_array[indx].param_value == "off") {
-                MOTION_LOG(INF, TYPE_ALL, NO_ERRNO, "Config write action disabled");
+                MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "Config write action disabled");
                 return;
             } else {
                 break;
@@ -540,7 +540,7 @@ void cls_webu_post::config_set(int indx_parm, std::string parm_vl)
             (parm_ct == PARM_CAT_15)) {
             return;
         }
-        MOTION_LOG(INF, TYPE_ALL, NO_ERRNO, "Config edit set. %s:%s"
+        MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "Config edit set. %s:%s"
             ,parm_nm.c_str(), parm_vl.c_str());
         app->cam_list[webua->camindx]->conf_src->edit_set(
             parm_nm, parm_vl);
@@ -607,7 +607,7 @@ void cls_webu_post::config()
     for (indx=0;indx<webu->wb_actions->params_cnt;indx++) {
         if (webu->wb_actions->params_array[indx].param_name == "config") {
             if (webu->wb_actions->params_array[indx].param_value == "off") {
-                MOTION_LOG(INF, TYPE_ALL, NO_ERRNO, "Config save action disabled");
+                MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "Config save action disabled");
                 return;
             } else {
                 break;
@@ -655,28 +655,28 @@ void cls_webu_post::config()
         if (restart_list[indx].restart == true) {
             if (restart_list[indx].comp_type == "log") {
                 motlog->restart = true;
-                MOTION_LOG(DBG, TYPE_ALL, NO_ERRNO,
+                MOTION_LOG(DBG, LOG_TYPE_ALL, NO_ERRNO,
                     "Restart request for log");
             } else if (restart_list[indx].comp_type == "webu") {
                 app->webu->restart = true;
-                MOTION_LOG(DBG, TYPE_ALL, NO_ERRNO,
+                MOTION_LOG(DBG, LOG_TYPE_ALL, NO_ERRNO,
                     "Restart request for webcontrol");
             } else if (restart_list[indx].comp_type == "dbse") {
                 app->dbse->restart = true;
-                MOTION_LOG(DBG, TYPE_ALL, NO_ERRNO,
+                MOTION_LOG(DBG, LOG_TYPE_ALL, NO_ERRNO,
                     "Restart request for database");
             } else if (restart_list[indx].comp_type == "cam") {
                 app->cam_list[restart_list[indx].comp_indx]->restart = true;
-                MOTION_LOG(DBG, TYPE_ALL, NO_ERRNO,
+                MOTION_LOG(DBG, LOG_TYPE_ALL, NO_ERRNO,
                     "Restart request for camera %d"
                     , app->cam_list[restart_list[indx].comp_indx]->cfg->device_id);
             } else if (restart_list[indx].comp_type == "snd") {
                 app->snd_list[restart_list[indx].comp_indx]->restart = true;
-                MOTION_LOG(DBG, TYPE_ALL, NO_ERRNO,
+                MOTION_LOG(DBG, LOG_TYPE_ALL, NO_ERRNO,
                     "Restart request for sound %d"
                     , app->cam_list[restart_list[indx].comp_indx]->cfg->device_id);
             } else {
-                MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO, "Bad programming");
+                MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO, "Bad programming");
             }
         }
     }
@@ -696,7 +696,7 @@ void cls_webu_post::ptz()
     for (indx=0;indx<webu->wb_actions->params_cnt;indx++) {
         if (webu->wb_actions->params_array[indx].param_name == "ptz") {
             if (webu->wb_actions->params_array[indx].param_value == "off") {
-                MOTION_LOG(INF, TYPE_ALL, NO_ERRNO, "PTZ actions disabled");
+                MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "PTZ actions disabled");
                 return;
             } else {
                 break;

@@ -411,7 +411,7 @@ static void add_huff_table(j_decompress_ptr dinfo, JHUFF_TBL **htblptr, const UI
         nsymbols += bits[len];
 
     if (nsymbols < 1 || nsymbols > 256) {
-        MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO, _("%s: Given jpeg buffer was too small"));
+        MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO, _("%s: Given jpeg buffer was too small"));
     }
 
     memcpy((*htblptr)->huffval, val, (uint)nsymbols * sizeof(UINT8));
@@ -613,7 +613,7 @@ static void jpgutl_error_exit(j_common_ptr cinfo)
      */
     (*cinfo->err->format_message) (cinfo, buffer);
 
-    MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO, "%s", buffer);
+    MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO, "%s", buffer);
 
     /* Return control to the setjmp point. */
     longjmp (myerr->setjmp_buffer, 1);

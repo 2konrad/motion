@@ -86,7 +86,7 @@ int cls_webu_ans::check_tls()
     }
 
     if (file_chk != webu->info_tls) {
-        MOTION_LOG(INF, TYPE_ALL, NO_ERRNO
+        MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO
             , _("Webcontrol files have changed.  Restarting webcontrol"));
         webu->restart = true;
         return -1;
@@ -290,7 +290,7 @@ void cls_webu_ans::hostname_get()
             app->cfg->webcontrol_base_path;
     }
 
-    MOTION_LOG(DBG,TYPE_ALL, NO_ERRNO, _("Full Host:  %s"), hostfull.c_str());
+    MOTION_LOG(DBG,LOG_TYPE_ALL, NO_ERRNO, _("Full Host:  %s"), hostfull.c_str());
 
     return;
 }
@@ -363,7 +363,7 @@ void cls_webu_ans::client_connect()
     while (it != webu->wb_clients.end()) {
         if (it->clientip == clientip) {
             if (it->authenticated == false) {
-                MOTION_LOG(INF,TYPE_ALL, NO_ERRNO, _("Connection from: %s"),clientip.c_str());
+                MOTION_LOG(INF,LOG_TYPE_ALL, NO_ERRNO, _("Connection from: %s"),clientip.c_str());
             }
             it->authenticated = true;
             it->conn_nbr = 1;
@@ -382,7 +382,7 @@ void cls_webu_ans::client_connect()
     clients.authenticated = true;
     webu->wb_clients.push_back(clients);
 
-    MOTION_LOG(INF,TYPE_ALL, NO_ERRNO, _("Connection from: %s"),clientip.c_str());
+    MOTION_LOG(INF,LOG_TYPE_ALL, NO_ERRNO, _("Connection from: %s"),clientip.c_str());
 
     return;
 

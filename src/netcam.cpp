@@ -2170,7 +2170,7 @@ void cls_netcam::handler_startup()
         pthread_attr_setdetachstate(&thread_attr, PTHREAD_CREATE_DETACHED);
         retcd = pthread_create(&handler_thread, &thread_attr, &netcam_handler, this);
         if (retcd != 0) {
-            MOTION_LOG(WRN, TYPE_ALL, NO_ERRNO,_("Unable to start camera thread."));
+            MOTION_LOG(WRN, LOG_TYPE_ALL, NO_ERRNO,_("Unable to start camera thread."));
             handler_running = false;
             handler_stop = true;
             return;
@@ -2217,10 +2217,10 @@ void cls_netcam::handler_shutdown()
             waitcnt++;
         }
         if (waitcnt == cam->cfg->watchdog_tmo) {
-            MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
+            MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO
                 , _("Normal shutdown of camera failed"));
             if (cam->cfg->watchdog_kill > 0) {
-                MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
+                MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO
                     ,_("Waiting additional %d seconds (watchdog_kill).")
                     ,cam->cfg->watchdog_kill);
                 waitcnt = 0;
@@ -2229,14 +2229,14 @@ void cls_netcam::handler_shutdown()
                     waitcnt++;
                 }
                 if (waitcnt == cam->cfg->watchdog_kill) {
-                    MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
+                    MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO
                         , _("No response to shutdown.  Killing it."));
-                    MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
+                    MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO
                         , _("Memory leaks will occur."));
                     pthread_kill(handler_thread, SIGVTALRM);
                 }
             } else {
-                MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
+                MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO
                     , _("watchdog_kill set to terminate application."));
                 exit(1);
             }

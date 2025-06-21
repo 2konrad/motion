@@ -261,14 +261,14 @@ void vlp_init(cls_camera *cam)
     #if defined(HAVE_V4L2) && !defined(BSD)
         /* open video loopback devices if enabled */
         if (cam->cfg->video_pipe != "") {
-            MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO
+            MOTION_LOG(NTC, LOG_TYPE_ALL, NO_ERRNO
                 ,_("Opening video loopback device for normal pictures"));
 
             /* vid_startpipe should get the output dimensions */
             cam->pipe = vlp_startpipe(cam->cfg->video_pipe.c_str(), cam->imgs.width, cam->imgs.height);
 
             if (cam->pipe < 0) {
-                MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
+                MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO
                     ,_("Failed to open video loopback for normal pictures"));
                 return;
             }
@@ -277,14 +277,14 @@ void vlp_init(cls_camera *cam)
         }
 
         if (cam->cfg->video_pipe_motion != "") {
-            MOTION_LOG(NTC, TYPE_ALL, NO_ERRNO
+            MOTION_LOG(NTC, LOG_TYPE_ALL, NO_ERRNO
                 ,_("Opening video loopback device for motion pictures"));
 
             /* vid_startpipe should get the output dimensions */
             cam->mpipe = vlp_startpipe(cam->cfg->video_pipe_motion.c_str(), cam->imgs.width, cam->imgs.height);
 
             if (cam->mpipe < 0) {
-                MOTION_LOG(ERR, TYPE_ALL, NO_ERRNO
+                MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO
                     ,_("Failed to open video loopback for motion pictures"));
                 return;
             }
