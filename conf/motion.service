@@ -1,0 +1,24 @@
+[Unit]
+Description=Motion - Enhanced security camera monitoring software.
+Documentation=man:motion(1)
+After=local-fs.target network.target
+
+[Service]
+User=pi
+UMask=002
+ExecStart=/home/pi/motion/motion.sh
+
+Type=simple
+# Set StandardError=journal to use journald to log messages from motion.
+# See also the "log_file" config file option in motion(1) and systemd.service(5).
+StandardError=null
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+RestartSec=5
+
+# Don't restart if unconfigured / misconfigured  e.g. daemon disabled
+# in defaults file.  See also /usr/include/sysexits.h or sysexits(3)
+RestartPreventExitStatus=78
+
+[Install]
+WantedBy=multi-user.target

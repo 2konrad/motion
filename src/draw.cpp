@@ -1415,15 +1415,18 @@ void cls_draw::locate()
     ctx_images *imgs;
     ctx_coord *p_loc;
     u_char *image_norm;
+    u_char *image_high;
 
     if (cam->cfg->locate_motion_mode == "preview") {
         imgs = &cam->imgs;
         p_loc = &cam->imgs.image_preview.location;
         image_norm = cam->imgs.image_preview.image_norm;
+        image_high = cam->current_image->image_high; //right?
     } else if (cam->cfg->locate_motion_mode == "on") {
         imgs = &cam->imgs;
         p_loc = &cam->current_image->location;
         image_norm = cam->current_image->image_norm;
+        image_high = cam->current_image->image_high;
     } else {
         return;
     }
@@ -1431,6 +1434,7 @@ void cls_draw::locate()
     if ((cam->cfg->locate_motion_style == "box") ||
         (cam->cfg->locate_motion_style == "cross")) {
         location(p_loc, imgs, imgs->width, image_norm);
+        location(p_loc, imgs, imgs->width_high, image_high);
     } else if ((cam->cfg->locate_motion_style == "redbox")||
         (cam->cfg->locate_motion_style == "redcross")) {
         red_location(p_loc, imgs, imgs->width, image_norm);

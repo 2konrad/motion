@@ -131,7 +131,7 @@ void cls_algsec::label_image(Mat &mat_dst
                 detected = true;
             }
         }
-
+        MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO, "label image 2");
         if (detected) {
             for (indx0=0; indx0<fltr_pos.size(); indx0++) {
                 Rect r = fltr_pos[indx0];
@@ -144,7 +144,7 @@ void cls_algsec::label_image(Mat &mat_dst
                 putText(mat_dst, wstr, Point(r.x,r.y), FONT_HERSHEY_PLAIN, 1, 255, 1);
             }
         }
-
+        MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO, "label image 3");
         image_show(mat_dst);
 
     } catch ( cv::Exception& e ) {
@@ -167,19 +167,15 @@ void cls_algsec::label_image(Mat &mat_dst, double confidence, Point classIdPoint
         if (confidence < threshold) {
             return;
         }
-
         detected = true;
-        label = format("%s: %.4f"
-            , (dnn_classes.empty() ?
-                format("Class #%d", classIdPoint.x).c_str() :
-                dnn_classes[(uint)classIdPoint.x].c_str())
-            , confidence);
-
-        putText(mat_dst , label, Point(0, 15)
-            , FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 255, 0));
-
+        // label = format("%s: %.4f"
+        //     , (dnn_classes.empty() ?
+        //         format("Class #%d", classIdPoint.x).c_str() :
+        //         dnn_classes[(uint)classIdPoint.x].c_str())
+        //     , confidence);
+        // putText(mat_dst , label, Point(0, 15)
+        //     , FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 255, 0));
         image_show(mat_dst);
-
     } catch ( cv::Exception& e ) {
         const char* err_msg = e.what();
         MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO, _("Error %s"),err_msg);
@@ -342,16 +338,47 @@ void cls_algsec::detect_dnn()
             , dnn_scale
             , Size(dnn_width, dnn_height)
             , Scalar());
-        net.setInput(blob);
-        Mat prob = net.forward();
+        // net.setInput(blob);
+        // Mat prob = net.forward();
+        // cv::FileStorage storage("/home/pi/motion/mat.json", cv::FileStorage::WRITE);
+        // storage << "prob" << prob ;
+        // storage.release();  
 
-        maxProb = *std::max_element(prob.begin<float>(), prob.end<float>());
-        cv::exp(prob-maxProb, softmaxProb);
-        sum = (float)cv::sum(softmaxProb)[0];
-        softmaxProb /= sum;
-        cv::minMaxLoc(softmaxProb.reshape(1, 1), 0, &confidence, 0, &classIdPoint);
+        // maxProb = *std::max_element(prob.begin<float>(), prob.end<float>());
+        // cv::exp(prob-maxProb, softmaxProb);
+        // sum = (float)cv::sum(softmaxProb)[0];
+        // softmaxProb /= sum;
+        // cv::minMaxLoc(softmaxProb.reshape(1, 1), 0, &confidence, 0, &classIdPoint);
 
-        label_image(mat_dst, confidence, classIdPoint);
+        	net.setInput(blob);
+
+	    cv::Mat detection = net.forward("detection_out");
+	    cv::Mat detectionMat(detection.size[2], detection.size[3], CV_32F, detection.ptr<float>());
+
+        //const float confidence_threshold = 0.25;
+        for(int i=0; i<detectionMat.rows; i++){
+            float detect_confidence = detectionMat.at<float>(i, 2);
+
+            if(detect_confidence > threshold){
+                size_t det_index = (size_t)detectionMat.at<float>(i, 1);
+                float x1 = detectionMat.at<float>(i, 3)*mat_dst.cols;
+                float y1 = detectionMat.at<float>(i, 4)*mat_dst.rows;
+                float x2 = detectionMat.at<float>(i, 5)*mat_dst.cols;
+                float y2 = detectionMat.at<float>(i, 6)*mat_dst.rows;
+                cv::Rect rec((int)x1, (int)y1, (int)(x2 - x1), (int)(y2 - y1));
+                rectangle(mat_dst,rec, cv::Scalar(0, 0, 255), 1, 8, 0);
+                putText(mat_dst, cv::format("%s  (%.2f)", 
+                    dnn_classes.empty() ? 
+                        cv::format("Class #%d", (uint)det_index).c_str() :   
+                        dnn_classes[(uint)det_index].c_str(), detect_confidence ), 
+                    cv::Point(x1, y1-5) , 
+                    cv::FONT_HERSHEY_SIMPLEX,0.5, cv::Scalar(0, 0, 255), 1, 8, 0);
+                if (det_index==1) {detected == true;} // person detected
+            }
+        }
+
+        //label_image(mat_dst, (double)1, classIdPoint); //classIdPoint not needed
+        image_show(mat_dst);
 
     } catch ( cv::Exception& e ) {
         const char* err_msg = e.what();

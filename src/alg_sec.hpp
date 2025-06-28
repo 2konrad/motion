@@ -20,7 +20,7 @@
 #ifndef _INCLUDE_ALG_SEC_HPP_
 #define _INCLUDE_ALG_SEC_HPP_
 
-#ifdef HAVE_OPENCV
+#ifdef HAVE_OPENCV4
     #pragma GCC diagnostic push
         #pragma GCC diagnostic ignored "-Wconversion"
         #include <opencv2/objdetect.hpp>

@@ -1,0 +1,42 @@
+##### config.txt
+dtparam=pwr_led_activelow=off
+dtparam=pwr_led_trigger=default-on
+
+##### apache2.conf
+ServerName localhost
+<Directory /home/pi/motion/web>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+</Directory>
+<VirtualHost *:80>
+        ServerAdmin webmaster@localhost
+        DocumentRoot /home/pi/motion/web
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+LoadModule rewrite_module /usr/lib/apache2/modules/mod_rewrite.so
+# These need to be set in /etc/apache2/envvars
+User pi
+Group pi
+
+
+##### envvars needed?
+export APACHE_RUN_USER=pi
+export APACHE_RUN_GROUP=pi
+
+##install
+sudo apt install autoconf automake autopoint build-essential pkgconf libtool libzip-dev libjpeg-dev git libavformat-dev libavcodec-dev libavutil-dev libswscale-dev libavdevice-dev libopencv-dev libwebp-dev gettext libmicrohttpd-dev libmariadb-dev libcamera-dev libcamera-tools libcamera-v4l2 libasound2-dev libpulse-dev libfftw3-dev
+sudo apt install apache2
+
+#### logrotate
+/etc/logrotate.de ---> "motion"
+
+/home/pi/motion/log/lotion.log {
+        rotate 14
+        daily
+        nocompress
+        
+/etc/systemd/motion.service (<-- home/pi/motion/conf/motion.service)
+sudo systemctl enable motion
+

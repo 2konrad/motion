@@ -152,6 +152,8 @@ void cls_camera::ring_process()
 {
     ctx_image_data *saved_current_image = current_image;
 
+    int ring_process_loop = 0;
+
     do {
         if ((imgs.image_ring[imgs.ring_out].save_pic == false) &&
             (imgs.image_ring[imgs.ring_out].save_movie == false)) {
@@ -186,7 +188,9 @@ void cls_camera::ring_process()
             imgs.ring_out = 0;
         }
 
-    } while (imgs.ring_out != imgs.ring_in);
+    ring_process_loop++;
+
+    } while ((imgs.ring_out != imgs.ring_in)  && (ring_process_loop < 3)); //MAX_RING_PROCESS_LOOPS= 3
 
     current_image = saved_current_image;
 }
@@ -432,7 +436,7 @@ void cls_camera::cam_start()
     watchdog = cfg->watchdog_tmo;
 
     // Start Opencv
-    net = cv::dnn::readNetFromTensorflow("frozen_inference_graph_V2.pb","ssd_mobilenet_v2_coco_2018_03_29.pbtxt");
+    net = cv::dnn::readNetFromTensorflow("/home/pi/motion/src/frozen_inference_graph_V2.pb","/home/pi/motion/src/ssd_mobilenet_v2_coco_2018_03_29.pbtxt");
     if (net.empty()){
         MOTION_LOG(NTC, LOG_TYPE_ALL, NO_ERRNO, _("Init ML Model error"));
         exit(-1);
@@ -1532,6 +1536,10 @@ void cls_camera::overlay()
                 , imgs.width, imgs.height
                 , imgs.width - 10, 10
                 , tmp, text_scale);
+        draw->text(current_image->image_high
+                , imgs.width_high, imgs.height_high
+                , imgs.width_high - 20, 20
+                , tmp, text_scale);
     }
 
     if ((stream.motion.jpg_cnct > 0) ||
@@ -1558,6 +1566,10 @@ void cls_camera::overlay()
                 , imgs.width, imgs.height
                 , 10, imgs.height - (10 * text_scale)
                 , tmp, text_scale);
+        draw->text(current_image->image_high
+                , imgs.width_high, imgs.height_high
+                , 20, imgs.height_high - (20 * text_scale)
+                , tmp, text_scale);
     }
 
     /* Add text in lower right corner of the pictures */
@@ -1566,6 +1578,10 @@ void cls_camera::overlay()
         draw->text(current_image->image_norm
                 , imgs.width, imgs.height
                 , imgs.width - 10, imgs.height - (10 * text_scale)
+                , tmp, text_scale);
+        draw->text(current_image->image_high
+                , imgs.width_high, imgs.height_high 
+                , imgs.width_high - 20, imgs.height_high - (20 * text_scale)
                 , tmp, text_scale);
     }
 }
