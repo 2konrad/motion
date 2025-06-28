@@ -373,7 +373,7 @@ void cls_algsec::detect_dnn()
                         dnn_classes[(uint)det_index].c_str(), detect_confidence ), 
                     cv::Point(x1, y1-5) , 
                     cv::FONT_HERSHEY_SIMPLEX,0.5, cv::Scalar(0, 0, 255), 1, 8, 0);
-                if (det_index==1) {detected == true;} // person detected
+                if ((uint)det_index==1) {detected = true;} // person detected
             }
         }
 
