@@ -156,64 +156,66 @@ void cls_algsec::label_image(Mat &mat_dst
 
 }
 
-void cls_algsec::label_image(Mat &mat_dst, double confidence, Point classIdPoint)
-{
-    std::string label;
-
-    try {
-        detected = false;
-        debug_notice(mat_dst, detected);
-
-        if (confidence < threshold) {
-            return;
-        }
-        detected = true;
-        // label = format("%s: %.4f"
-        //     , (dnn_classes.empty() ?
-        //         format("Class #%d", classIdPoint.x).c_str() :
-        //         dnn_classes[(uint)classIdPoint.x].c_str())
-        //     , confidence);
-        // putText(mat_dst , label, Point(0, 15)
-        //     , FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 255, 0));
-        image_show(mat_dst);
-    } catch ( cv::Exception& e ) {
-        const char* err_msg = e.what();
-        MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO, _("Error %s"),err_msg);
-        MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO, _("Disabling secondary detection"));
-        method = "none";
-    }
-
-}
+// void cls_algsec::label_image(Mat &mat_dst, double confidence, Point classIdPoint)
+// {
+//     std::string label;
+// 
+//     try {
+//         detected = false;
+//         debug_notice(mat_dst, detected);
+// 
+//         if (confidence < threshold) {
+//             return;
+//         }
+//         detected = true;
+//         // label = format("%s: %.4f"
+//         //     , (dnn_classes.empty() ?
+//         //         format("Class #%d", classIdPoint.x).c_str() :
+//         //         dnn_classes[(uint)classIdPoint.x].c_str())
+//         //     , confidence);
+//         // putText(mat_dst , label, Point(0, 15)
+//         //     , FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 255, 0));
+//         image_show(mat_dst);
+//     } catch ( cv::Exception& e ) {
+//         const char* err_msg = e.what();
+//         MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO, _("Error %s"),err_msg);
+//         MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO, _("Disabling secondary detection"));
+//         method = "none";
+//     }
+// 
+// }
 
 void cls_algsec::get_image_roi(Mat &mat_src, Mat &mat_dst)
 {
     cv::Rect roi;
+    cv::Point center;
 
-    roi.x = cam->current_image->location.minx;
-    roi.y = cam->current_image->location.miny;
-    roi.width = cam->current_image->location.width;
-    roi.height = cam->current_image->location.height;
+    // roi.x = cam->current_image->location.minx;
+    // roi.y = cam->current_image->location.miny;
+    // roi.width = cam->current_image->location.width;
+    // roi.height = cam->current_image->location.height;
+    center.x = cam->current_image->location.x;
+    center.y = cam->current_image->location.y;
 
-    /* Images smaller than 100 cause seg faults.  112 is the nearest
-     multiple of 16 greater than 100*/
-    if (roi.height < 112) {
-        roi.height = 112;
-    }
-    if ((roi.y + roi.height) > (height-112)) {
-        roi.y = height - roi.height;
-    } else if ((roi.y + roi.height) > height) {
-        roi.height = height - roi.y;
-    }
 
-    if (roi.width < 112) {
-        roi.width = 112;
+    // target to get 300x300
+    if (center.x < 300) {
+        center.x = 300;
     }
-    if ((roi.x + roi.width) > (width-112)) {
-        roi.x = width - roi.width;
-    } else {
-        roi.width = width - roi.x;
+    if (center.y < 300) {
+        center.y = 300;
     }
-
+    if (center.x > cam->imgs.height -  300) {
+        center.x = cam->imgs.height -  300;
+    }  
+    if (center.y > cam->imgs.width -  300) {
+        center.y = cam->imgs.width -  300;
+    }   
+    roi.x = center.x - 150;
+    roi.y = center.y - 150;
+    roi.width = 300;
+    roi.height = 300;
+    
     /*
     MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "Base %d %d (%dx%d) img(%dx%d)"
         ,cam->current_image->location.minx
@@ -221,9 +223,10 @@ void cls_algsec::get_image_roi(Mat &mat_src, Mat &mat_dst)
         ,cam->current_image->location.width
         ,cam->current_image->location.height
         ,width,height);
-    MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "Opencv %d %d %d %d"
+        */
+    MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "Opencv roi %d %d %d %d"
         ,roi.x,roi.y,roi.width,roi.height);
-    */
+    
     mat_dst = mat_src(roi);
 
 }
@@ -324,9 +327,9 @@ void cls_algsec::detect_haar()
 void cls_algsec::detect_dnn()
 {
     Mat mat_dst, softmaxProb;
-    double confidence;
-    float maxProb = 0.0, sum = 0.0;
-    Point classIdPoint;
+    //double confidence;
+    //float maxProb = 0.0, sum = 0.0;
+    //Point classIdPoint;
 
     try {
         get_image(mat_dst);
@@ -335,7 +338,7 @@ void cls_algsec::detect_dnn()
         }
 
         Mat blob = blobFromImage(mat_dst
-            , dnn_scale
+            , 1.0
             , Size(dnn_width, dnn_height)
             , Scalar());
         // net.setInput(blob);

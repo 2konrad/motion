@@ -62,4 +62,4 @@ po/stamp-po
 .vscode/
 output/
 web/
-
+log/
