@@ -1252,23 +1252,26 @@ void cls_draw::location(ctx_coord *cent, ctx_images *imgs
     int width_miny_x, width_maxy_x;
     int width_minx_y, width_maxx_y;
 
-    out = imgs->image_motion.image_norm;
+    // Draw box in motion image (only if width = cam.with)
+    if (width == imgs->width){
+        out = imgs->image_motion.image_norm;
 
-    width_miny = width * cent->miny;
-    width_maxy = width * cent->maxy;
-    for (x = cent->minx; x <= cent->maxx; x++) {
-        width_miny_x = x + width_miny;
-        width_maxy_x = x + width_maxy;
-        out[width_miny_x] =~out[width_miny_x];
-        out[width_maxy_x] =~out[width_maxy_x];
-    }
+        width_miny = width * cent->miny;
+        width_maxy = width * cent->maxy;
+        for (x = cent->minx; x <= cent->maxx; x++) {
+            width_miny_x = x + width_miny;
+            width_maxy_x = x + width_maxy;
+            out[width_miny_x] =~out[width_miny_x];
+            out[width_maxy_x] =~out[width_maxy_x];
+        }
 
-    for (y = cent->miny; y <= cent->maxy; y++) {
-        width_minx_y = cent->minx + y * width;
-        width_maxx_y = cent->maxx + y * width;
+        for (y = cent->miny; y <= cent->maxy; y++) {
+            width_minx_y = cent->minx + y * width;
+            width_maxx_y = cent->maxx + y * width;
 
-        out[width_minx_y] =~out[width_minx_y];
-        out[width_maxx_y] =~out[width_maxx_y];
+            out[width_minx_y] =~out[width_minx_y];
+            out[width_maxx_y] =~out[width_maxx_y];
+        }
     }
 
     if (cam->cfg->locate_motion_style == "box") {
@@ -1414,6 +1417,8 @@ void cls_draw::locate()
 {
     ctx_images *imgs;
     ctx_coord *p_loc;
+    ctx_coord p_loc_2;
+    
     u_char *image_norm;
     u_char *image_high;
 
@@ -1434,7 +1439,19 @@ void cls_draw::locate()
     if ((cam->cfg->locate_motion_style == "box") ||
         (cam->cfg->locate_motion_style == "cross")) {
         location(p_loc, imgs, imgs->width, image_norm);
-        location(p_loc, imgs, imgs->width_high, image_high);
+        //transform p_loc to high
+        p_loc_2.x = p_loc->x*2;
+        p_loc_2.y = p_loc->y*2;
+        p_loc_2.width = p_loc->width*2;
+        p_loc_2.height = p_loc->height*2;
+        p_loc_2.minx = p_loc->minx*2;
+        p_loc_2.maxx = p_loc->maxx*2;
+        p_loc_2.miny = p_loc->miny*2;
+        p_loc_2.maxy = p_loc->maxy*2;
+        p_loc_2.stddev_x = p_loc->stddev_x*2;
+        p_loc_2.stddev_y = p_loc->stddev_y*2;
+        p_loc_2.stddev_xy = p_loc->stddev_xy*2;
+        location(&p_loc_2, imgs, imgs->width_high, image_high);
     } else if ((cam->cfg->locate_motion_style == "redbox")||
         (cam->cfg->locate_motion_style == "redcross")) {
         red_location(p_loc, imgs, imgs->width, image_norm);

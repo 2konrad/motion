@@ -421,7 +421,16 @@ void cls_libcam::config_control_item(std::string pname, std::string pvalue)
     if (pname == "TestPatternMode") {
         controls.set(controls::draft::TestPatternMode, mtoi(pvalue));
     }
-
+    if (pname == "HdrMode") {
+        controls.set(controls::HdrMode, mtoi(pvalue));
+            auto model = camera->properties().get(properties::Model);
+            if ((("imx708_wide" == *model) || ("imx708" == *model)) && (pvalue=="2")) 
+            {
+                //switch on HDR
+                // v4l2-ctl -d /dev/v4l-subdev0  -c wide_dynamic_range=1
+                system("/usr/bin/v4l2-ctl -d /dev/v4l-subdev0  -c wide_dynamic_range=1" );
+            }
+        }
 }
 
 void cls_libcam::config_controls()

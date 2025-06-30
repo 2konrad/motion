@@ -84,7 +84,7 @@ class cls_algsec {
             void label_image(cv::Mat &mat_dst, double confidence, cv::Point classIdPoint);
             void label_image(cv::Mat &mat_dst, std::vector<cv::Rect> &src_pos
                 , std::vector<double> &src_weights);
-            void image_show(cv::Mat &mat_dst);
+            void image_show(cv::Mat &mat_dst, bool detected_now);
             void debug_notice(cv::Mat &mat_dst,bool isdetect);
 
             std::string                 config;

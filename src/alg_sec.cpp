@@ -45,7 +45,7 @@ static void *algsec_handler(void *arg)
     return nullptr;
 }
 
-void cls_algsec::debug_notice(Mat &mat_dst, bool isdetect)
+void cls_algsec::debug_notice(Mat &mat_dst, bool detected_now)
 {
     if (handler_stop == true) {
         return;
@@ -60,8 +60,14 @@ void cls_algsec::debug_notice(Mat &mat_dst, bool isdetect)
                 , cfg_target_dir.c_str());
             first_pass = false;
         }
-        if (isdetect == true) {
-            imwrite(cfg_target_dir  + "/detect_" + method + ".jpg"
+        time_t now;
+        char msg_time[9];
+        MOTION_LOG(DBG, LOG_TYPE_ALL, NO_ERRNO, "get time for detect file.");
+        now = time(NULL);
+        strftime(msg_time, sizeof(msg_time), "%H_%M_%S", localtime(&now));
+        std::string mytime = std::string{msg_time};
+        if (detected_now == true) {
+            imwrite(cfg_target_dir  + "/" + mytime + "detect_" + method + ".jpg"
                 , mat_dst);
         } else {
             imwrite(cfg_target_dir  + "/src_" + method + ".jpg"
@@ -70,7 +76,7 @@ void cls_algsec::debug_notice(Mat &mat_dst, bool isdetect)
     }
 }
 
-void cls_algsec::image_show(Mat &mat_dst)
+void cls_algsec::image_show(Mat &mat_dst, bool detected_now)
 {
     std::vector<uchar> buff;
     std::vector<int> param(2);
@@ -87,7 +93,7 @@ void cls_algsec::image_show(Mat &mat_dst)
         (cam->imgs.size_secondary == 0) ||
         (cfg_log_level >= DBG)) {
 
-        debug_notice(mat_dst, detected);
+        debug_notice(mat_dst, detected_now);
 
         param[0] = cv::IMWRITE_JPEG_QUALITY;
         param[1] = 75;
@@ -145,7 +151,7 @@ void cls_algsec::label_image(Mat &mat_dst
             }
         }
         MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO, "label image 3");
-        image_show(mat_dst);
+        image_show(mat_dst, detected);
 
     } catch ( cv::Exception& e ) {
         const char* err_msg = e.what();
@@ -196,21 +202,23 @@ void cls_algsec::get_image_roi(Mat &mat_src, Mat &mat_dst)
     // roi.height = cam->current_image->location.height;
     center.x = cam->current_image->location.x;
     center.y = cam->current_image->location.y;
+    MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "location roi cx cy mx my %d %d %d %d"
+        ,cam->current_image->location.x, cam->current_image->location.y, cam->current_image->location.maxx, cam->current_image->location.maxy);
 
 
     // target to get 300x300
-    if (center.x < 300) {
-        center.x = 300;
+    if (center.x < 150) {
+        center.x = 150;
     }
-    if (center.y < 300) {
-        center.y = 300;
+    if (center.y < 150) {
+        center.y = 150;
     }
-    if (center.x > cam->imgs.height -  300) {
-        center.x = cam->imgs.height -  300;
-    }  
-    if (center.y > cam->imgs.width -  300) {
-        center.y = cam->imgs.width -  300;
-    }   
+    if (center.x > cam->imgs.width - 150) {
+        center.x = cam->imgs.width - 150;
+    }
+    if (center.y > cam->imgs.height - 150) {
+        center.y = cam->imgs.height - 150;
+    }
     roi.x = center.x - 150;
     roi.y = center.y - 150;
     roi.width = 300;
@@ -228,12 +236,14 @@ void cls_algsec::get_image_roi(Mat &mat_src, Mat &mat_dst)
         ,roi.x,roi.y,roi.width,roi.height);
     
     mat_dst = mat_src(roi);
+    MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "Opencv roi done %d %d %d %d"
+        ,roi.x,roi.y,roi.width,roi.height);
 
 }
 
 void cls_algsec::get_image(Mat &mat_dst)
 {
-    Mat mat_src;
+    Mat mat_src, mat_cvt;
 
     if (image_type == "grey") {
         mat_dst = Mat(cam->imgs.height, cam->imgs.width
@@ -244,17 +254,18 @@ void cls_algsec::get_image(Mat &mat_dst)
             (cam->current_image->location.height < 64) ||
             ((cam->current_image->location.width/cam->imgs.width) > 0.7) ||
             ((cam->current_image->location.height/cam->imgs.height) > 0.7)) {
+                MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "discard");
             return;
         }
         if (image_type == "roi") {
             mat_src = Mat(cam->imgs.height*3/2, cam->imgs.width
                 , CV_8UC1, (void*)image_norm);
-            cvtColor(mat_src, mat_src, COLOR_YUV2RGB_YV12);
+            cvtColor(mat_src, mat_cvt, COLOR_YUV2RGB_YV12);
         } else {
-            mat_src = Mat(cam->imgs.height, cam->imgs.width
+            mat_cvt = Mat(cam->imgs.height, cam->imgs.width
                 , CV_8UC1, (void*)image_norm);
         }
-        get_image_roi(mat_src, mat_dst);
+        get_image_roi(mat_cvt, mat_dst);
     } else {
         mat_src = Mat(cam->imgs.height*3/2, cam->imgs.width
             , CV_8UC1, (void*)image_norm);
@@ -327,6 +338,7 @@ void cls_algsec::detect_haar()
 void cls_algsec::detect_dnn()
 {
     Mat mat_dst, softmaxProb;
+    bool detected_now = false;
     //double confidence;
     //float maxProb = 0.0, sum = 0.0;
     //Point classIdPoint;
@@ -337,10 +349,12 @@ void cls_algsec::detect_dnn()
             return;
         }
 
+        MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "blob");
+
         Mat blob = blobFromImage(mat_dst
             , 1.0
             , Size(dnn_width, dnn_height)
-            , Scalar());
+            , Scalar(),true);
         // net.setInput(blob);
         // Mat prob = net.forward();
         // cv::FileStorage storage("/home/pi/motion/mat.json", cv::FileStorage::WRITE);
@@ -361,6 +375,7 @@ void cls_algsec::detect_dnn()
         //const float confidence_threshold = 0.25;
         for(int i=0; i<detectionMat.rows; i++){
             float detect_confidence = detectionMat.at<float>(i, 2);
+            //MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO, "detect conf %f", detect_confidence);
 
             if(detect_confidence > threshold){
                 size_t det_index = (size_t)detectionMat.at<float>(i, 1);
@@ -376,12 +391,17 @@ void cls_algsec::detect_dnn()
                         dnn_classes[(uint)det_index].c_str(), detect_confidence ), 
                     cv::Point(x1, y1-5) , 
                     cv::FONT_HERSHEY_SIMPLEX,0.5, cv::Scalar(0, 0, 255), 1, 8, 0);
-                if ((uint)det_index==1) {detected = true;} // person detected
+                if ((uint)det_index==1) {
+                    detected = true;
+                    detected_now = true;
+                    MOTION_LOG(DBG, LOG_TYPE_ALL, NO_ERRNO, "person detected.");
+                } // person detected
             }
         }
 
         //label_image(mat_dst, (double)1, classIdPoint); //classIdPoint not needed
-        image_show(mat_dst);
+        MOTION_LOG(DBG, LOG_TYPE_ALL, NO_ERRNO, "image show.");
+        image_show(mat_dst, detected_now);
 
     } catch ( cv::Exception& e ) {
         const char* err_msg = e.what();
