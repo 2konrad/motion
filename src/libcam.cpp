@@ -212,6 +212,7 @@ void cls_libcam::start_params()
         MOTION_LOG(NTC, TYPE_VIDEO, NO_ERRNO, "%s : %s"
             ,itm->param_name.c_str(), itm->param_value.c_str());
     }
+    //system("/usr/bin/v4l2-ctl -d /dev/v4l-subdev0  -c wide_dynamic_range=1" );
 }
 
 int cls_libcam::start_mgr()
@@ -245,7 +246,22 @@ int cls_libcam::start_mgr()
             ,cam->cfg->libcam_device.c_str());
         return -1;
     }
+
     camera = cam_mgr->get(camid);
+    
+    //before we acquire the cam for exclusive use, try to set the HDR value for imx708
+    // auto model = camera->properties().get(properties::Model);
+    // int indx=0;
+    // if (("imx708_wide" == *model) || ("imx708" == *model)){
+    //     for ( indx=0;indx<params->params_cnt;indx++) {
+    //         if ((params->params_array[indx].param_name == "HdrMode") &&
+    //            (params->params_array[indx].param_value == "2" )) {
+    //                 //system("/usr/bin/v4l2-ctl -d /dev/v4l-subdev0  -c wide_dynamic_range=1" );   
+    //                 //MOTION_LOG(NTC, TYPE_VIDEO, NO_ERRNO, "Set HDR.");    
+    //         }
+    //     }
+    // }
+
     camera->acquire();
     started_aqr = true;
 
@@ -423,14 +439,14 @@ void cls_libcam::config_control_item(std::string pname, std::string pvalue)
     }
     if (pname == "HdrMode") {
         controls.set(controls::HdrMode, mtoi(pvalue));
-            auto model = camera->properties().get(properties::Model);
-            if ((("imx708_wide" == *model) || ("imx708" == *model)) && (pvalue=="2")) 
-            {
-                //switch on HDR
-                // v4l2-ctl -d /dev/v4l-subdev0  -c wide_dynamic_range=1
-                system("/usr/bin/v4l2-ctl -d /dev/v4l-subdev0  -c wide_dynamic_range=1" );
-            }
+        auto model = camera->properties().get(properties::Model);
+        if ((("imx708_wide" == *model) || ("imx708" == *model)) && (pvalue=="2")) 
+        {
+            //switch on HDR
+            // v4l2-ctl -d /dev/v4l-subdev0  -c wide_dynamic_range=1
+            system("/usr/bin/v4l2-ctl -d /dev/v4l-subdev0  -c wide_dynamic_range=1" );
         }
+    }
 }
 
 void cls_libcam::config_controls()
@@ -627,7 +643,7 @@ int cls_libcam::req_add(Request *request)
 
 int cls_libcam::start_req()
 {
-    int retcd, bytes0, bytes1, bytes2, indx, width;
+    int retcd, bytes0, bytes1, indx, width;
 
     MOTION_LOG(NTC, TYPE_VIDEO, NO_ERRNO, "Starting.");
 
@@ -725,7 +741,7 @@ int cls_libcam::start_req()
                 , buffer1->planes()[0].length, bytes1);
         }
         MOTION_LOG(NTC, TYPE_VIDEO, NO_ERRNO
-            , "stream 0 image size adjusted from %d x %d to %d x %d"
+            , "stream 1 image size adjusted from %d x %d to %d x %d"
             , cam->imgs.width_high,cam->imgs.height_high
             , width,cam->imgs.height_high);
         cam->imgs.width_high = width;

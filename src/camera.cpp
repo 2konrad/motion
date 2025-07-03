@@ -633,6 +633,7 @@ void cls_camera::init_buffers()
     imgs.ref_dyn =(int*) mymalloc((uint)imgs.motionsize * sizeof(*imgs.ref_dyn));
     imgs.image_virgin =(u_char*) mymalloc((uint)imgs.size_norm);
     imgs.image_vprvcy = (u_char*)mymalloc((uint)imgs.size_norm);
+    imgs.image_vprvcy_high = (u_char*)mymalloc((uint)imgs.size_high);
     imgs.labels =(int*)mymalloc((uint)imgs.motionsize * sizeof(*imgs.labels));
     imgs.labelsize =(int*) mymalloc((uint)(imgs.motionsize/2+1) * sizeof(*imgs.labelsize));
     imgs.image_preview.image_norm =(u_char*) mymalloc((uint)imgs.size_norm);
@@ -771,6 +772,7 @@ void cls_camera::cleanup()
     myfree(imgs.ref_dyn);
     myfree(imgs.image_virgin);
     myfree(imgs.image_vprvcy);
+    myfree(imgs.image_vprvcy_high);
     myfree(imgs.labels);
     myfree(imgs.labelsize);
     myfree(imgs.mask);
@@ -1382,6 +1384,9 @@ int cls_camera::capture()
         mask_privacy();
         memcpy(imgs.image_vprvcy, current_image->image_norm
             , (uint)imgs.size_norm);
+        //also copy high image in case next frame is missing and we need to copy it into next frame
+        memcpy(imgs.image_vprvcy_high, current_image->image_high
+            , (uint)imgs.size_high);
 
     } else {
         if (connectionlosttime.tv_sec == 0) {
@@ -1395,6 +1400,10 @@ int cls_camera::capture()
                 (cfg->device_tmo * cfg->framerate))) {
             memcpy(current_image->image_norm, imgs.image_vprvcy
                 , (uint)imgs.size_norm);
+            // also copy high image
+            memcpy(current_image->image_high, imgs.image_vprvcy_high
+                , (uint)imgs.size_high);
+
         } else {
             lost_connection = true;
             if (device_status == STATUS_OPENED) {
@@ -1568,8 +1577,8 @@ void cls_camera::overlay()
                 , tmp, text_scale);
         draw->text(current_image->image_high
                 , imgs.width_high, imgs.height_high
-                , 20, imgs.height_high - (20 * text_scale)
-                , tmp, text_scale);
+                , 20, imgs.height_high - (40 * text_scale) 
+                , tmp, (int)(text_scale*1.5));
     }
 
     /* Add text in lower right corner of the pictures */
@@ -1581,8 +1590,8 @@ void cls_camera::overlay()
                 , tmp, text_scale);
         draw->text(current_image->image_high
                 , imgs.width_high, imgs.height_high 
-                , imgs.width_high - 20, imgs.height_high - (20 * text_scale)
-                , tmp, text_scale);
+                , imgs.width_high * 0.6, imgs.height_high - (40 * text_scale)- (current_image->shot)*20
+                , tmp, (int)(text_scale*1.5));
     }
 }
 

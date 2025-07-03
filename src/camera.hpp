@@ -88,6 +88,7 @@ struct ctx_images {
     u_char *image_substream;
     u_char *image_virgin;            /* Last picture frame with no text or locate overlay */
     u_char *image_vprvcy;            /* Virgin image with the privacy mask applied */
+    u_char *image_vprvcy_high;        /**/
     u_char *mask_privacy;            /* Buffer for the privacy mask values */
     u_char *mask_privacy_uv;         /* Buffer for the privacy U&V values */
     u_char *mask_privacy_high;       /* Buffer for the privacy mask values */

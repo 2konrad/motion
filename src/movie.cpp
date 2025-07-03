@@ -354,6 +354,8 @@ int cls_movie::set_codec_preferred()
         }
     } else {
         codec = avcodec_find_encoder(oc->video_codec_id);
+        MOTION_LOG(NTC, TYPE_ENCODER, NO_ERRNO
+                ,_("Using codec %s"), codec->long_name);
     }
     if (codec == nullptr) {
         MOTION_LOG(ERR, TYPE_ENCODER, NO_ERRNO
