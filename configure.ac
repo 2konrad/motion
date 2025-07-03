@@ -642,7 +642,7 @@ AS_IF([test "${DEVELOPER_FLAGS}" = "yes"], [
     AS_IF([test "${CLANG_FLAGS}" = "yes"], [
       TEMP_CPPFLAGS="$TEMP_CPPFLAGS -W -pedantic -Werror -Wall -Wextra -Wconversion -Wformat -Wshadow -Wpointer-arith -Wwrite-strings -Wredundant-decls -Wno-c11-extensions -Wno-sign-conversion -Wno-sign-compare -ggdb -g3 "
     ],[
-      TEMP_CPPFLAGS="$TEMP_CPPFLAGS -W -O3 -Wall -Wextra  -Wformat -Wshadow -Wpointer-arith -Wwrite-strings -Wredundant-decls -Wno-sign-conversion -Wno-sign-compare -ggdb -g3 "
+      TEMP_CPPFLAGS="$TEMP_CPPFLAGS -W -O3 -Wall -Wextra -Wconversion -Wformat -Wshadow -Wpointer-arith -Wwrite-strings -Wredundant-decls -Wno-sign-conversion -Wno-sign-compare -ggdb -g3 "
     ])
   ])
 

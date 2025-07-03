@@ -233,7 +233,15 @@ void cls_webu_json::config()
 {
     webua->resp_type = WEBUI_RESP_JSON;
 
-    webua->resp_page += "{\"version\" : \"" VERSION "\"";
+    struct stat attr;
+    stat("/home/pi/motion/src/motion", &attr);
+    std::tm tm = *std::localtime(&attr.st_mtime);
+    std::stringstream ssTp;
+    ssTp << std::put_time(std::localtime(&attr.st_mtime), "%B-%d");
+
+    webui->resp_page += "{\"version\" : \" <br>" ;
+    webui->resp_page.append( ssTp.str()) ;
+    webui->resp_page += "\"";
 
     webua->resp_page += ",\"cameras\" : ";
     cameras_list();

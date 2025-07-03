@@ -620,6 +620,7 @@ void cls_alg::diff_nomask()
     u_char *ref = cam->imgs.ref;
     u_char *out = cam->imgs.image_motion.image_norm;
     u_char *new_img = cam->imgs.image_vprvcy;
+    long sum_currdiff = 0;   // to see sum of difference in brightness for lightswitch
 
     int i, curdiff;
     int imgsz = cam->imgs.motionsize;
@@ -635,6 +636,7 @@ void cls_alg::diff_nomask()
         if (abs(curdiff) > noise) {
             *out = *new_img;
             diffs++;
+            sum_currdiff -= curdiff;
             if (curdiff > lrgchg) {
                 diffs_net++;
             } else if (curdiff < -lrgchg) {
@@ -646,6 +648,7 @@ void cls_alg::diff_nomask()
         new_img++;
     }
     cam->current_image->diffs_raw = diffs;
+    cam->current_image->diffs_raw = sum_currdiff / diffs;
     cam->current_image->diffs = diffs;
     cam->imgs.image_motion.imgts = cam->current_image->imgts;
 
@@ -663,6 +666,8 @@ void cls_alg::diff_mask()
     u_char *out  = cam->imgs.image_motion.image_norm;
     u_char *mask = cam->imgs.mask;
     u_char *new_img = cam->imgs.image_vprvcy;
+    long sum_currdiff = 0;   // to see sum of difference in brightness for lightswitch
+
 
     int i, curdiff;
     int imgsz = cam->imgs.motionsize;
@@ -682,6 +687,7 @@ void cls_alg::diff_mask()
         if (abs(curdiff) > noise) {
             *out = *new_img;
             diffs++;
+            sum_currdiff -= curdiff;
             if (curdiff > lrgchg) {
                 diffs_net++;
             } else if (curdiff < -lrgchg) {
@@ -695,6 +701,7 @@ void cls_alg::diff_mask()
         mask++;
     }
     cam->current_image->diffs_raw = diffs;
+    cam->current_image->diffs_raw = sum_currdiff / diffs;
     cam->current_image->diffs = diffs;
     cam->imgs.image_motion.imgts = cam->current_image->imgts;
 
@@ -881,7 +888,7 @@ void cls_alg::diff_standard()
     }
 }
 
-void cls_alg::lightswitch()
+void cls_alg::lightswitch_orig()
 {
     if (cam->cfg->lightswitch_percent >= 1) {
         if (cam->current_image->diffs > (cam->imgs.motionsize * cam->cfg->lightswitch_percent / 100)) {
@@ -896,7 +903,35 @@ void cls_alg::lightswitch()
     }
 }
 
-void cls_alg::ref_frame_update()
+void cls_alg::alg_lightswitch()
+{
+
+    if (cam->cfg->lightswitch_percent >= 1) {
+        if (cam->current_image->diffs > (cam->imgs.motionsize * cam->cfg->lightswitch_percent / 100)) {
+            
+            //check if already a MOTION was detected - no lightswitch in current MOTION
+            int motion = 0;
+            int indx;
+            for (indx = 0; indx < cam->cfg->minimum_motion_frames; indx++) {
+                if (cam->imgs.image_ring[indx].motion == true) {
+                    motion += 1;
+                }
+            }
+            MOTPLS_LOG(INF, TYPE_ALL, NO_ERRNO, _("Possible lightswitch detected"));
+            if (motion <= 2){
+                MOTPLS_LOG(NTC, TYPE_ALL, NO_ERRNO, _("Lightswitch detected and <= 2 motion frames"));
+            if (cam->frame_skip < (unsigned int)cam->cfg->lightswitch_frames) {
+                cam->frame_skip = (unsigned int)cam->cfg->lightswitch_frames;
+            }
+            util_exec_command(cam, cam->cfg->on_lightswitch.c_str(), NULL); // before : event(cam, EVENT_LIGHTSWITCH);
+            cam->current_image->diffs = 0;
+            ref_frame_update();
+            }
+        }
+    }
+}
+
+void cls_alg::ref_frame_update_orig()
 {
     int accept_timer;
     int i, threshold_ref;
@@ -937,7 +972,81 @@ void cls_alg::ref_frame_update()
 
 }
 
-void cls_alg::ref_frame_reset()
+void  cls_alg::ref_frame_update()
+{
+    int accept_timer = 3 * cam->cfg->static_object_time;
+    int i, accept_counter = 0, accept_counter_sum = 0, accept_counter_sum_all = 0, accept_counter_all = 0;
+    int indx, motionframes = 0;
+    int *ref_dyn = cam->imgs.ref_dyn;
+    bool onlytwomotionframes = false;
+    //int noise = (cam->noise) ;
+    u_char *image_virgin = cam->imgs.image_vprvcy;
+    u_char *ref = cam->imgs.ref;
+    u_char *smartmask = cam->imgs.smartmask_final;
+    u_char *mask = cam->imgs.mask;
+    u_char *motion = cam->imgs.image_motion.image_norm;
+
+    if (!detecting_motion){
+        for (indx = 0; indx < cam->cfg->minimum_motion_frames; indx++) {
+            if (cam->imgs.image_ring[indx].motion) {
+                motionframes += 1;
+            }
+        }
+    }
+    onlytwomotionframes = ( (!detecting_motion) && (motionframes <= 1) );
+    for (i = cam->imgs.motionsize; i > 0; i--) {
+        if ((*mask) && (*smartmask) ){
+            if (abs(*ref - *image_virgin) > (cam->noise * 0.6)){ //diff > noise
+                (*ref_dyn)++;
+                accept_counter++;
+                accept_counter_sum += (*ref_dyn);
+                accept_counter_sum_all += (*ref_dyn);
+                accept_counter_all++;
+                if (onlytwomotionframes) {
+                    //high accept timer
+                    (*ref_dyn) = accept_timer ; 
+                }
+                if (*ref_dyn > accept_timer) {
+                    *ref = *image_virgin;
+                    (*ref_dyn)--;
+                }
+                // if (cam->current_image->diffs == 0   ){
+                //     MOTPLS_LOG(INF, TYPE_ALL, NO_ERRNO, "motion at diff 0");
+                // }
+            } else {
+                //diff<noise
+                // if ( ((*ref_dyn) > accept_timer/2) || 
+                //     (((cam->current_image->diffs )>cam->threshold) && ((*ref_dyn) > 0)))  {
+                //         (*ref_dyn)--;
+                //     }
+                // if ( (*ref_dyn) < accept_timer/2)   {
+                //         (*ref_dyn)++;
+                //     }
+                if ( (*ref_dyn) > 0)   {
+                    (*ref_dyn)--;
+                }    
+                if (cam->shots_mt == 0){                                                                 
+                    *ref = (unsigned char)( (((int) *ref) * 3 + (int) *image_virgin) / 4); 
+                }
+                accept_counter_sum_all += (*ref_dyn);
+                accept_counter_all++;
+            }
+        }//mask
+        ref++;
+        image_virgin++;
+        smartmask++;
+        mask++;
+        ref_dyn++;
+        motion++;
+    } /* end for i */
+    if (accept_counter==0){accept_counter=1;}
+    cam->current_image->accept_average = accept_counter_sum / accept_counter;
+    //cam->current_image->accept_average = accept_counter_sum_all / accept_counter_all;
+
+}
+
+
+void cls_alg::ref_frame_reset_orig()
 {
     /* Copy fresh image */
     memcpy(cam->imgs.ref, cam->imgs.image_vprvcy, (uint)cam->imgs.size_norm);
@@ -945,6 +1054,21 @@ void cls_alg::ref_frame_reset()
     memset(cam->imgs.ref_dyn, 0
         ,(uint)cam->imgs.motionsize * sizeof(*cam->imgs.ref_dyn));
 
+}
+
+//reset new
+
+void cls_alg::ref_frame_reset()
+{
+    /* Copy fresh image */
+    memcpy(cam->imgs.ref, cam->imgs.image_vprvcy, cam->imgs.size_norm);
+    /* Reset static objects */
+    //memset(cam->imgs.ref_dyn, accept_timer * 0.5, cam->imgs.motionsize * sizeof(*cam->imgs.ref_dyn)); //accept_timer * 0.6
+    ref_dyn = cam->imgs.ref_dyn;
+    for (i = cam->imgs.motionsize; i > 0; i--) {
+        (*ref_dyn) = 0 ;
+        ref_dyn++;
+    }
 }
 
 /*Calculate the center location of changes*/

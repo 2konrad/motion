@@ -1495,8 +1495,12 @@ void cls_camera::tuning()
 
     alg->tune_smartmask();
 
-    alg->ref_frame_update();
-
+    if (frame_skip) {
+        /*reset reference frame as long as lightswitch ongoing*/
+        alg_update_reference_frame(cam, RESET_REF_FRAME);
+    }else{
+        alg->ref_frame_update();
+    }
     previous_diffs = current_image->diffs;
     previous_location_x = current_image->location.x;
     previous_location_y = current_image->location.y;

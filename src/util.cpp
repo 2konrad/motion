@@ -348,6 +348,12 @@ void mystrftime_base(cls_camera *cam
             } else if (tst == "D") {
                 sprintf(tmp, "%0*d", wd, img.diffs);
                 user_fmt.append(tmp);
+            } else if (tst == "d") {        // pos / neg diff raw
+                sprintf(tmp, "%s_%d", (img.diffs_raw>0) ? "AN" : "AUS", img.diffs_raw);
+                user_fmt.append(tmp);
+            } else if (tst == "a") {    // accept timer average
+                sprintf(tmp, "%*d", width, img.accept_average );
+                user_fmt.append(tmp);
             } else if (tst == "N") {
                 sprintf(tmp, "%0*d",  wd ? wd : 2, cam->noise);
                 user_fmt.append(tmp);

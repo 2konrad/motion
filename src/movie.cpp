@@ -398,7 +398,7 @@ int cls_movie::set_codec()
         } else if (fps > 30) {
             ctx_codec->gop_size = 15;
         } else {
-            ctx_codec->gop_size = (fps / 2);
+            ctx_codec->gop_size = 30 // before: (fps / 2); 30 drastically reduces file size 
         }
         gop_cnt = ctx_codec->gop_size - 1;
     }
