@@ -6,7 +6,6 @@ cd /home/pi/motion/web
 if [ ! -d $d ]
  then mkdir $d
  cd /home/pi/motion/web/$d
- debug="<br><video width=320  controls onerror='hide(this)'> <source src='\${id}m.mp4' type=video/mp4 ></video>"
  echo "
 <html> 
 <head>
@@ -14,9 +13,14 @@ if [ ! -d $d ]
 <meta name='viewport' content='width=640' /> 
 <style>
 	body  {position: relative;}
-	div {min-height: 200px; }
-	img {position: absolute;xxxxheight:320px;width:320px;z-index: 10;}
-	.hide {display: none;}
+	div {min-height: 400px; }
+	img {position: absolute;height:320px;z-index: 10;}
+    .container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        background-color: beige;
+        padding: 10px;
+    }
 </style>
 <head>
 <body onload='document.body.scrollIntoView(false);'> 
@@ -30,16 +34,13 @@ if [ ! -d $d ]
     }
     function c(id){
         document.getElementById('i'+id).style.display = 'none';
-        if (document.getElementById('i'+id).nextSibling === null){
+        if (document.getElementById('i'+id).nextElementSibling === null){
             document.getElementById('i'+id).insertAdjacentHTML('afterend',  \`
             <video width=320  controls autoplay> <source src='\${id}.mp4' type=video/mp4 ></video >
             <br><video width=320  controls onerror='hide(this)'> <source src='\${id}m.mp4' type=video/mp4 ></video> 
             \`);
         }
-    }
-    function t(id){
-        document.getElementById('d'+id).classList.toggle('hide');
-    }
+    } 
     function hide(){
         this.style.display = 'none';
         }
@@ -53,54 +54,24 @@ fi
 
 cd /home/pi/motion/web/$d
 
-#echo test
-
-hide=""
-if [[ "NNN" == $2 ]]
- then hide="hide"
-fi
-
-if [[ "$1" == "lightswitch" ]]
- then echo "<p> $t - &#128161; $3 </p>" >> index.htm
+if [[ "$1" == "lightswitch" ]] ; then 
+    echo "<p> $t - &#128161; $3 </p>" >> index.htm
 else
 
-#check if jpg is still there or if it was already running
+    if [ -e /home/pi/motion/web/$d/$1.jpg ]
+    then # echo $1 exit >> status.txt
+    exit
+    fi
+    mv /home/pi/motion/output/$1.jpg /home/pi/motion/web/$d/$1.jpg
+    mv /home/pi/motion/output/$1m.mp4 /home/pi/motion/web/$d 
+    mv /home/pi/motion/output/$1.mp4 /home/pi/motion/web/$d 
 
-# echo $1 >> status.txt
-#echo test
-
-if [ ! -e /home/pi/motion/output/$1.jpg ]
-then # echo $1 exit >> status.txt
-mv /home/pi/motion/output/$1m.mp4 /home/pi/motion/web/$d 
-mv /home/pi/motion/output/$1.mp4 /home/pi/motion/web/$d 
-exit
+    echo "
+    <h2 onclick='t(\"d$1\")'> ${1:8:4} $2</h2> 
+    <div id='d$1' >
+    <img id='i$1' src='$1.jpg' onclick='c(\"$1\")' ></div>
+    " >> index.htm
 fi
 
-#ffmpeg -y -i /home/pi/mplus/$1.jpg -compression_level 99 /home/pi/web/$d/$1.jpg
+find /home/pi/motion/web/  -maxdepth 1 -mindepth 1 -type d -mtime +14 -exec rm -r {} \;
 
-mv /home/pi/motion/output/$1.jpg /home/pi/motion/web/$d/$1.jpg
-
-
-# pgrep -x ffmpeg >/dev/null && sleep 5
-
-
-echo "
-<h2 onclick='t(\"d$1\")'> ${1:8:4} $2</h2> 
-<div id='d$1' class='$hide'>
-<img id='i$1' src='$1.jpg' onclick='c(\"$1\")' ></div>
-" >> index.htm
-
-
-
-#ffmpeg -y -threads 1 -f rawvideo -pix_fmt yuv420p -video_size ${4}x${5} -framerate $3 -i /home/pi/mplus/$1.yuv -c:v libx264 -preset veryfast -an  /home/pi/web/$d/$1.mp4 # >> /home/pi/mplus/$1_ffmpeg.txt  2>&1 
-mv /home/pi/motion/output/$1.mp4 /home/pi/motion/web/$d 
-mv /home/pi/motion/output/$1m.mp4 /home/pi/motion/web/$d 
-rm -f /home/pi/motion/output/$1.yuv
-
-#echo "<video width='320' preload='none' controls> <source src='$1.mp4' type='video/mp4'></video >  <br>" >> index.htm
-#echo "<video width='320' preload='none' controls> <source src='$1m.mp4' type='video/mp4'></video >  <br>" >> index.htm
-fi
-
-find /home/pi/motion/web/ -type d -maxdepth 1 -mindepth 1 -mtime +14 -exec rm -r {} \;
-
-sleep 10 # check if this holds things up

@@ -51,6 +51,7 @@
                 libcamera::ControlList             controls;
                 ctx_imgmap              membuf0;
                 ctx_imgmap              membuf1;
+                ctx_imgmap              membuf2;
                 bool    started_cam;
                 bool    started_mgr;
                 bool    started_aqr;

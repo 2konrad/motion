@@ -20,12 +20,7 @@
 #ifndef _INCLUDE_CAMERA_HPP_
 #define _INCLUDE_CAMERA_HPP_
 
-#ifdef HAVE_OPENCV4
-    #include <opencv2/opencv.hpp>
-    #include <opencv2/dnn.hpp>
-    //#include <opencv2/highgui.hpp>
-    //#include <opencv2/core/ocl.hpp>
-#endif /* HAVE_OPENCV4 */
+#include "label.hpp"
 
 enum CAMERA_TYPE {
     CAMERA_TYPE_UNKNOWN,
@@ -73,34 +68,41 @@ struct ctx_image_data {
     bool                save_pic;
     bool                save_movie;
     ctx_coord           location;       /* coordinates for center and size of last motion detection*/
+    ctx_coord           largest_location;           //dimensions of largest tile group
+    ctx_coord           second_largest_location;    //dimension of second largest tile group
     int                 total_labels;
     int                 accept_average; /*average accept timer for all changed pixels */
 };
 
 struct ctx_images {
-    ctx_image_data *image_ring;    /* The base address of the image ring buffer */
-    ctx_image_data image_motion;   /* Picture buffer for motion images */
-    ctx_image_data image_preview;  /* Picture buffer for best image when enables */
+    ctx_image_data *image_ring;     /* The base address of the image ring buffer */
+    ctx_image_data image_motion;    /* Picture buffer for motion images */
+    ctx_image_data image_preview;   /* Picture buffer for best image when enables */
 
-    u_char *ref;               /* The reference frame */
-    u_char *ref_next;          /* The reference frame */
-    u_char *mask;              /* Buffer for the mask file */
+    u_char *ref;                    /* The reference frame */
+    u_char *ref_next;               /* The reference frame */
+    u_char *mask;                   /* Buffer for the mask file */
     u_char *common_buffer;
     u_char *image_substream;
-    u_char *image_virgin;            /* Last picture frame with no text or locate overlay */
-    u_char *image_vprvcy;            /* Virgin image with the privacy mask applied */
-    u_char *image_vprvcy_high;        /**/
-    u_char *mask_privacy;            /* Buffer for the privacy mask values */
-    u_char *mask_privacy_uv;         /* Buffer for the privacy U&V values */
-    u_char *mask_privacy_high;       /* Buffer for the privacy mask values */
-    u_char *mask_privacy_high_uv;    /* Buffer for the privacy U&V values */
-    u_char *image_secondary;         /* Buffer for JPG from alg_sec methods */
+    u_char *image_virgin;           /* Last picture frame with no text or locate overlay */
+    u_char *image_vprvcy;           /* Virgin image with the privacy mask applied */
+    u_char *image_vprvcy_high;      /**/
+    u_char *mask_privacy;           /* Buffer for the privacy mask values */
+    u_char *mask_privacy_uv;        /* Buffer for the privacy U&V values */
+    u_char *mask_privacy_high;      /* Buffer for the privacy mask values */
+    u_char *mask_privacy_high_uv;   /* Buffer for the privacy U&V values */
+    u_char *image_secondary;        /* Buffer for JPG from alg_sec methods */
+    u_char *sub_sampled_img;        /* buffer for subsampled motion pic RGB*/
+    float  *bg;                     /* buffer for background image for motion detection RGB subsampled, float for slow blending in new objects*/ 
+    u_char *bg_;    
+    u_char *motion;                 /* buffer for subsampled motion image*/
+    u_char *motion_counter;         /* buffer for subsampled images's motion counter = number of frames with motion for pixel */
 
     int ring_size;
-    int ring_in;                /* Index in image ring buffer we last added a image into */
-    int ring_out;               /* Index in image ring buffer we want to process next time */
+    int ring_in;                    /* Index in image ring buffer we last added a image into */
+    int ring_out;                   /* Index in image ring buffer we want to process next time */
 
-    int *ref_dyn;               /* Dynamic objects to be excluded from reference frame */
+    int *ref_dyn;                   /* Dynamic objects to be excluded from reference frame */
     int *labels;
     int *labelsize;
 
@@ -153,6 +155,7 @@ class cls_camera {
         ctx_stream      stream;
         ctx_image_data  *current_image;
         cls_alg         *alg;
+        cls_label       *label;
         cls_algsec      *algsec;
         cls_rotate      *rotate;
         cls_netcam      *netcam;
@@ -210,8 +213,6 @@ class cls_camera {
         enum DEVICE_STATUS      device_status;
         enum CAMERA_TYPE        camera_type;
         struct timespec         connectionlosttime;
-
-        cv::dnn::Net net;
 
     private:
         cls_movie       *movie_norm;
@@ -283,7 +284,6 @@ class cls_camera {
         void loopback();
         void check_schedule();
         void frametiming();
-        void detect_from_video(cv::Mat &src);
 };
 
 #endif /* _INCLUDE_CAMERA_HPP_ */

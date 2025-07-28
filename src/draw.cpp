@@ -23,6 +23,7 @@
 #include "logger.hpp"
 #include "alg.hpp"
 #include "draw.hpp"
+#include "label.hpp"
 
 struct draw_char {
     u_char ascii;
@@ -1541,7 +1542,7 @@ void cls_draw::fixed_mask()
 
 void cls_draw::largest_label()
 {
-    int i, x, v, width, height, line;
+    int i, x, v, width, height, l;
     ctx_images *imgs = &cam->imgs;
     int *labels = imgs->labels;
     u_char *out_y, *out_u, *out_v;
@@ -1552,17 +1553,30 @@ void cls_draw::largest_label()
     width = imgs->width;
     height = imgs->height;
 
+     
+
     /* Set U to 255 to make label appear blue. */
     out_u = out + i;
     out_v = out + v;
     for (i = 0; i < height; i += 2) {
-        line = i * width;
+        //line = i * width;
         for (x = 0; x < width; x += 2) {
-            if (labels[line + x] & 32768 || labels[line + x + 1] & 32768 ||
-                labels[line + width + x] & 32768 ||
-                labels[line + width + x + 1] & 32768) {
+//             if (labels[line + x] & 32768 || labels[line + x + 1] & 32768 ||
+//                 labels[line + width + x] & 32768 ||
+//                 labels[line + width + x + 1] & 32768) {
+// 
+//                 *out_u = 255;
+//                 *out_v = 128;
+//             }
 
-                *out_u = 255;
+            // show  largest label
+            l = cam->label->get_label_rank_normal_coord(x,i);
+            if (l >= 1   ){
+                *out_u = (u_char) MAX(255 - 30*l,30);
+                *out_v = 128;
+            }
+            if (l >100  ){
+                *out_u = 200;
                 *out_v = 128;
             }
             out_u++;

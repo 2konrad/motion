@@ -31,7 +31,8 @@ class cls_picture {
 
         int put_memory(u_char* img_dst
             , int image_size, u_char *image, int quality, int width, int height);
-        void scale_img(int width_src, int height_src, u_char *img_src, u_char *img_dst);
+        void scale_img(int width_src, int height_src, u_char *img_src, u_char *img_dst);    
+        void scale_img_YUV444p(int width_src, int height_src, u_char *img_src, u_char *img_dst);
         void save_preview();
         void process_norm();
         void process_motion();
@@ -58,10 +59,10 @@ class cls_picture {
         void save_grey(FILE *picture, u_char *image
             , int width, int height
             , timespec *ts1, ctx_coord *box);
-        void save_norm( char *file, u_char *image);
+        void save_norm( char *file, u_char *image, int width, int height);
         void save_roi( char *file, u_char *image);
         void save_ppm(FILE *picture, u_char *image, int width, int height);
-        void pic_write(FILE *picture, u_char *image);
+        void pic_write(FILE *picture, u_char *image, int width, int height);
         u_char *load_pgm(FILE *picture, int width, int height);
         void write_mask(const char *file);
         void init_privacy();
@@ -70,6 +71,8 @@ class cls_picture {
         void on_picture_save_command(char *fname);
         void picname(char* fullname, std::string fmtstr
             , std::string basename, std::string extname);
+        ctx_coord crop_preview_img(); //croppes preview image to a smaller area and returns dimensions w h
+        ctx_coord get_box_size (ctx_coord location, int max_width, int max_height, int min_boxsize );
 
 };
 

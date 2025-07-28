@@ -28,6 +28,7 @@ bin_PROGRAMS = motion
 
 motion_SOURCES = \
 	alg.hpp            alg.cpp \
+	label.hpp            label.cpp \
 	alg_sec.hpp        alg_sec.cpp \
 	conf.hpp           conf.cpp \
 	dbse.hpp           dbse.cpp \

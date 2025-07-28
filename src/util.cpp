@@ -348,11 +348,11 @@ void mystrftime_base(cls_camera *cam
             } else if (tst == "D") {
                 sprintf(tmp, "%0*d", wd, img.diffs);
                 user_fmt.append(tmp);
-            } else if (tst == "d") {        // pos / neg diff raw
-                sprintf(tmp, "%s_%d", (img.diffs_raw>0) ? "AN" : "AUS", img.diffs_raw);
+            } else if (tst == "l") {        // pos / neg diff raw
+                sprintf(tmp, "%s", (img.diffs_raw>0) ? "AN" : "AUS");
                 user_fmt.append(tmp);
             } else if (tst == "a") {    // accept timer average
-                sprintf(tmp, "%*d", width, img.accept_average );
+                sprintf(tmp, "%d", img.accept_average );
                 user_fmt.append(tmp);
             } else if (tst == "N") {
                 sprintf(tmp, "%0*d",  wd ? wd : 2, cam->noise);
@@ -447,12 +447,21 @@ void mystrftime_base(cls_camera *cam
                 sprintf(tmp, "%0*d", wd, cam->current_image->diffs_ratio);
                 user_fmt.append(tmp);
                 indx += (strlen("{ratio}")-1);
+            } else if (fmt.substr(indx,strlen("{timing}")) == "{timing}") {
+                struct timespec ts2;
+                clock_gettime(CLOCK_MONOTONIC, &ts2);
+                int64_t time_spent_ms = 
+                    1000L * (ts2.tv_sec - cam->current_image->monots.tv_sec) +
+                    (ts2.tv_nsec - cam->current_image->monots.tv_nsec)/1000000;
+                sprintf(tmp, "%0*d", wd, (int) time_spent_ms);
+                user_fmt.append(tmp);
+                indx += (strlen("{timing}")-1);
             } else if (fmt.substr(indx,strlen("{action_user}")) == "{action_user}") {
                 user_fmt.append(cam->action_user);
                 indx += (strlen("{action_user}")-1);
             } else if (fmt.substr(indx,strlen("{secdetect}")) == "{secdetect}") {
                 if (cam->algsec->detected) {
-                    user_fmt.append("Y");
+                    user_fmt.append("PERSON");
                 } else {
                     user_fmt.append("N");
                 }

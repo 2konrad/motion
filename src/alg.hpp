@@ -29,7 +29,11 @@
             void threshold_tune();
             void tune_smartmask();
             void ref_frame_update();
+            void ref_frame_update_orig();
+            void ref_frame_update_new();
             void ref_frame_reset();
+            void ref_frame_reset_orig();
+            void ref_frame_reset_new();
             void stddev();
             void location();
             u_char  *smartmask_final;
@@ -53,9 +57,11 @@
             void diff_mask();
             void diff_smart();
             void diff_masksmart();
+            void diff_mask_YUV();
             bool diff_fast();
             void diff_standard();
             void lightswitch();
+            void lightswitch_orig();
             void location_center();
             void location_dist_stddev();
             void location_dist_basic();

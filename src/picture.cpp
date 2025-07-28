@@ -66,9 +66,9 @@ void cls_picture::process_norm()
             , cam->cfg->picture_filename
             , cam->cfg->picture_type);
         if ((cam->imgs.size_high > 0) && (cam->movie_passthrough == false)) {
-            save_norm(filename, cam->current_image->image_high);
+            save_norm(filename, cam->current_image->image_high, cam->imgs.width_high,  cam->imgs.height_high);
         } else {
-            save_norm(filename,cam->current_image->image_norm);
+            save_norm(filename,cam->current_image->image_norm, cam->imgs.width,  cam->imgs.height);
         }
         on_picture_save_command(filename);
         cam->app->dbse->exec(cam, filename, "pic_save");
@@ -83,7 +83,7 @@ void cls_picture::process_motion()
 
     if (cam->cfg->picture_output_motion == "on") {
         picname(filename,"%s/%sm.%s", cam->cfg->picture_filename, cam->cfg->picture_type);
-        save_norm(filename, cam->imgs.image_motion.image_norm);
+        save_norm(filename, cam->imgs.image_motion.image_norm, cam->imgs.width,  cam->imgs.height);
         on_picture_save_command(filename);
         cam->app->dbse->exec(cam, filename, "pic_save");
         cam->app->dbse->filelist_add(cam, &cam->imgs.image_motion.imgts
@@ -117,9 +117,9 @@ void cls_picture::process_snapshot()
             , cam->cfg->snapshot_filename
             , cam->cfg->picture_type);
         if ((cam->imgs.size_high > 0) && (cam->movie_passthrough == false)) {
-            save_norm(filename, cam->current_image->image_high);
+            save_norm(filename, cam->current_image->image_high, cam->imgs.width_high,  cam->imgs.height_high);
         } else {
-            save_norm(filename, cam->current_image->image_norm);
+            save_norm(filename, cam->current_image->image_norm, cam->imgs.width,  cam->imgs.height);
         }
         on_picture_save_command(filename);
         cam->app->dbse->exec(cam, filename, "pic_save");
@@ -142,9 +142,9 @@ void cls_picture::process_snapshot()
             , cam->cfg->picture_type);
         remove(filename);
         if ((cam->imgs.size_high > 0) && (cam->movie_passthrough == false)) {
-            save_norm(filename, cam->current_image->image_high);
+            save_norm(filename, cam->current_image->image_high, cam->imgs.width_high,  cam->imgs.height_high);
         } else {
-            save_norm(filename, cam->current_image->image_norm);
+            save_norm(filename, cam->current_image->image_norm, cam->imgs.width,  cam->imgs.height);
         }
         on_picture_save_command(filename);
         cam->app->dbse->exec(cam, filename, "pic_save");
@@ -171,10 +171,13 @@ void cls_picture::process_preview()
             , cam->cfg->picture_filename
             , cam->cfg->picture_type);
 
+        ctx_coord cropped_area = crop_preview_img();
+
+
         if ((cam->imgs.size_high > 0) && (cam->movie_passthrough == false)) {
-            save_norm(filename, cam->imgs.image_preview.image_high);
+            save_norm(filename, cam->imgs.image_preview.image_high, cropped_area.width , cropped_area.height);
         } else {
-            save_norm(filename, cam->imgs.image_preview.image_norm);
+            save_norm(filename, cam->imgs.image_preview.image_norm, cropped_area.width , cropped_area.height);
         }
         on_picture_save_command(filename);
         cam->app->dbse->exec(cam, filename, "pic_save");
@@ -185,6 +188,127 @@ void cls_picture::process_preview()
         cam->current_image = saved_current_image;
         cam->current_image->imgts = saved_current_image->imgts;
     }
+}
+
+ctx_coord cls_picture::get_box_size (ctx_coord location, int max_width, int max_height, int min_boxsize ){
+        //MOTION_LOG(ERR, TYPE_EVENTS, NO_ERRNO, "Processing previw from sec%d shot%d diff%d", timestamp_tm.tm_sec, sh, diff);
+    // now crop it to location of motion detected
+    // determine w/h of cubic box around motion, min 25% of full image height
+    int boxsize;
+    ctx_coord area;
+
+    boxsize = MAX( MIN( MIN ( (MAX (location.height, location.height) ) , max_height ) , max_width ), min_boxsize);
+    boxsize = MAX(boxsize ,160);
+    boxsize = (boxsize /8 ) *8;
+    //minimum size
+    //find new x of box not lower that 0 and not higher than w-boxsize
+    area.width = boxsize;
+    area.height = boxsize;
+    area.minx = MIN( MAX(location.x - boxsize/2, 0), max_width - boxsize - 1);
+    area.minx = (area.minx /2) *2;
+    area.maxx = area.minx + boxsize;
+    area.miny = MIN( MAX(location.y - boxsize/2, 0), max_height - boxsize - 1);
+    area.miny = (area.miny /2) *2;
+    area.maxy = area.miny + boxsize;
+
+    return area;
+}
+
+ctx_coord cls_picture::crop_preview_img()
+{
+    ctx_coord fullpic;
+    ctx_coord motionpic;
+    int  croppedsize;
+    ctx_coord location = cam->imgs.image_preview.location;
+    ctx_coord label1_location = cam->imgs.image_preview.largest_location;
+    //timespec ts = cam->imgs.image_preview.imgts;
+
+    struct tm timestamp_tm;
+    localtime_r(&cam->imgs.image_preview.imgts.tv_sec , &timestamp_tm);
+    //int minute = timestamp_tm.tm_min;
+
+
+    //int sh = cam->imgs.image_preview.shot;
+    //int diff = cam->imgs.image_preview.diffs;
+    ctx_coord area ; // new cubic area min 25% of height 
+    ctx_coord area1; // cubic area of label 1
+    u_char *img , *img_u_cropped , *img_v_cropped , *img_u , *img_v;
+    int imgsz;
+
+    if ((cam->imgs.size_high > 0) && (cam->movie_passthrough == false)) {
+        fullpic.width = cam->imgs.width_high;
+        fullpic.height = cam->imgs.height_high;
+        img = cam->imgs.image_preview.image_high;
+        imgsz = cam->imgs.width_high * cam->imgs.height_high;
+    } else {
+        fullpic.width = cam->imgs.width;
+        fullpic.height = cam->imgs.height;
+        img = cam->imgs.image_preview.image_norm;
+        imgsz = cam->imgs.width * cam->imgs.height;
+    }
+    motionpic.width = cam->imgs.width;
+    motionpic.height = cam->imgs.height;
+
+    // Process original location dirived by std dev
+
+    //MOTION_LOG(ERR, TYPE_EVENTS, NO_ERRNO, "Processing previw from sec%d shot%d diff%d", timestamp_tm.tm_sec, sh, diff);
+    // now crop it to location of motion detected
+    // determine w/h of cubic box around motion, min 25% of full image height
+    area = get_box_size(location, motionpic.width, motionpic.height, (int)(motionpic.height / 4));
+    
+    area1 = get_box_size(label1_location, motionpic.width, motionpic.height, (int)(motionpic.height / 4));
+     
+    
+    MOTION_LOG(ERR, TYPE_EVENTS, NO_ERRNO, "Label x%d mx%d y%d my%d --- area1 x%d mx%d y%d my%d",
+    area.minx, area.maxx, area.miny, area.maxy, area1.minx, area1.maxx, area1.miny, area1.maxy);
+    
+    // transform area from norm to high
+    area.minx = area.minx * 2;
+    area.maxx = area.maxx * 2;
+    area.miny = area.miny * 2;
+    area.maxy = area.maxy * 2;
+    area.height = area.height *2;
+    area.width = area.width *2;
+    
+
+    //MOTION_LOG(ERR, TYPE_EVENTS, NO_ERRNO, "Adjusted preview norm->high box from x%d mx%d y%d my%d to x%d mx%d y%d my%d",
+    //location.minx, location.maxx, location.miny, location.maxy, area.minx, area.maxx, area.miny, area.maxy);
+
+    // crop cam->imgs.image_preview.image_high and change w / h
+    int indxh,line;
+    int cropped_pixel_counter = 0;
+    // move y
+    for (indxh=area.miny , line=0; indxh< area.miny + area.height; indxh++,line++){
+        memmove(img+(line * area.width)
+            , img+(indxh*fullpic.width) + area.minx
+            , (uint)area.width);
+        cropped_pixel_counter += area.width;    
+    }
+    croppedsize = area.width*area.height;
+    //MOTION_LOG(ERR, TYPE_EVENTS, NO_ERRNO, "copied imgsz planned%d moved%d", croppedsize, cropped_pixel_counter);
+    img_u_cropped = img + croppedsize;
+    img_u = img + imgsz ;
+    //move u
+    for (indxh=area.miny/2, line =0; indxh< area.miny/2 + area.height/2; indxh++,line++){
+        memmove(img_u_cropped+(line * area.width/2)
+            , img_u+(indxh*fullpic.width/2) + area.minx/ 2
+            , (uint)area.width / 2);
+            cropped_pixel_counter += (area.width /2);
+    }
+    //MOTION_LOG(ERR, TYPE_EVENTS, NO_ERRNO, "copied U planned %d moved%d", croppedsize + croppedsize/4,cropped_pixel_counter );
+    //move v
+    img_v_cropped = img + croppedsize + croppedsize / 4;
+    img_v = img + imgsz + imgsz / 4;
+    //croppedsize_v = croppedsize + croppedsize/4;
+    for (indxh=area.miny/2, line =0; indxh< area.miny/2 + area.height/2; indxh++,line++){
+        memmove(img_v_cropped+(line * area.width/2)
+            , img_v+(indxh*fullpic.width/2) + area.minx/ 2
+            , (uint)area.width / 2);
+        cropped_pixel_counter += (area.width /2);
+    }
+    //MOTION_LOG(ERR, TYPE_EVENTS, NO_ERRNO, "copied v planned %d moved%d", croppedsize + croppedsize/2,cropped_pixel_counter );
+
+    return area; //: area fullpic
 }
 
 #ifdef HAVE_WEBP
@@ -310,6 +434,10 @@ void cls_picture::save_yuv420p(FILE *fp, u_char *image, int width, int height
 
     sz = jpgutl_put_yuv420p(buf, image_size, image, width, height
         , cam->cfg->picture_quality, cam ,ts1, box);
+
+
+    MOTION_LOG(ERR, TYPE_EVENTS, NO_ERRNO, "jpgutil x%d y%d ", width , height);
+    
     fwrite(buf, (uint)sz, 1, fp);
 
     free(buf);
@@ -418,17 +546,9 @@ int cls_picture::put_memory(u_char *img_dst, int image_size
 }
 
 /* Write the picture to a file */
-void cls_picture::pic_write(FILE *picture, u_char *image)
+void cls_picture::pic_write(FILE *picture, u_char *image, int width, int height)
 {
-    int width, height;
 
-    if ((cam->imgs.size_high > 0) && (cam->movie_passthrough == false)) {
-        width = cam->imgs.width_high;
-        height = cam->imgs.height_high;
-    } else {
-        width = cam->imgs.width;
-        height = cam->imgs.height;
-    }
 
     if (cam->cfg->picture_type == "ppm") {
         save_ppm(picture, image, width, height);
@@ -445,7 +565,7 @@ void cls_picture::pic_write(FILE *picture, u_char *image)
 }
 
 /* Saves image to a file in format requested */
-void cls_picture::save_norm(char *file, u_char *image)
+void cls_picture::save_norm(char *file, u_char *image, int width, int height)
 {
     FILE *picture;
 
@@ -456,7 +576,7 @@ void cls_picture::save_norm(char *file, u_char *image)
         return;
     }
 
-    pic_write(picture, image);
+    pic_write(picture, image, width, height);
 
     myfclose(picture);
 }
@@ -646,10 +766,49 @@ void cls_picture::scale_img(int width_src, int height_src, u_char *img_src, u_ch
     for (y = 0; y < height_src / 2; y+=2)
        for (x = 0; x < width_src; x += 4)
        {
-          img_dst[i++] = img_src[(width_src * height_src) + (y * width_src) + x];
-          img_dst[i++] = img_src[(width_src * height_src) + (y * width_src) + (x + 1)];
+          img_dst[i++] = img_src[(width_src * height_src) + (y * width_src) + x];       //This is probably wrong, not YUV420 logic
+          img_dst[i++] = img_src[(width_src * height_src) + (y * width_src) + (x + 1)]; // dito
        }
 
+    return;
+}
+
+//scale down YUV420 image by 50% generating a YUV444-packed
+void cls_picture::scale_img_YUV444p(int width_src, int height_src, u_char *img_src, u_char *img_dst)
+{
+
+    int i = 0, x, y, Y, U, V;
+    int offset_U = width_src * height_src;
+    int offset_V = offset_U + (width_src * height_src)/4;
+    for (y = 0; y < height_src; y+=2)
+        for (x = 0; x < width_src; x+=2)
+        {
+            img_dst[i++] = (u_char) ((img_src[y * width_src + x     ] +
+                                     img_src[y * width_src + x+1    ] + 
+                                     img_src[(y+1) * width_src + x  ] +
+                                     img_src[(y+1) * width_src + x+1] ) / 4);
+             
+            img_dst[i++] = img_src[offset_U + (y/2 * width_src/2) + x/2];
+            img_dst[i++] = img_src[offset_V + (y/2 * width_src/2) + x/2];
+
+//             Y = (u_char) ((img_src[y * width_src + x     ] +
+//                                      img_src[y * width_src + x+1    ] + 
+//                                      img_src[(y+1) * width_src + x  ] +
+//                                      img_src[(y+1) * width_src + x+1] ) / 4);
+//              
+//             U = img_src[offset_U + (y/2 * width_src/2) + x/2];
+//             V = img_src[offset_V + (y/2 * width_src/2) + x/2];
+//             // transform to RGB
+//             //R = Y + 1.140V, G = Y - 0.395U - 0.581V, and B = Y + 2.032U. 
+// 
+//             Y -= 16;
+//             U -= 128;
+//             V -= 128;
+//             img_dst[i++] = (u_char) MAX(MIN(1.164 * Y             + 1.596 * V , 255) , 0);
+//             img_dst[i++] = (u_char) MAX(MIN(1.164 * Y - 0.392 * U - 0.813 * V , 255) , 0);
+//             img_dst[i++] = (u_char) MAX(MIN(1.164 * Y + 2.017 * U             , 255) , 0);
+            
+        }
     return;
 }
 

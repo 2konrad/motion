@@ -40,6 +40,7 @@ class cls_algsec {
 
         void        detect();
         bool        detected;
+        void        save_jpg(u_char *img, int width, int height, int type, std::string name);
 
         std::string method;
         pthread_mutex_t mutex;

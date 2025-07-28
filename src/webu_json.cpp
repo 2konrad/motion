@@ -25,6 +25,7 @@
 #include "webu_ans.hpp"
 #include "webu_json.hpp"
 #include "dbse.hpp"
+#include <iomanip>
 
 std::string cls_webu_json::escstr(std::string invar)
 {
@@ -235,13 +236,13 @@ void cls_webu_json::config()
 
     struct stat attr;
     stat("/home/pi/motion/src/motion", &attr);
-    std::tm tm = *std::localtime(&attr.st_mtime);
+    //std::tm tm = *std::localtime(&attr.st_mtime);
     std::stringstream ssTp;
     ssTp << std::put_time(std::localtime(&attr.st_mtime), "%B-%d");
 
-    webui->resp_page += "{\"version\" : \" <br>" ;
-    webui->resp_page.append( ssTp.str()) ;
-    webui->resp_page += "\"";
+    webua->resp_page += "{\"version\" : \" <br>" ;
+    webua->resp_page.append( ssTp.str()) ;
+    webua->resp_page += "\"";
 
     webua->resp_page += ",\"cameras\" : ";
     cameras_list();

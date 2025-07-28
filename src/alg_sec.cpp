@@ -23,7 +23,7 @@
 #include "logger.hpp"
 #include "alg_sec.hpp"
 
-#ifdef HAVE_OPENCV
+#ifdef HAVE_OPENCV4
 
 #pragma GCC diagnostic push
     #pragma GCC diagnostic ignored "-Wconversion"
@@ -202,8 +202,8 @@ void cls_algsec::get_image_roi(Mat &mat_src, Mat &mat_dst)
     // roi.height = cam->current_image->location.height;
     center.x = cam->current_image->location.x;
     center.y = cam->current_image->location.y;
-    MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "location roi cx cy mx my %d %d %d %d"
-        ,cam->current_image->location.x, cam->current_image->location.y, cam->current_image->location.maxx, cam->current_image->location.maxy);
+    //MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "location roi cx cy mx my %d %d %d %d"
+    //    ,cam->current_image->location.x, cam->current_image->location.y, cam->current_image->location.maxx, cam->current_image->location.maxy);
 
 
     // target to get 300x300
@@ -232,12 +232,12 @@ void cls_algsec::get_image_roi(Mat &mat_src, Mat &mat_dst)
         ,cam->current_image->location.height
         ,width,height);
         */
-    MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "Opencv roi %d %d %d %d"
-        ,roi.x,roi.y,roi.width,roi.height);
+    //MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "Opencv roi %d %d %d %d"
+    //    ,roi.x,roi.y,roi.width,roi.height);
     
     mat_dst = mat_src(roi);
-    MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "Opencv roi done %d %d %d %d"
-        ,roi.x,roi.y,roi.width,roi.height);
+    //MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "Opencv roi done %d %d %d %d"
+    //    ,roi.x,roi.y,roi.width,roi.height);
 
 }
 
@@ -349,7 +349,7 @@ void cls_algsec::detect_dnn()
             return;
         }
 
-        MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "blob");
+        //MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "blob");
 
         Mat blob = blobFromImage(mat_dst
             , 1.0
@@ -379,10 +379,10 @@ void cls_algsec::detect_dnn()
 
             if(detect_confidence > threshold){
                 size_t det_index = (size_t)detectionMat.at<float>(i, 1);
-                float x1 = detectionMat.at<float>(i, 3)*mat_dst.cols;
-                float y1 = detectionMat.at<float>(i, 4)*mat_dst.rows;
-                float x2 = detectionMat.at<float>(i, 5)*mat_dst.cols;
-                float y2 = detectionMat.at<float>(i, 6)*mat_dst.rows;
+                int x1 = (int) (detectionMat.at<float>(i, 3)* (float) mat_dst.cols);
+                int y1 = (int) (detectionMat.at<float>(i, 4)* (float) mat_dst.rows);
+                int x2 = (int) (detectionMat.at<float>(i, 5)* (float) mat_dst.cols);
+                int y2 = (int) (detectionMat.at<float>(i, 6)* (float) mat_dst.rows);
                 cv::Rect rec((int)x1, (int)y1, (int)(x2 - x1), (int)(y2 - y1));
                 rectangle(mat_dst,rec, cv::Scalar(0, 0, 255), 1, 8, 0);
                 putText(mat_dst, cv::format("%s  (%.2f)", 
@@ -400,7 +400,7 @@ void cls_algsec::detect_dnn()
         }
 
         //label_image(mat_dst, (double)1, classIdPoint); //classIdPoint not needed
-        MOTION_LOG(DBG, LOG_TYPE_ALL, NO_ERRNO, "image show.");
+        //MOTION_LOG(DBG, LOG_TYPE_ALL, NO_ERRNO, "image show.");
         image_show(mat_dst, detected_now);
 
     } catch ( cv::Exception& e ) {
@@ -745,13 +745,39 @@ void cls_algsec::handler_shutdown()
 
 }
 
+void cls_algsec::save_jpg(u_char *img, int w, int h, int type, std::string name){
+    Mat img2,img3;
+
+    if (type == 1){
+        // YUV444packed
+        img2 = Mat(h, w, CV_8UC3, (void*)img);
+
+        cvtColor(img2, img3, COLOR_YUV2BGR);
+        imwrite(name, img3);
+    }
+    if (type == 2){
+        // YUV420planar
+        img2 = Mat(h*3/2, w, CV_8UC1, (void*)img);
+
+        cvtColor(img2, img3, COLOR_YUV2RGB_YV12);
+        imwrite(name, img3);
+    }
+    if (type == 3){
+        // RGB
+        img2 = Mat(h, w, CV_8UC3, (void*)img);
+
+        cvtColor(img2, img3, COLOR_RGB2BGR);
+        imwrite(name, img3);
+    }
+}
+
 #endif
 
 
 /*Invoke the secondary detetction method*/
 void cls_algsec::detect()
 {
-    #ifdef HAVE_OPENCV
+    #ifdef HAVE_OPENCV4
         if (method == "none") {
             return;
         }
@@ -800,7 +826,7 @@ void cls_algsec::detect()
 
 cls_algsec::cls_algsec(cls_camera *p_cam)
 {
-    #ifdef HAVE_OPENCV
+    #ifdef HAVE_OPENCV4
         cam = p_cam;
         handler_running = false;
         handler_stop = true;
@@ -817,7 +843,7 @@ cls_algsec::cls_algsec(cls_camera *p_cam)
 
 cls_algsec::~cls_algsec()
 {
-    #ifdef HAVE_OPENCV
+    #ifdef HAVE_OPENCV4
         handler_shutdown();
         pthread_mutex_destroy(&mutex);
     #endif

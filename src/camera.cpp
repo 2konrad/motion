@@ -29,6 +29,7 @@
 #include "netcam.hpp"
 #include "conf.hpp"
 #include "alg.hpp"
+#include "label.hpp"
 #include "alg_sec.hpp"
 #include "picture.hpp"
 #include "webu.hpp"
@@ -175,6 +176,7 @@ void cls_camera::ring_process()
             if (cfg->picture_output == "best") {
                 if (current_image->diffs > imgs.image_preview.diffs) {
                     picture->save_preview();
+                    MOTION_LOG(INF, TYPE_EVENTS, NO_ERRNO, "SAVE PREVIEW diffs %d", current_image->diffs);
                 }
             }
             if (cfg->picture_output == "center") {
@@ -434,43 +436,6 @@ void cls_camera::cam_start()
         device_status = STATUS_CLOSED;
     }
     watchdog = cfg->watchdog_tmo;
-
-    // Start Opencv
-    net = cv::dnn::readNetFromTensorflow("/home/pi/motion/src/frozen_inference_graph_V2.pb","/home/pi/motion/src/ssd_mobilenet_v2_coco_2018_03_29.pbtxt");
-    if (net.empty()){
-        MOTION_LOG(NTC, LOG_TYPE_ALL, NO_ERRNO, _("Init ML Model error"));
-        exit(-1);
-    }
-
-
-}
-
-
-void cls_camera::detect_from_video(cv::Mat &src)
-{
-    cv::Mat blobimg = cv::dnn::blobFromImage(src, 1.0, cv::Size(300, 300), 0.0, true);
-
-	net.setInput(blobimg);
-
-	cv::Mat detection = net.forward("detection_out");
-//	cout << detection.size[2]<<" "<< detection.size[3] << endl;
-	cv::Mat detectionMat(detection.size[2], detection.size[3], CV_32F, detection.ptr<float>());
-
-	const float confidence_threshold = 0.25;
-	for(int i=0; i<detectionMat.rows; i++){
-		float detect_confidence = detectionMat.at<float>(i, 2);
-
-		if(detect_confidence > confidence_threshold){
-			size_t det_index = (size_t)detectionMat.at<float>(i, 1);
-			float x1 = detectionMat.at<float>(i, 3)*src.cols;
-			float y1 = detectionMat.at<float>(i, 4)*src.rows;
-			float x2 = detectionMat.at<float>(i, 5)*src.cols;
-			float y2 = detectionMat.at<float>(i, 6)*src.rows;
-			cv::Rect rec((int)x1, (int)y1, (int)(x2 - x1), (int)(y2 - y1));
-			rectangle(src,rec, cv::Scalar(0, 0, 255), 1, 8, 0);
-			putText(src, cv::format("%s", std::to_string(det_index).c_str()), cv::Point(x1, y1-5) ,cv::FONT_HERSHEY_SIMPLEX,0.5, cv::Scalar(0, 0, 255), 1, 8, 0);
-		}
-	}
 }
 
 /* Get next image from camera */
@@ -644,6 +609,11 @@ void cls_camera::init_buffers()
     } else {
         imgs.image_preview.image_high = NULL;
     }
+    imgs.sub_sampled_img =(u_char*) mymalloc((uint)(3 * imgs.width * imgs.height / 4)); // half size YUV444 image 
+    imgs.bg =(float*) mymalloc((uint)(sizeof(*imgs.bg) * 3 * imgs.width * imgs.height / 4)); // half size YUV444 image 
+    imgs.bg_ =(u_char*) mymalloc((uint)(  3 * imgs.width * imgs.height / 4)); // half size YUV444 image 
+    imgs.motion =(u_char*) mymalloc((uint)(3 * imgs.width * imgs.height / 4)); // half size YUV444 image 
+    imgs.motion_counter =(u_char*) mymalloc((uint)(imgs.width * imgs.height / 4)); // half size YUV444 image 
 
 }
 
@@ -743,6 +713,8 @@ void cls_camera::init_ref()
     memcpy(imgs.image_vprvcy, current_image->image_norm
         , (uint)imgs.size_norm);
 
+    picture->scale_img_YUV444p(imgs.width, imgs.height, imgs.image_vprvcy, imgs.sub_sampled_img); 
+
     alg->ref_frame_reset();
 }
 
@@ -784,10 +756,15 @@ void cls_camera::cleanup()
     myfree(imgs.image_secondary);
     myfree(imgs.image_preview.image_norm);
     myfree(imgs.image_preview.image_high);
+    myfree(imgs.sub_sampled_img);
+    myfree(imgs.bg);
+    myfree(imgs.motion);
+    myfree(imgs.motion_counter);
 
     ring_destroy(); /* Cleanup the precapture ring buffer */
 
     mydelete(alg);
+    mydelete(label);
     mydelete(algsec);
     mydelete(rotate);
     mydelete(picture);
@@ -1224,6 +1201,7 @@ void cls_camera::init()
     vlp_init(this);
 
     alg = new cls_alg(this);
+    label = new cls_label(this);
     algsec = new cls_algsec(this);
     picture = new cls_picture(this);
     draw = new cls_draw(this);
@@ -1341,6 +1319,13 @@ void cls_camera::resetimages()
     current_image->cent_dist = 0;
     memset(&current_image->location, 0, sizeof(current_image->location));
     current_image->total_labels = 0;
+    for (int x = 0; x < imgs.width / (TILE_SIZE*2); x++) {
+        for (int y = 0; y < imgs.height /(TILE_SIZE*2) ; y++){
+            label->tiles[x][y].motion = 0;
+            label->tiles[x][y].label = 0;
+            label->tiles[x][y].label_rank = 0;
+        }
+    }
 
     clock_gettime(CLOCK_REALTIME, &current_image->imgts);
     clock_gettime(CLOCK_MONOTONIC, &current_image->monots);
@@ -1387,6 +1372,12 @@ int cls_camera::capture()
         //also copy high image in case next frame is missing and we need to copy it into next frame
         memcpy(imgs.image_vprvcy_high, current_image->image_high
             , (uint)imgs.size_high);
+        // Fill subsampled image
+        //Mat mat_src = Mat(cam->imgs.height*3/2, cam->imgs.width
+        //    , CV_8UC1, (void*)image_norm);
+        //cvtColor(mat_src, mat_dst, COLOR_YUV2RGB_YV12);
+        picture->scale_img_YUV444p(imgs.width, imgs.height, imgs.image_vprvcy, imgs.sub_sampled_img); 
+        
 
     } else {
         if (connectionlosttime.tv_sec == 0) {
@@ -1464,6 +1455,25 @@ void cls_camera::detection()
         current_image->diffs_raw = 0;
         current_image->diffs_ratio = 100;
     }
+
+    //
+    // here diff RGB
+    // lass mal pix sehen
+    algsec->save_jpg(imgs.sub_sampled_img, imgs.width / 2, imgs.height / 2, 3, "/home/pi/motion/output/sub.jpg" ); 
+    float *bg = imgs.bg;
+    u_char *bg_ = imgs.bg_;
+    
+    
+    for (int i = 0; i < imgs.width * imgs.height /4; i++) {
+        *bg_ = (u_char) *bg;
+        bg_++;
+        bg++;
+        
+    }
+    algsec->save_jpg(imgs.bg_, imgs.width / 2, imgs.height / 2, 3, "/home/pi/motion/output/bg.jpg" ); 
+    algsec->save_jpg(imgs.image_vprvcy, imgs.width , imgs.height , 2, "/home/pi/motion/output/priv.jpg" ); 
+
+    //save_norm("filename", cam->current_image->image_norm, cam->imgs.width,  cam->imgs.height);
 }
 
 /* tune the detection parameters*/
@@ -1497,7 +1507,7 @@ void cls_camera::tuning()
 
     if (frame_skip) {
         /*reset reference frame as long as lightswitch ongoing*/
-        alg_update_reference_frame(cam, RESET_REF_FRAME);
+        alg->ref_frame_reset();
     }else{
         alg->ref_frame_update();
     }
@@ -1594,7 +1604,7 @@ void cls_camera::overlay()
                 , tmp, text_scale);
         draw->text(current_image->image_high
                 , imgs.width_high, imgs.height_high 
-                , imgs.width_high * 0.6, imgs.height_high - (40 * text_scale)- (current_image->shot)*20
+                , (int)(imgs.width_high * 0.6), imgs.height_high - (40 * text_scale)
                 , tmp, (int)(text_scale*1.5));
     }
 }
@@ -1967,6 +1977,7 @@ void cls_camera::frametiming()
     sleeptm = ((1000000L / cfg->framerate) -
           (1000000L * (ts2.tv_sec - frame_curr_ts.tv_sec)) -
           ((ts2.tv_nsec - frame_curr_ts.tv_nsec)/1000))*1000;
+    
 
     /* If over 1 second, just do one*/
     if (sleeptm > 999999999L) {
@@ -1989,8 +2000,8 @@ void cls_camera::handler()
         resetimages();
         capture();
         detection();
-        tuning();
-        overlay();
+        tuning();       
+        overlay();      //draw text and labels
         actions();
         snapshot();
         timelapse();

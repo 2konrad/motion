@@ -648,7 +648,7 @@ void cls_alg::diff_nomask()
         new_img++;
     }
     cam->current_image->diffs_raw = diffs;
-    cam->current_image->diffs_raw = sum_currdiff / diffs;
+    cam->current_image->diffs_raw = (int) (sum_currdiff / diffs);
     cam->current_image->diffs = diffs;
     cam->imgs.image_motion.imgts = cam->current_image->imgts;
 
@@ -701,12 +701,104 @@ void cls_alg::diff_mask()
         mask++;
     }
     cam->current_image->diffs_raw = diffs;
-    cam->current_image->diffs_raw = sum_currdiff / diffs;
+    cam->current_image->diffs_raw = (int) (sum_currdiff / diffs);
     cam->current_image->diffs = diffs;
     cam->imgs.image_motion.imgts = cam->current_image->imgts;
 
     if (diffs > 0 ) {
         cam->current_image->diffs_ratio = (abs(diffs_net) * 100) / diffs;
+    } else {
+        cam->current_image->diffs_ratio = 100;
+    }
+
+}
+
+// diff calculated from half size subsamplead image from image_norm (sub_sampled_img), comparing Y, U V
+// bg : background = refernce frame ; size: width * height * 3 / 4, non planar, each PIXEL hast 3 bytes Y, U, V 
+// mot: motion image width * height * 1.5 // to be changed to subsampled resolution
+// mask: mask width * height 
+// img: current image
+void cls_alg::diff_mask_YUV()
+{
+    float *bg  = cam->imgs.bg;
+    u_char *mot  = cam->imgs.image_motion.image_norm;
+    //u_char *motion = cam->imgs.motion;
+    u_char *mask = cam->imgs.mask;
+    u_char *img_vp = cam->imgs.image_vprvcy;
+    u_char *img = cam->imgs.sub_sampled_img;
+    long sum_currdiff = 0;   // to see sum of difference in brightness for lightswitch
+
+
+    int Ydiff, Udiff, Vdiff, norm_x, norm_y;
+    int imgsz = cam->imgs.motionsize;
+    int width = cam->imgs.width;
+    int height = cam->imgs.height;
+    
+    int diff = 0, diffs = 0, diffs_large = 0;
+    int noise = cam->noise;
+    int lrgchg = cam->cfg->threshold_ratio_change;
+
+    memset(mot + imgsz, 128, (uint)(imgsz / 2));
+    memset(mot, 0, (uint)imgsz);
+
+    // Todo switch to precalculated subsampled pic sub_sampled_img
+    for (int y = 0; y < height/2; y++) {
+        for (int x = 0; x < width/2; x++) {
+            norm_x = x * 2;
+            norm_y = y * 2; 
+            if (mask[norm_y * width + norm_x] == 0) {
+                Ydiff = 0;
+                Udiff = 0;
+                Vdiff = 0;
+            }else{
+                // check Y, average 4 pixels 
+                Ydiff = (int) (*bg - *img);
+                // check U resolution is just right = half the resolution of norm
+                Udiff = (int) (*bg - *img);
+                // check V
+                Vdiff = (int) (*bg - *img);
+            }
+            bg+=3;
+            img+=3;
+            diff = abs(Ydiff)+ abs(Udiff) + abs(Vdiff);
+            if (diff > noise) {
+                mot[norm_y * width + norm_x] = img_vp[norm_y * width + norm_x];    // 4 pixel !!!
+                mot[norm_y * width + norm_x+1] = img_vp[norm_y * width + norm_x+1];
+                mot[(norm_y+1) * width + norm_x] = img_vp[(norm_y+1) * width + norm_x];
+                mot[(norm_y+1) * width + norm_x+1] = img_vp[(norm_y+1) * width + norm_x+1];
+
+                cam->label->tiles[x/TILE_SIZE][y/TILE_SIZE].motion++;
+                diffs++;
+                sum_currdiff -= Ydiff; //measure light change 
+            }
+            if (diff > lrgchg) {
+                diffs_large++;
+            }
+
+        }
+    }
+
+    cam->label->assign_labels();
+    // Todo only take laregst label diff
+    int diff_largest = cam->current_image->largest_location.stddev_xy;  // use std dev for maotion
+
+    // int diff_tiles = 0;
+    // int min_motion  =  TILE_SIZE * TILE_SIZE * MIN_MOTION_PERCENT / 100; 
+    // // Todo : delete all motion of tiles < minmtion
+    // for (int y = 0; y < height/(TILE_SIZE*2); y++) {
+    //     for (int x = 0; x < width/(TILE_SIZE*2); x++) {
+    //         if (cam->label->tiles[x][y].motion > min_motion) {
+    //             diff_tiles += cam->label->tiles[x][y].motion;
+    //         }
+    //     }
+    // }
+    cam->current_image->diffs_raw = diffs;
+    cam->current_image->diffs_raw = (int) (sum_currdiff / diffs);
+    cam->current_image->diffs = diff_largest;
+    cam->imgs.image_motion.imgts = cam->current_image->imgts;
+
+    if (diffs > 0 ) {
+        cam->current_image->diffs_ratio = (abs(diffs_large) * 100) / diffs;
     } else {
         cam->current_image->diffs_ratio = 100;
     }
@@ -877,7 +969,7 @@ void cls_alg::diff_standard()
         if (cam->imgs.mask == NULL) {
             diff_nomask();
         } else {
-            diff_mask();
+            diff_mask_YUV(); // YUV444p version
         }
     } else {
         if (cam->imgs.mask == NULL) {
@@ -903,7 +995,7 @@ void cls_alg::lightswitch_orig()
     }
 }
 
-void cls_alg::alg_lightswitch()
+void cls_alg::lightswitch()
 {
 
     if (cam->cfg->lightswitch_percent >= 1) {
@@ -917,9 +1009,9 @@ void cls_alg::alg_lightswitch()
                     motion += 1;
                 }
             }
-            MOTPLS_LOG(INF, TYPE_ALL, NO_ERRNO, _("Possible lightswitch detected"));
+            MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, _("Possible lightswitch detected"));
             if (motion <= 2){
-                MOTPLS_LOG(NTC, TYPE_ALL, NO_ERRNO, _("Lightswitch detected and <= 2 motion frames"));
+                MOTION_LOG(NTC, LOG_TYPE_ALL, NO_ERRNO, _("Lightswitch detected and <= 2 motion frames"));
             if (cam->frame_skip < (unsigned int)cam->cfg->lightswitch_frames) {
                 cam->frame_skip = (unsigned int)cam->cfg->lightswitch_frames;
             }
@@ -972,30 +1064,30 @@ void cls_alg::ref_frame_update_orig()
 
 }
 
-void  cls_alg::ref_frame_update()
+void  cls_alg::ref_frame_update_new()
 {
     int accept_timer = 3 * cam->cfg->static_object_time;
     int i, accept_counter = 0, accept_counter_sum = 0, accept_counter_sum_all = 0, accept_counter_all = 0;
     int indx, motionframes = 0;
-    int *ref_dyn = cam->imgs.ref_dyn;
+    int *ref_dyn = cam->imgs.ref_dyn; //diff_history
     bool onlytwomotionframes = false;
     //int noise = (cam->noise) ;
     u_char *image_virgin = cam->imgs.image_vprvcy;
     u_char *ref = cam->imgs.ref;
-    u_char *smartmask = cam->imgs.smartmask_final;
+    u_char *mask_final = smartmask_final;
     u_char *mask = cam->imgs.mask;
     u_char *motion = cam->imgs.image_motion.image_norm;
 
-    if (!detecting_motion){
+    if (!cam->detecting_motion){
         for (indx = 0; indx < cam->cfg->minimum_motion_frames; indx++) {
             if (cam->imgs.image_ring[indx].motion) {
                 motionframes += 1;
             }
         }
     }
-    onlytwomotionframes = ( (!detecting_motion) && (motionframes <= 1) );
+    onlytwomotionframes = ( (!cam->detecting_motion) && (motionframes <= 1) );
     for (i = cam->imgs.motionsize; i > 0; i--) {
-        if ((*mask) && (*smartmask) ){
+        if ((*mask) && (*mask_final) ){
             if (abs(*ref - *image_virgin) > (cam->noise * 0.6)){ //diff > noise
                 (*ref_dyn)++;
                 accept_counter++;
@@ -1025,7 +1117,7 @@ void  cls_alg::ref_frame_update()
                 if ( (*ref_dyn) > 0)   {
                     (*ref_dyn)--;
                 }    
-                if (cam->shots_mt == 0){                                                                 
+                if (cam->current_image->shot == 0){      //shots_mt                                                            
                     *ref = (unsigned char)( (((int) *ref) * 3 + (int) *image_virgin) / 4); 
                 }
                 accept_counter_sum_all += (*ref_dyn);
@@ -1034,7 +1126,7 @@ void  cls_alg::ref_frame_update()
         }//mask
         ref++;
         image_virgin++;
-        smartmask++;
+        mask_final++;
         mask++;
         ref_dyn++;
         motion++;
@@ -1045,6 +1137,90 @@ void  cls_alg::ref_frame_update()
 
 }
 
+//Update referecnce frame BG with sub sampled resolution YUV444p
+void  cls_alg::ref_frame_update()
+{
+    int accept_frames = 3 * cam->cfg->static_object_time; // number of frames with diff before it is accepten into BG
+
+    //int i, accept_counter = 0, accept_counter_sum = 0, accept_counter_sum_all = 0, accept_counter_all = 0;
+    //int indx, motionframes = 0;
+    //int *ref_dyn = cam->imgs.diff_counter; //diff_history
+    //bool onlytwomotionframes = false;
+    //int noise = (cam->noise) ;
+    //u_char *image_virgin = cam->imgs.image_vprvcy;
+    //u_char *ref = cam->imgs.ref;
+    //u_char *mask_final = smartmask_final;
+    u_char *mask = cam->imgs.mask;
+    u_char *motion = cam->imgs.image_motion.image_norm;
+    float *bg = cam->imgs.bg;
+    u_char *img = cam->imgs.sub_sampled_img;
+    u_char *motion_counter = cam->imgs.motion_counter;
+
+    // if (!cam->detecting_motion){
+    //     for (indx = 0; indx < cam->cfg->minimum_motion_frames; indx++) {
+    //         if (cam->imgs.image_ring[indx].motion) {
+    //             motionframes += 1;
+    //         }
+    //     }
+    // }
+    // onlytwomotionframes = ( (!cam->detecting_motion) && (motionframes <= 1) );
+    int width = cam->imgs.width;
+    int height = cam->imgs.height;
+    //int norm_x, norm_y;
+    //u_char *pointer_norm;
+    for (int y = 0; y < height/2; y++) {
+        for (int x = 0; x < width/2; x++) {
+            //norm_x = x * 2;
+            //norm_y = y * 2; 
+            if (*mask)  { 
+                //if (abs(*bg++ - *img++) > (cam->noise)) //diff > noise*0.6
+                //check if motion was detected
+                if ((*motion))
+                { 
+                                            
+                    if ((x==286) &&(y==53)) {
+                        MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "x %d y %d bg-r %d bg-g %d bg-b %d img-r %d img-g %d img-b %d motion%d count%d", 
+                            x,y, (int)*bg, (int)*(bg+1), (int)*(bg+2), *img, *(img+1), *(img+2) , *motion, *motion_counter);
+                            }
+                    (*motion_counter)++;
+                    if (*motion_counter > accept_frames){
+                        if ((x>286) &&(y==53)) {
+                        MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "x %d y %d bg-r %d bg-g %d bg-b %d img-r %d img-g %d img-b %d", 
+                            x,y, (int)*bg, (int)*(bg+1), (int)*(bg+2), *img, *(img+1), *(img+2));
+                            }
+                        *bg     = (float) (*bg     *.5 + *img     * .5) ;     //Y
+                        *(bg+1) = (float) (*(bg+1) *.5 + *(img+1) * .5) ;     //U
+                        *(bg+2) = (float) (*(bg+2) *.5 + *(img+2) * .5) ;     //V
+
+
+                        
+                        // *bg     =  (( *img)     );     //Y
+                        // *(bg+1) =  (( *(img+1)) );     //U
+                        // *(bg+2) =  (( *(img+2)) );     //V
+                        
+                        (*motion_counter)--;
+                    }
+                }else{
+                    if ( (*motion_counter) > 0) (*motion_counter)--;
+                    //but still minimally update ref every 1 second!!!!!!!!!!!!!!!!!!!!
+                    if ((cam->current_image->shot == 1)) {//  && (cam->current_image->imgts.tv_sec)){
+                        *bg     = (float) (*bg     *.98 + *img     * .02) ;     //Y
+                        *(bg+1) = (float) (*(bg+1) *.98 + *(img+1) * .02) ;     //U
+                        *(bg+2) = (float) (*(bg+2) *.98 + *(img+2) * .02) ;     //V                      
+                    }
+                }
+            }
+            mask   += 2; //norm resolution, skip every 2nd 
+            motion += 2; //
+            bg     += 3; //3 bytes per pixel
+            img    += 3;
+            motion_counter++;
+        }//end for x
+        //skip 1 line of mask and motion
+        mask = mask + width;
+        motion = motion + width;
+    }
+}
 
 void cls_alg::ref_frame_reset_orig()
 {
@@ -1058,16 +1234,34 @@ void cls_alg::ref_frame_reset_orig()
 
 //reset new
 
-void cls_alg::ref_frame_reset()
+void cls_alg::ref_frame_reset_new()
 {
     /* Copy fresh image */
     memcpy(cam->imgs.ref, cam->imgs.image_vprvcy, cam->imgs.size_norm);
     /* Reset static objects */
     //memset(cam->imgs.ref_dyn, accept_timer * 0.5, cam->imgs.motionsize * sizeof(*cam->imgs.ref_dyn)); //accept_timer * 0.6
-    ref_dyn = cam->imgs.ref_dyn;
+    int *ref_dyn = cam->imgs.ref_dyn;
+    int i;
     for (i = cam->imgs.motionsize; i > 0; i--) {
         (*ref_dyn) = 0 ;
         ref_dyn++;
+    }
+}
+void cls_alg::ref_frame_reset()
+{
+    /* Copy fresh image */
+    int sub_size = cam->imgs.width * cam->imgs.height /4 ;
+    float * bg = cam->imgs.bg;
+    u_char *img = cam->imgs.sub_sampled_img;
+    u_char *motion_counter = cam->imgs.motion_counter;
+    int i;
+
+    for (i = 0; i < sub_size; i++) {
+        (*motion_counter) = 200 ; // allow quick update of bg for let the first 200 frames 
+        motion_counter++;
+        *bg = (float) *img;
+        bg++;
+        img++;
     }
 }
 
@@ -1290,6 +1484,31 @@ void cls_alg::location()
         location_dist_basic();
     }
     location_minmax();
+    //calculate new "location"
+    //cam->label->assign_labels();
+
+    // ctx_coord *cent = &cam->current_image->location;
+    // struct tm timestamp_tm;
+    // localtime_r(&cam->imgs.image_preview.imgts.tv_sec , &timestamp_tm);
+    // int sec = timestamp_tm.tm_sec;
+    // int diff = cam->imgs.image_preview.diffs;
+    // int shot = cam->current_image->shot;
+
+    //MOTION_LOG(INF, TYPE_EVENTS, NO_ERRNO, "sec %d shot%d prevdiff%d x%d xx%d y%d yy%d ", sec, shot, diff, cent->minx, cent->maxx, cent->miny, cent->maxy );
+    //when is this preview image filled (now it still has the old setting)
+
+    int label_count = (int) cam->label->labels.size();
+    if (label_count >0) {
+        //MOTION_LOG(INF, TYPE_EVENTS, NO_ERRNO, "labels motion%d tiles%d x%d xx%d y%d yy%d ", cam->label->labels.front().motion, cam->label->labels.front().tiles , 
+        //cam->label->labels.front().x, cam->label->labels.front().xx, cam->label->labels.front().y, cam->label->labels.front().yy );
+        // second largest label
+        //MOTION_LOG(INF, TYPE_EVENTS, NO_ERRNO, "2nd label motion%d x%d xx%d y%d yy%d ", cam->current_image->second_largest_location.stddev_xy, 
+        //    cam->current_image->second_largest_location.x, cam->current_image->second_largest_location.maxx, 
+        //cam->current_image->second_largest_location.y, cam->current_image->second_largest_location.maxy );
+        
+    }
+        
+    
 }
 
 /* Apply user or default thresholds on standard deviations*/
@@ -1320,8 +1539,9 @@ void cls_alg::diff()
 {
     if (cam->detecting_motion) {
         diff_standard();
+        //cam->label->assign_labels();
     } else {
-        if (diff_fast()) {
+        if (true) { // (diff_fast()) { //diff fast needs to be adapted 
             diff_standard();
         } else {
             cam->current_image->diffs = 0;
@@ -1331,6 +1551,8 @@ void cls_alg::diff()
     }
     lightswitch();
     despeckle();
+    //MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "done labels");
+    
 }
 
 cls_alg::cls_alg(cls_camera *p_cam)

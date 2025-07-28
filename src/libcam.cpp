@@ -24,6 +24,7 @@
 #include "logger.hpp"
 #include "rotate.hpp"
 #include "libcam.hpp"
+#include "picture.hpp"
 
 #ifdef HAVE_LIBCAM
 
@@ -552,12 +553,11 @@ int cls_libcam::start_config()
 
     //std::vector<libcamera::StreamRole> stream_roles = { StreamRole::Viewfinder , StreamRole::VideoRecording, StreamRole::Raw};
 
-    config = camera->generateConfiguration({ StreamRole::Viewfinder , StreamRole::VideoRecording });
+    config = camera->generateConfiguration({StreamRole::Viewfinder ,StreamRole::VideoRecording   });
     
     config->at(0).pixelFormat = PixelFormat::fromString("YUV420");
-
-    config->at(0).size.width = (uint)cam->cfg->width /2;
-    config->at(0).size.height = (uint)cam->cfg->height / 2;
+    config->at(0).size.width = (uint)cam->cfg->width / 2;
+    config->at(0).size.height = (uint)cam->cfg->height / 2; 
     config->at(0).bufferCount = 1;
     config->at(0).stride = 0;
     
@@ -567,12 +567,17 @@ int cls_libcam::start_config()
     config->at(1).bufferCount = 1;
     config->at(1).stride = 0;
 
-    // config->at(2).pixelFormat = PixelFormat::fromString("RGB888");
-    // config->at(2).size.width = (uint)cam->cfg->width /2;
-    // config->at(2).size.height = (uint)cam->cfg->height / 2;
-    // config->at(2).bufferCount = 1;
-    // config->at(2).stride = 0;    
 
+    // for (const auto &size : config->at(0).formats().sizes(libcamera::formats::BGR888)){
+    //     MOTION_LOG(NTC, TYPE_VIDEO, NO_ERRNO, "supported size %s." , size.toString().c_str());
+    // }
+
+    //MOTION_LOG(NTC, TYPE_VIDEO, NO_ERRNO, "config s0 %s." , config->at(0).toString().c_str());
+    retcd = config->validate();
+    MOTION_LOG(NTC, TYPE_VIDEO, NO_ERRNO, "config s0 %s." , config->at(0).toString().c_str());
+    MOTION_LOG(NTC, TYPE_VIDEO, NO_ERRNO, "config s1 %s." , config->at(1).toString().c_str());
+    //MOTION_LOG(NTC, TYPE_VIDEO, NO_ERRNO, "config s2 %s." , config->at(2).toString().c_str());
+   
     auto model = camera->properties().get(properties::Model);
     if (("imx708_wide" == *model) || ("imx708" == *model)) 
     {
@@ -582,11 +587,14 @@ int cls_libcam::start_config()
     }
 
     retcd = config->validate();
+    MOTION_LOG(NTC, TYPE_VIDEO, NO_ERRNO, "Pixel format s0 %s." , config->at(0).pixelFormat.toString().c_str());
+
+    //MOTION_LOG(NTC, TYPE_VIDEO, NO_ERRNO, "stream 2 config %s", config->at(2).toString().c_str());
     if (retcd == CameraConfiguration::Adjusted) {
-        if (config->at(0).pixelFormat != PixelFormat::fromString("YUV420")) {
+        if (config->at(1).pixelFormat != PixelFormat::fromString("YUV420")) {
             MOTION_LOG(NTC, TYPE_VIDEO, NO_ERRNO
                 , "Pixel format was adjusted to %s."
-                , config->at(0).pixelFormat.toString().c_str());
+                , config->at(1).pixelFormat.toString().c_str());
             return -1;
         } else {
             MOTION_LOG(NTC, TYPE_VIDEO, NO_ERRNO
@@ -601,18 +609,20 @@ int cls_libcam::start_config()
         return -1;
     }
 
-    if ((config->at(0).size.width != (uint)cam->cfg->width) ||
-        (config->at(0).size.height != (uint)cam->cfg->height)) {
+    if ((config->at(1).size.width != (uint)cam->cfg->width) ||
+        (config->at(1).size.height != (uint)cam->cfg->height)) {
         MOTION_LOG(NTC, TYPE_VIDEO, NO_ERRNO
             , "Image size adjusted from %d x %d to %d x %d"
             , cam->cfg->width, cam->cfg->height
-            , config->at(0).size.width, config->at(0).size.height);
+            , config->at(1).size.width, config->at(1).size.height);
     }
 
-    cam->imgs.width = (int)config->at(0).size.width;
-    cam->imgs.height = (int)config->at(0).size.height;
-    cam->imgs.size_norm = (cam->imgs.width * cam->imgs.height * 3) / 2;
-    cam->imgs.motionsize = cam->imgs.width * cam->imgs.height;
+    MOTION_LOG(NTC, TYPE_VIDEO, NO_ERRNO, "Pixel format s0 %s." , config->at(0).pixelFormat.toString().c_str());
+
+    cam->imgs.width = (int)config->at(1).size.width / 2;
+    cam->imgs.height = (int)config->at(1).size.height / 2;
+    cam->imgs.size_norm = (cam->imgs.width * cam->imgs.height * 3) / 2 / 4;
+    cam->imgs.motionsize = cam->imgs.width * cam->imgs.height / 4;
 
     // cam size high
     
@@ -620,9 +630,9 @@ int cls_libcam::start_config()
     cam->imgs.height_high = (int)config->at(1).size.height;
     cam->imgs.size_high = (cam->imgs.width_high * cam->imgs.height_high * 3) / 2;
     
-    log_orientation();
-    log_controls();
-    log_draft();
+    //log_orientation();
+    //log_controls();
+    //log_draft();
 
     config_orientation();
     config_controls();
@@ -707,24 +717,24 @@ int cls_libcam::start_req()
             , buffer0->planes()[(uint)indx].length);
     }
 
-    if (bytes0 > cam->imgs.size_norm) {
-        width = ((int)buffer0->planes()[0].length / cam->imgs.height);
-        if (((int)buffer0->planes()[0].length != (width * cam->imgs.height)) ||
-            (bytes0 > ((width * cam->imgs.height * 3)/2))) {
-            MOTION_LOG(ERR, TYPE_VIDEO, NO_ERRNO
-                , "Error setting stream 0 image size.  Plane 0 length %d, total bytes %d"
-                , buffer0->planes()[0].length, bytes0);
-        }
-        MOTION_LOG(NTC, TYPE_VIDEO, NO_ERRNO
-            , "Image size adjusted from %d x %d to %d x %d"
-            , cam->imgs.width,cam->imgs.height
-            , width,cam->imgs.height);
-        cam->imgs.width = width;
-        cam->imgs.size_norm = (cam->imgs.width * cam->imgs.height * 3) / 2;
-        cam->imgs.motionsize = cam->imgs.width * cam->imgs.height;
-    }
+    // if (bytes0 > cam->imgs.size_norm) {
+    //     width = ((int)buffer0->planes()[0].length / cam->imgs.height);
+    //     if (((int)buffer0->planes()[0].length != (width * cam->imgs.height)) ||
+    //         (bytes0 > ((width * cam->imgs.height * 3)/2))) {
+    //         MOTION_LOG(ERR, TYPE_VIDEO, NO_ERRNO
+    //             , "Error setting stream 0 image size.  Plane 0 length %d, total bytes %d"
+    //             , buffer0->planes()[0].length, bytes0);
+    //     }
+    //     MOTION_LOG(NTC, TYPE_VIDEO, NO_ERRNO
+    //         , "Image size adjusted from %d x %d to %d x %d"
+    //         , cam->imgs.width,cam->imgs.height
+    //         , width,cam->imgs.height);
+    //     cam->imgs.width = width;
+    //     cam->imgs.size_norm = (cam->imgs.width * cam->imgs.height * 3) / 2;
+    //     cam->imgs.motionsize = cam->imgs.width * cam->imgs.height;
+    // }
 
-        bytes1 = 0;
+    bytes1 = 0;
     for (indx=0; indx<(int)buffer1->planes().size(); indx++){
         bytes1 += buffer1->planes()[(uint)indx].length;
         MOTION_LOG(DBG, TYPE_VIDEO, NO_ERRNO, "Stream 1: Plane %d of %d length %d"
@@ -762,6 +772,8 @@ int cls_libcam::start_req()
     membuf0.bufsz = bytes0;
     membuf1.buf = (uint8_t *)mmap(NULL, (uint)bytes1, PROT_READ, MAP_SHARED, plane0_1.fd.get(), 0);
     membuf1.bufsz = bytes1;
+    // membuf2.buf = (uint8_t *)mmap(NULL, (uint)bytes2, PROT_READ, MAP_SHARED, plane0_2.fd.get(), 0);
+    // membuf2.bufsz = bytes2;
 
     requests.push_back(std::move(request));
 
@@ -932,8 +944,19 @@ int cls_libcam::next(ctx_image_data *img_data)
         if (req_queue.empty() == false) {
             Request *request = this->req_queue.front();
 
-            memcpy(img_data->image_norm, membuf0.buf, (uint)membuf0.bufsz);
-            memcpy(img_data->image_high, membuf1.buf, (uint)membuf1.bufsz);
+            memcpy(img_data->image_norm, membuf0.buf, (uint)membuf0.bufsz); //RGB // testweise deactiviert
+            memcpy(img_data->image_high, membuf1.buf, (uint)membuf1.bufsz); //high
+            //memcpy(&cam->imgs.motion_sub, membuf2.buf, (uint)membuf2.bufsz);
+            // fill img_data->image_high
+//             for (int l=1; l<cam->imgs.height_high; l=l+2){
+//                 for (int x =0; x<cam->imgs.width_high;x=x+2){
+// 
+//                 }
+//             }
+            // fill norm pic
+            //cam->picture->scale_img( cam->imgs.width_high, cam->imgs.height_high, img_data->image_high, img_data->image_norm );
+            // scale_img wrong
+            // do scaling instead in calling script
 
             this->req_queue.pop();
             request->reuse(Request::ReuseBuffers);
