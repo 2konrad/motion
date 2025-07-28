@@ -3,19 +3,91 @@
  
 <meta name='viewport' content='width=640' /> 
 <style>
-	body  {position: relative;}
-	div {min-height: 400px; }
-	img {position: absolute;xxheight:320px;width:200px;z-index: 10;}
+	body  {position: relative;max-width: 900px}
+	div {min-height: 300px; }
+	img {xxheight:320px;width:200px;}
     .container {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        background-color: beige;
-        padding: 10px;
+        #background-color: beige;
+        padding: 0px;
     }
+    .modal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    }
+    .modal-content {
+        background-color: #fefefe;
+        margin: 10% auto; /* 15% from the top and centered */
+        padding: 10px;
+        border: 1px solid #888;
+        width: 80%; /* Could be more or less, depending on screen size */
+    }
+    /* The Close Button */
+    button {
+        color: white;
+        float: right;
+        font-size: 33px;
+        font-weight: bold;
+        background-color: lightsteelblue;
+        border: none;
+        padding: 10px 30px;
+        text-align: center;
+        text-decoration: none;
+        
+        margin: 4px 2px;
+        cursor: pointer;
+    }
+    #time{
+        color: #333;
+        display: inline-block;
+        font-family: "Arial Rounded MT Bold";
+        font-size: 33px;
+        padding: 10px 30px;
+        margin: 4px 2px;
+    }
+
 </style>
 </head>
-<body onload='document.body.scrollIntoView(false);'> 
+<body onload='intro()' > 
 <script type='text/javascript'>
+    var modal, span, video1, video2;
+    var current_event;
+    function intro(){
+        modal = document.getElementById("myModal");
+        document.getElementById("close").onclick = function() {modal.style.display = "none";};
+        document.body.scrollIntoView(false);
+        document.getElementById("right").onclick = function() {scroll_next();  };
+        document.getElementById("left").onclick = function() {scroll_prev();  };
+        video1 = document.getElementsByTagName('video')[0];
+        video2 = document.getElementsByTagName('video')[1];
+    }
+    
+    function changeSource(url) {
+        video1.src = url + ".mp4";
+        video2.src = url + "m.mp4";
+        video1.play();
+        document.getElementById("time").innerHTML = url.substring(8,10) + " : " + url.substring(10,12);
+        modal.style.display = "block";
+        current_event = url;
+    }
+    function scroll_next(){
+        if (!document.getElementById(current_event).nextElementSibling) {return;}
+        changeSource( document.getElementById(current_event).nextElementSibling.id);
+
+    }
+    function scroll_prev(){
+        if (!document.getElementById(current_event).previousElementSibling) {return;}
+        changeSource( document.getElementById(current_event).previousElementSibling.id);
+
+    }
 	window.onscroll = scroll;
 	function scroll() {
   		var els = document.querySelectorAll('img');
@@ -35,22 +107,43 @@
     function hide(){
         this.style.display = 'none';
         }
+
+
+
+
 </script>
 <a href='javascript: document.body.scrollIntoView(false);' 
    style='width:100%;font-size:24pt;margin: 20px auto 20px auto; display:block;'>
    Scroll to bottom
 </a><br>
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+
+    <!-- Modal content -->
+    <div class="modal-content">
+
+        <button id="close"> &times; </button>
+        <button id="right"> --right -- </button>
+        <button id="left"> --left-- </button>
+        <span id="time">_</span>
+
+        <video  width="100%" controls autoplay> <source src='' type=video/mp4 ></video >
+        <br>
+        <video width="100%" controls onerror='hide(this)'> <source src='' type=video/mp4 ></video> 
+    </div>
+
+    </div>
     <div class="container">
     
-        <div >
-    <h2> 1000 PERSON</h2> 
-    <img id='i1000' src='1000.jpg' onclick='c("1000")' ></div>
-    <div >
+    <div id="1000">
+        <h2> 1000 PERSON</h2> 
+        <img id='i1000' src='1000.jpg' onclick='changeSource("1000")' ></div>
+    <div id="20250727125735">
+        <h2 > 2025 PERSON</h2> 
+        <img id='i20250727125735' src='20250727125735.jpg' onclick='changeSource("20250727125735")' ></div>
+    <div id="1000a">
     <h2 > 2025 PERSON</h2> 
-    <img id='i20250727125735' src='20250727125735.jpg' onclick='c("20250727125735")' ></div>
-        <div >
-    <h2 > 2025 PERSON</h2> 
-    <img id='i20250727125735a' src='20250727125735.jpg' onclick='c("20250727125735a")' >
+    <img id='1000a' src='1000.jpg' onclick='c("1000a")' >
     </div>
         <div >
     <h2 > 2025 PERSON</h2> 
