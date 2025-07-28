@@ -1,0 +1,63 @@
+<html> 
+<head>
+ 
+<meta name='viewport' content='width=640' /> 
+<style>
+	body  {position: relative;}
+	div {min-height: 400px; }
+	img {position: absolute;xxheight:320px;width:200px;z-index: 10;}
+    .container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        background-color: beige;
+        padding: 10px;
+    }
+</style>
+</head>
+<body onload='document.body.scrollIntoView(false);'> 
+<script type='text/javascript'>
+	window.onscroll = scroll;
+	function scroll() {
+  		var els = document.querySelectorAll('img');
+		for (var i=0; i < els.length; i++) {
+   			els[i].setAttribute('style', 'display:block');
+		}
+    }
+    function c(id){
+        document.getElementById('i'+id).style.display = 'none';
+        if (document.getElementById('i'+id).nextElementSibling === null){
+            document.getElementById('i'+id).insertAdjacentHTML('afterend',  `
+            <video width=320  controls autoplay> <source src='${id}.mp4' type=video/mp4 ></video >
+            <br><video width=320  controls onerror='hide(this)'> <source src='${id}m.mp4' type=video/mp4 ></video> 
+            `);
+        }
+    } 
+    function hide(){
+        this.style.display = 'none';
+        }
+</script>
+<a href='javascript: document.body.scrollIntoView(false);' 
+   style='width:100%;font-size:24pt;margin: 20px auto 20px auto; display:block;'>
+   Scroll to bottom
+</a><br>
+    <div class="container">
+    
+        <div >
+    <h2> 1000 PERSON</h2> 
+    <img id='i1000' src='1000.jpg' onclick='c("1000")' ></div>
+    <div >
+    <h2 > 2025 PERSON</h2> 
+    <img id='i20250727125735' src='20250727125735.jpg' onclick='c("20250727125735")' ></div>
+        <div >
+    <h2 > 2025 PERSON</h2> 
+    <img id='i20250727125735a' src='20250727125735.jpg' onclick='c("20250727125735a")' >
+    </div>
+        <div >
+    <h2 > 2025 PERSON</h2> 
+    <img id='i20250727125735b' src='20250727125735.jpg' onclick='c("20250727125735b")' >
+    </div>
+
+    </div>
+    
+</body>
+</html>
