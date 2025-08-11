@@ -7,10 +7,14 @@ fi
 
 if true; then
 
-if  [ ! -d "/home/pi/motion" ]
+if  [ ! -d "/home/pi/motion" ] ; then
 cd ~
 git clone https://github.com/2konrad/motion.git
 fi
+
+ssh-keygen -t rsa -q -f "$HOME/.ssh/id_rsa" -N ""
+
+cat /home/pi/.ssh/id_rsa.pub
 
 git remote add origin git@github.com/2konrad/motion.git
 git config --global user.name "K Meyer"
