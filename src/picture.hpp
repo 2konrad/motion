@@ -38,6 +38,8 @@ class cls_picture {
         void process_motion();
         void process_snapshot();
         void process_preview();
+        ctx_coord get_box_size (ctx_coord location, int max_width, int max_height, int min_boxsize );
+
 
     private:
         cls_camera *cam;
@@ -72,8 +74,7 @@ class cls_picture {
         void picname(char* fullname, std::string fmtstr
             , std::string basename, std::string extname);
         ctx_coord crop_preview_img(); //croppes preview image to a smaller area and returns dimensions w h
-        ctx_coord get_box_size (ctx_coord location, int max_width, int max_height, int min_boxsize );
-
+        
 };
 
 

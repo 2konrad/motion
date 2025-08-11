@@ -198,8 +198,8 @@ ctx_coord cls_picture::get_box_size (ctx_coord location, int max_width, int max_
     ctx_coord area;
 
     boxsize = MAX( MIN( MIN ( (MAX (location.height, location.height) ) , max_height ) , max_width ), min_boxsize);
-    boxsize = MAX(boxsize ,160);
-    boxsize = (boxsize /8 ) *8;
+    //boxsize = MAX(boxsize ,160);
+    boxsize = (boxsize /4 ) *4;
     //minimum size
     //find new x of box not lower that 0 and not higher than w-boxsize
     area.width = boxsize;
@@ -254,21 +254,21 @@ ctx_coord cls_picture::crop_preview_img()
     //MOTION_LOG(ERR, TYPE_EVENTS, NO_ERRNO, "Processing previw from sec%d shot%d diff%d", timestamp_tm.tm_sec, sh, diff);
     // now crop it to location of motion detected
     // determine w/h of cubic box around motion, min 25% of full image height
-    area = get_box_size(location, motionpic.width, motionpic.height, (int)(motionpic.height / 4));
+    //area = get_box_size(location, motionpic.width, motionpic.height, (int)(motionpic.height / 4));
     
-    area1 = get_box_size(label1_location, motionpic.width, motionpic.height, (int)(motionpic.height / 4));
+    area = get_box_size(label1_location, motionpic.width/2, motionpic.height/2, (int)(motionpic.height / 4));
      
     
-    MOTION_LOG(ERR, TYPE_EVENTS, NO_ERRNO, "Label x%d mx%d y%d my%d --- area1 x%d mx%d y%d my%d",
-    area.minx, area.maxx, area.miny, area.maxy, area1.minx, area1.maxx, area1.miny, area1.maxy);
+    //MOTION_LOG(ERR, TYPE_EVENTS, NO_ERRNO, "Label x%d mx%d y%d my%d --- area1 x%d mx%d y%d my%d",
+    //area.minx, area.maxx, area.miny, area.maxy, area1.minx, area1.maxx, area1.miny, area1.maxy);
     
-    // transform area from norm to high
-    area.minx = area.minx * 2;
-    area.maxx = area.maxx * 2;
-    area.miny = area.miny * 2;
-    area.maxy = area.maxy * 2;
-    area.height = area.height *2;
-    area.width = area.width *2;
+    // transform area from sub to high
+    area.minx = area.minx * 4;
+    area.maxx = area.maxx * 4;
+    area.miny = area.miny * 4;
+    area.maxy = area.maxy * 4;
+    area.height = area.height *4;
+    area.width = area.width *4;
     
 
     //MOTION_LOG(ERR, TYPE_EVENTS, NO_ERRNO, "Adjusted preview norm->high box from x%d mx%d y%d my%d to x%d mx%d y%d my%d",

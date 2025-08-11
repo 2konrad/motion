@@ -176,7 +176,7 @@ void cls_camera::ring_process()
             if (cfg->picture_output == "best") {
                 if (current_image->diffs > imgs.image_preview.diffs) {
                     picture->save_preview();
-                    MOTION_LOG(INF, TYPE_EVENTS, NO_ERRNO, "SAVE PREVIEW diffs %d", current_image->diffs);
+                    //MOTION_LOG(INF, TYPE_EVENTS, NO_ERRNO, "SAVE PREVIEW diffs %d", current_image->diffs);
                 }
             }
             if (cfg->picture_output == "center") {
@@ -708,12 +708,13 @@ void cls_camera::init_ref()
     memcpy(imgs.image_virgin, current_image->image_norm
         , (uint)imgs.size_norm);
 
-    mask_privacy();
+    //mask_privacy();
 
     memcpy(imgs.image_vprvcy, current_image->image_norm
         , (uint)imgs.size_norm);
 
     picture->scale_img_YUV444p(imgs.width, imgs.height, imgs.image_vprvcy, imgs.sub_sampled_img); 
+    algsec->save_jpg(imgs.sub_sampled_img, imgs.width / 2, imgs.height / 2, 1, "/home/pi/motion/output/subfirst.jpg" ); 
 
     alg->ref_frame_reset();
 }
@@ -1310,6 +1311,7 @@ void cls_camera::resetimages()
 
     current_image = &imgs.image_ring[imgs.ring_in];
     current_image->diffs = 0;
+    current_image->diffs_raw = 0;
     current_image->trigger = false;
     current_image->motion = false;
     current_image->precap = false;
@@ -1318,6 +1320,8 @@ void cls_camera::resetimages()
     current_image->save_movie = false;
     current_image->cent_dist = 0;
     memset(&current_image->location, 0, sizeof(current_image->location));
+    memset(&current_image->largest_location , 0, sizeof(current_image->largest_location));
+    memset(&current_image->second_largest_location, 0, sizeof(current_image->second_largest_location));
     current_image->total_labels = 0;
     for (int x = 0; x < imgs.width / (TILE_SIZE*2); x++) {
         for (int y = 0; y < imgs.height /(TILE_SIZE*2) ; y++){
@@ -1458,22 +1462,24 @@ void cls_camera::detection()
 
     //
     // here diff RGB
-    // lass mal pix sehen
-    algsec->save_jpg(imgs.sub_sampled_img, imgs.width / 2, imgs.height / 2, 3, "/home/pi/motion/output/sub.jpg" ); 
+    // lass mal pix sehen  
     float *bg = imgs.bg;
     u_char *bg_ = imgs.bg_;
     
     
-    for (int i = 0; i < imgs.width * imgs.height /4; i++) {
+    for (int i = 0; i < imgs.width * imgs.height /4 *3; i++) {
+        if ((*bg > 255) or (*bg < 0)) {
+                MOTION_LOG(NTC, LOG_TYPE_ALL, NO_ERRNO, "BG conversion out of range 0...255");
+        }
         *bg_ = (u_char) *bg;
         bg_++;
         bg++;
         
     }
-    algsec->save_jpg(imgs.bg_, imgs.width / 2, imgs.height / 2, 3, "/home/pi/motion/output/bg.jpg" ); 
-    algsec->save_jpg(imgs.image_vprvcy, imgs.width , imgs.height , 2, "/home/pi/motion/output/priv.jpg" ); 
-
-    //save_norm("filename", cam->current_image->image_norm, cam->imgs.width,  cam->imgs.height);
+    if (current_image->shot == 1){
+        algsec->save_jpg(imgs.sub_sampled_img, imgs.width / 2, imgs.height / 2, 1, "/home/pi/motion/output/sub.jpg" ); 
+        algsec->save_jpg(imgs.bg_, imgs.width / 2, imgs.height / 2, 1, "/home/pi/motion/output/bg.jpg" );     
+    }
 }
 
 /* tune the detection parameters*/
@@ -1551,11 +1557,16 @@ void cls_camera::overlay()
 
     if (cfg->text_changes) {
         if (pause == false) {
-            sprintf(tmp, "%d", current_image->diffs);
+            sprintf(tmp, "d%d r%d  (-)%d (+)%d e%d", current_image->diffs, current_image->diffs_raw, 
+                current_image->diffs_minus, current_image->diffs_plus, (int)current_image->exposure);
         } else {
             sprintf(tmp, "-");
         }
         draw->text(current_image->image_norm
+                , imgs.width, imgs.height
+                , imgs.width - 10, 10
+                , tmp, text_scale);
+        draw->text(imgs.image_motion.image_norm
                 , imgs.width, imgs.height
                 , imgs.width - 10, 10
                 , tmp, text_scale);
@@ -1589,6 +1600,10 @@ void cls_camera::overlay()
                 , imgs.width, imgs.height
                 , 10, imgs.height - (10 * text_scale)
                 , tmp, text_scale);
+        draw->text(imgs.image_motion.image_norm
+                , imgs.width, imgs.height
+                , 10, imgs.height - (10 * text_scale)
+                , tmp, text_scale);
         draw->text(current_image->image_high
                 , imgs.width_high, imgs.height_high
                 , 20, imgs.height_high - (40 * text_scale) 
@@ -1599,6 +1614,10 @@ void cls_camera::overlay()
     if (cfg->text_right != "") {
         mystrftime(this, tmp, sizeof(tmp), cfg->text_right.c_str(), NULL);
         draw->text(current_image->image_norm
+                , imgs.width, imgs.height
+                , imgs.width - 10, imgs.height - (10 * text_scale)
+                , tmp, text_scale);
+        draw->text(imgs.image_motion.image_norm
                 , imgs.width, imgs.height
                 , imgs.width - 10, imgs.height - (10 * text_scale)
                 , tmp, text_scale);
@@ -1804,7 +1823,8 @@ void cls_camera::actions()
         detecting_motion = false;
     }
 
-    if (detecting_motion) {
+    if ((detecting_motion) && (current_image->shot == 1)) {
+        // copy current picture into dnn thread
         algsec->detect();
     }
 

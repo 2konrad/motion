@@ -22,6 +22,7 @@
 #include "conf.hpp"
 #include "logger.hpp"
 #include "alg_sec.hpp"
+#include "picture.hpp"
 
 #ifdef HAVE_OPENCV4
 
@@ -93,7 +94,7 @@ void cls_algsec::image_show(Mat &mat_dst, bool detected_now)
         (cam->imgs.size_secondary == 0) ||
         (cfg_log_level >= DBG)) {
 
-        debug_notice(mat_dst, detected_now);
+        //debug_notice(mat_dst, detected_now);
 
         param[0] = cv::IMWRITE_JPEG_QUALITY;
         param[1] = 75;
@@ -151,7 +152,7 @@ void cls_algsec::label_image(Mat &mat_dst
             }
         }
         MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO, "label image 3");
-        image_show(mat_dst, detected);
+        //image_show(mat_dst, detected); //only for img_secondary
 
     } catch ( cv::Exception& e ) {
         const char* err_msg = e.what();
@@ -273,6 +274,63 @@ void cls_algsec::get_image(Mat &mat_dst)
     }
 }
 
+void cls_algsec::get_masked_image(Mat &mat_dst)
+{
+    Mat mat_norm, mat_norm_RGB, mat_mask, mat_masked;
+
+    mat_norm = Mat(cam->imgs.height*3/2, cam->imgs.width, CV_8UC1, (void*)image_norm);
+    cvtColor(mat_norm, mat_dst, COLOR_YUV2RGB_YV12);
+    mat_mask = Mat(cam->imgs.height, cam->imgs.width, CV_8UC1, (void*) cam->imgs.mask);
+    bitwise_and(mat_norm_RGB, mat_norm_RGB, mat_masked,  mat_mask);
+    mat_norm_RGB.copyTo(mat_dst, mat_mask);
+    //test
+    cv::imwrite("/home/pi/motion/output/detect_masked.jpg", mat_dst);
+
+        
+}
+
+void cls_algsec::get_masked_largest_label_loc_image_high(Mat &mat_dst)
+{
+    Mat mat_norm, mat_norm_RGB, mat_mask, mat_masked, mat_mask_high;
+    ctx_coord area;
+
+    mat_norm = Mat(cam->imgs.height_high*3/2, cam->imgs.width_high, CV_8UC1, (void*)image_high);
+    cvtColor(mat_norm, mat_norm_RGB, COLOR_YUV2RGB_YV12);
+    mat_mask = Mat(cam->imgs.height, cam->imgs.width, CV_8UC1, (void*) cam->imgs.mask);
+    cv::resize(mat_mask, mat_mask_high, cv::Size(cam->imgs.width_high, cam->imgs.height_high));
+    ///bitwise_and(mat_norm_RGB, mat_norm_RGB, mat_masked_high,  mat_mask_high);
+    mat_norm_RGB.copyTo(mat_masked, mat_mask_high);
+    //cv::imwrite("/home/pi/motion/output/detect_masked_crop_high.jpg", mat_masked);
+    //MOTION_LOG(ERR, TYPE_EVENTS, NO_ERRNO, "largest loc x%d mx%d y%d my%d ",
+    //    largest_label_location.minx, largest_label_location.maxx, largest_label_location.miny, largest_label_location.maxy);
+    if ((largest_label_location.maxx>0) && (largest_label_location.maxy>0)){
+        area = cam->picture->get_box_size(largest_label_location, cam->imgs.width/2, cam->imgs.height/2, (int)(cam->imgs.height / 8));
+        // transform area *2;
+        // transform area from norm to high
+        area.minx = area.minx * 4;
+        area.maxx = area.maxx * 4;
+        area.miny = area.miny * 4;
+        area.maxy = area.maxy * 4;
+        area.height = area.height *4;
+        area.width = area.width *4;
+        //MOTION_LOG(ERR, TYPE_EVENTS, NO_ERRNO, "area loc x%d mx%d y%d my%d ",
+        //area.minx, area.maxx, area.miny, area.maxy);
+
+        cv::Rect roi(cv::Point(area.minx , area.miny), 
+                cv::Point(area.maxx, area.maxy));
+        //mat_dst = mat_masked(roi);
+        rectangle(mat_masked,roi, cv::Scalar(0, 0, 255), 1, 8, 0);
+        mat_dst = mat_masked;
+    }else{
+        mat_dst = mat_masked;
+    }
+
+    //test
+    //cv::imwrite("/home/pi/motion/output/detect_masked_crop_high"+ formattime("%H_%M_%S") + ".jpg", mat_dst);
+
+        
+}
+
 void cls_algsec::detect_hog()
 {
     std::vector<double> detect_weights;
@@ -337,35 +395,29 @@ void cls_algsec::detect_haar()
 
 void cls_algsec::detect_dnn()
 {
-    Mat mat_dst, softmaxProb;
+    Mat mat_dst, softmaxProb, mat_dst_2;
     bool detected_now = false;
     //double confidence;
     //float maxProb = 0.0, sum = 0.0;
     //Point classIdPoint;
 
     try {
-        get_image(mat_dst);
+        //get_image(mat_dst);
+        get_masked_largest_label_loc_image_high(mat_dst); //get live image , not from alg_sec thread copy
         if (mat_dst.empty() == true) {
-            return;
+            //return;
         }
+        //Mat mat_dst( 150, 150, CV_8UC3, Scalar(255, 255, 255));
 
         //MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "blob");
+        cv::resize(mat_dst, mat_dst_2, cv::Size(200, 200));
+ 
 
-        Mat blob = blobFromImage(mat_dst
+        Mat blob = blobFromImage(mat_dst_2
             , 1.0
-            , Size(dnn_width, dnn_height)
+            , Size(200, 200) //dnn_width/2, dnn_height/2
             , Scalar(),true);
-        // net.setInput(blob);
-        // Mat prob = net.forward();
-        // cv::FileStorage storage("/home/pi/motion/mat.json", cv::FileStorage::WRITE);
-        // storage << "prob" << prob ;
-        // storage.release();  
 
-        // maxProb = *std::max_element(prob.begin<float>(), prob.end<float>());
-        // cv::exp(prob-maxProb, softmaxProb);
-        // sum = (float)cv::sum(softmaxProb)[0];
-        // softmaxProb /= sum;
-        // cv::minMaxLoc(softmaxProb.reshape(1, 1), 0, &confidence, 0, &classIdPoint);
 
         	net.setInput(blob);
 
@@ -375,22 +427,20 @@ void cls_algsec::detect_dnn()
         //const float confidence_threshold = 0.25;
         for(int i=0; i<detectionMat.rows; i++){
             float detect_confidence = detectionMat.at<float>(i, 2);
-            //MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO, "detect conf %f", detect_confidence);
+            size_t det_index = (size_t)detectionMat.at<float>(i, 1);
+            //MOTION_LOG(ERR, LOG_TYPE_ALL, NO_ERRNO, "detect conf %f - %d", detect_confidence, (int) det_index);
 
-            if(detect_confidence > threshold){
-                size_t det_index = (size_t)detectionMat.at<float>(i, 1);
+            if ((detect_confidence > threshold) && (det_index == 1)){ // only renctange persoons
                 int x1 = (int) (detectionMat.at<float>(i, 3)* (float) mat_dst.cols);
                 int y1 = (int) (detectionMat.at<float>(i, 4)* (float) mat_dst.rows);
                 int x2 = (int) (detectionMat.at<float>(i, 5)* (float) mat_dst.cols);
                 int y2 = (int) (detectionMat.at<float>(i, 6)* (float) mat_dst.rows);
                 cv::Rect rec((int)x1, (int)y1, (int)(x2 - x1), (int)(y2 - y1));
+                
                 rectangle(mat_dst,rec, cv::Scalar(0, 0, 255), 1, 8, 0);
-                putText(mat_dst, cv::format("%s  (%.2f)", 
-                    dnn_classes.empty() ? 
-                        cv::format("Class #%d", (uint)det_index).c_str() :   
-                        dnn_classes[(uint)det_index].c_str(), detect_confidence ), 
-                    cv::Point(x1, y1-5) , 
+                putText(mat_dst, cv::format("%.2f",  detect_confidence ), cv::Point(x1+1, y1+1) , 
                     cv::FONT_HERSHEY_SIMPLEX,0.5, cv::Scalar(0, 0, 255), 1, 8, 0);
+                
                 if ((uint)det_index==1) {
                     detected = true;
                     detected_now = true;
@@ -401,7 +451,18 @@ void cls_algsec::detect_dnn()
 
         //label_image(mat_dst, (double)1, classIdPoint); //classIdPoint not needed
         //MOTION_LOG(DBG, LOG_TYPE_ALL, NO_ERRNO, "image show.");
-        image_show(mat_dst, detected_now);
+        //image_show(mat_dst, detected_now);
+
+        time_t now;
+        char msg_time[9];
+        now = time(NULL);
+        strftime(msg_time, sizeof(msg_time), "%H_%M_%S", localtime(&now));
+        std::string mytime = std::string{msg_time};
+        if (detected_now == true) {
+            //cv::imwrite(cfg_target_dir  + "/" + formattime("%H_%M_%S") + "detect_" + method + ".jpg", mat_dst);
+        } else {
+            //imwrite(cfg_target_dir  + "/src_" + method + ".jpg", mat_dst);
+        }
 
     } catch ( cv::Exception& e ) {
         const char* err_msg = e.what();
@@ -615,6 +676,7 @@ void cls_algsec::load_params()
     }
 
     image_norm = (u_char*)mymalloc((size_t)cam->imgs.size_norm);
+    image_high = (u_char*)mymalloc((size_t)cam->imgs.size_high);
 
     params = new ctx_params;
     util_parms_parse(params, "secondary_params", cam->cfg->secondary_params);
@@ -653,7 +715,7 @@ void cls_algsec::handler()
 
     load_params();
 
-    interval = 1000000L / cfg_framerate;
+    interval = 1000000L ; // run every 1ms
     is_started = true;
     while ((handler_stop == false) && (method != "none")) {
         if (in_process){
@@ -699,6 +761,7 @@ void cls_algsec::handler_startup()
         }
         pthread_attr_destroy(&thread_attr);
     }
+    MOTION_LOG(WRN, LOG_TYPE_ALL, NO_ERRNO,"dnn stated");
 }
 
 void cls_algsec::handler_shutdown()
@@ -741,6 +804,7 @@ void cls_algsec::handler_shutdown()
     }
 
     myfree(image_norm);
+    myfree(image_high);
     mydelete(params);
 
 }
@@ -766,15 +830,15 @@ void cls_algsec::save_jpg(u_char *img, int w, int h, int type, std::string name)
         // RGB
         img2 = Mat(h, w, CV_8UC3, (void*)img);
 
-        cvtColor(img2, img3, COLOR_RGB2BGR);
-        imwrite(name, img3);
+        //cvtColor(img2, img3, COLOR_RGB2BGR);
+        imwrite(name, img2);
     }
 }
 
 #endif
 
 
-/*Invoke the secondary detetction method*/
+/*Invoke the secondary detetction method*/ // hand over copy of pic to alg sec and trigger detection via in_process
 void cls_algsec::detect()
 {
     #ifdef HAVE_OPENCV4
@@ -789,14 +853,14 @@ void cls_algsec::detect()
             frame_cnt--;
         }
 
-        if (frame_cnt == 0){
+        if (true) {   //(frame_cnt == 0){ // frame count steered by calling script from alg diff, each transferred pic will be analysed
             if (in_process){
                 frame_missed++;
             } else {
-                memcpy(image_norm
-                    , cam->imgs.image_virgin
-                    , (uint)cam->imgs.size_norm);
-
+                memcpy(image_norm, cam->imgs.image_virgin, (uint)cam->imgs.size_norm);
+                memcpy(image_high, cam->imgs.image_vprvcy_high , (uint)cam->imgs.size_high);
+                //copy largest location
+                memcpy(&largest_label_location , &cam->current_image->largest_location, sizeof(largest_label_location));
                 /*Set the bool to detect on the new image and reset interval */
                 in_process = true;
                 frame_cnt = frame_interval;

@@ -55,6 +55,8 @@ struct ctx_image_data {
     int                 diffs;
     int                 diffs_raw;
     int                 diffs_ratio;
+    int                 diffs_plus;
+    int                 diffs_minus;
     int64_t             idnbr_norm;
     int64_t             idnbr_high;
     struct timespec     imgts;          /* Realtime for display */
@@ -72,6 +74,9 @@ struct ctx_image_data {
     ctx_coord           second_largest_location;    //dimension of second largest tile group
     int                 total_labels;
     int                 accept_average; /*average accept timer for all changed pixels */
+    float               digital_gain;
+    float               analogue_gain;
+    float               exposure;
 };
 
 struct ctx_images {

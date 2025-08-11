@@ -1358,3 +1358,13 @@ void util_resize(uint8_t *src, int src_w, int src_h
     sws_freeContext(swsctx);
 }
 
+std::string formattime(char const *code){
+    time_t now;
+    char msg_time[30];
+    now = time(NULL);
+    strftime(msg_time, sizeof(msg_time), code, localtime(&now));
+    
+
+    return std::string{msg_time};
+}
+

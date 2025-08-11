@@ -22,6 +22,7 @@
 #include "draw.hpp"
 #include "logger.hpp"
 #include "alg.hpp"
+#include "alg_sec.hpp"
 
 #define MAX2(x, y) ((x) > (y) ? (x) : (y))
 #define MAX3(x, y, z) ((x) > (y) ? ((x) > (z) ? (x) : (z)) : ((y) > (z) ? (y) : (z)))
@@ -734,14 +735,14 @@ void cls_alg::diff_mask_YUV()
     int width = cam->imgs.width;
     int height = cam->imgs.height;
     
-    int diff = 0, diffs = 0, diffs_large = 0;
+    int diff = 0, diffs = 0, diffs_large = 0, diff_plus=0, diff_minus=0;
     int noise = cam->noise;
     int lrgchg = cam->cfg->threshold_ratio_change;
 
     memset(mot + imgsz, 128, (uint)(imgsz / 2));
     memset(mot, 0, (uint)imgsz);
 
-    // Todo switch to precalculated subsampled pic sub_sampled_img
+    // 
     for (int y = 0; y < height/2; y++) {
         for (int x = 0; x < width/2; x++) {
             norm_x = x * 2;
@@ -771,6 +772,11 @@ void cls_alg::diff_mask_YUV()
                 diffs++;
                 sum_currdiff -= Ydiff; //measure light change 
             }
+            if (diff>noise+10){
+                diff_plus++;
+            }
+            if ((diff>noise-10) )
+                diff_minus++;
             if (diff > lrgchg) {
                 diffs_large++;
             }
@@ -794,7 +800,10 @@ void cls_alg::diff_mask_YUV()
     // }
     cam->current_image->diffs_raw = diffs;
     cam->current_image->diffs_raw = (int) (sum_currdiff / diffs);
+    cam->current_image->diffs_raw = diffs;
     cam->current_image->diffs = diff_largest;
+    cam->current_image->diffs_plus = diff_plus;
+    cam->current_image->diffs_minus = diff_minus;
     cam->imgs.image_motion.imgts = cam->current_image->imgts;
 
     if (diffs > 0 ) {
@@ -802,7 +811,12 @@ void cls_alg::diff_mask_YUV()
     } else {
         cam->current_image->diffs_ratio = 100;
     }
-
+    
+    // if (cam->current_image->shot == 1) && ({
+    //     cam->algsec->detect();
+    //     MOTION_LOG(WRN, LOG_TYPE_ALL, NO_ERRNO,"algsec detect called");
+    // }
+    
 }
 
 void cls_alg::diff_smart()
@@ -1168,6 +1182,20 @@ void  cls_alg::ref_frame_update()
     int height = cam->imgs.height;
     //int norm_x, norm_y;
     //u_char *pointer_norm;
+
+    int pos;
+    if (cam->imgs.ring_in==0){
+        pos = cam->imgs.ring_size-1;
+    }else{
+        pos = cam->imgs.ring_in-1;
+    }
+    bool light_change = false; // (imgs.image_ring[pos];)
+    float dev1 = (cam->imgs.image_ring[pos].analogue_gain - cam->current_image->analogue_gain) / cam->current_image->analogue_gain;
+    float dev2 = (cam->imgs.image_ring[pos].digital_gain - cam->current_image->digital_gain) / cam->current_image->digital_gain;
+    float dev3 = (cam->imgs.image_ring[pos].exposure - cam->current_image->exposure) / cam->current_image->exposure;
+    if ((abs(dev1) > 0.1) || (abs(dev2) > 0.1) || (abs(dev3) > 0.1)) {
+        //light_change = true; // (imgs.image_ring[pos];)
+    }
     for (int y = 0; y < height/2; y++) {
         for (int x = 0; x < width/2; x++) {
             //norm_x = x * 2;
@@ -1178,16 +1206,17 @@ void  cls_alg::ref_frame_update()
                 if ((*motion))
                 { 
                                             
-                    if ((x==286) &&(y==53)) {
-                        MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "x %d y %d bg-r %d bg-g %d bg-b %d img-r %d img-g %d img-b %d motion%d count%d", 
-                            x,y, (int)*bg, (int)*(bg+1), (int)*(bg+2), *img, *(img+1), *(img+2) , *motion, *motion_counter);
-                            }
+                    // if ((x==286) &&(y==53)) {
+                    //     MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "x %d y %d bg-r %d bg-g %d bg-b %d img-r %d img-g %d img-b %d motion%d count%d", 
+                    //         x,y, (int)*bg, (int)*(bg+1), (int)*(bg+2), *img, *(img+1), *(img+2) , *motion, *motion_counter);
+                    //         }
                     (*motion_counter)++;
-                    if (*motion_counter > accept_frames){
-                        if ((x>286) &&(y==53)) {
-                        MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "x %d y %d bg-r %d bg-g %d bg-b %d img-r %d img-g %d img-b %d", 
-                            x,y, (int)*bg, (int)*(bg+1), (int)*(bg+2), *img, *(img+1), *(img+2));
-                            }
+
+                    if ((*motion_counter > accept_frames) || light_change ){
+                        // if ((x>286) &&(y==53)) {
+                        // MOTION_LOG(INF, LOG_TYPE_ALL, NO_ERRNO, "x %d y %d bg-r %d bg-g %d bg-b %d img-r %d img-g %d img-b %d", 
+                        //     x,y, (int)*bg, (int)*(bg+1), (int)*(bg+2), *img, *(img+1), *(img+2));
+                        //     }
                         *bg     = (float) (*bg     *.5 + *img     * .5) ;     //Y
                         *(bg+1) = (float) (*(bg+1) *.5 + *(img+1) * .5) ;     //U
                         *(bg+2) = (float) (*(bg+2) *.5 + *(img+2) * .5) ;     //V
@@ -1203,7 +1232,7 @@ void  cls_alg::ref_frame_update()
                 }else{
                     if ( (*motion_counter) > 0) (*motion_counter)--;
                     //but still minimally update ref every 1 second!!!!!!!!!!!!!!!!!!!!
-                    if ((cam->current_image->shot == 1)) {//  && (cam->current_image->imgts.tv_sec)){
+                    if ((cam->current_image->shot == 1) || light_change ) {//  && (cam->current_image->imgts.tv_sec)){
                         *bg     = (float) (*bg     *.98 + *img     * .02) ;     //Y
                         *(bg+1) = (float) (*(bg+1) *.98 + *(img+1) * .02) ;     //U
                         *(bg+2) = (float) (*(bg+2) *.98 + *(img+2) * .02) ;     //V                      
@@ -1259,6 +1288,8 @@ void cls_alg::ref_frame_reset()
     for (i = 0; i < sub_size; i++) {
         (*motion_counter) = 200 ; // allow quick update of bg for let the first 200 frames 
         motion_counter++;
+    }
+    for (i = 0; i < sub_size*3; i++) {
         *bg = (float) *img;
         bg++;
         img++;

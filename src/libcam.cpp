@@ -944,6 +944,14 @@ int cls_libcam::next(ctx_image_data *img_data)
         if (req_queue.empty() == false) {
             Request *request = this->req_queue.front();
 
+            ControlList &meta = request->metadata();
+            auto exp = meta.get(controls::AnalogueGain  );
+            if (exp) img_data->analogue_gain = *exp;
+            exp = meta.get(controls::DigitalGain  );
+            if (exp) img_data->digital_gain = *exp;
+            exp = meta.get(controls::ExposureTime  );
+            if (exp) img_data->exposure = *exp;
+
             memcpy(img_data->image_norm, membuf0.buf, (uint)membuf0.bufsz); //RGB // testweise deactiviert
             memcpy(img_data->image_high, membuf1.buf, (uint)membuf1.bufsz); //high
             //memcpy(&cam->imgs.motion_sub, membuf2.buf, (uint)membuf2.bufsz);

@@ -124,5 +124,6 @@ struct ctx_params {
 
     void util_resize(uint8_t *src, int src_w, int src_h
         , uint8_t *dst, int dst_w, int dst_h);
+    std::string formattime(char const *code);
 
 #endif /* _INCLUDE_UTIL_HPP_ */

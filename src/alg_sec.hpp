@@ -39,6 +39,7 @@ class cls_algsec {
         ~cls_algsec();
 
         void        detect();
+        void        detect_dnn();
         bool        detected;
         void        save_jpg(u_char *img, int width, int height, int type, std::string name);
 
@@ -60,6 +61,8 @@ class cls_algsec {
             int             frame_missed;
             int             too_slow;
             u_char          *image_norm;
+            u_char          *image_high;
+            ctx_coord       largest_label_location;
             int             width;
             int             height;
             int             cfg_framerate;
@@ -77,10 +80,12 @@ class cls_algsec {
             void load_dnn();
             void load_haar();
             void load_hog();
-            void detect_dnn();
+            //void detect_dnn();
             void detect_haar();
             void detect_hog();
             void get_image(cv::Mat &mat_dst);
+            void get_masked_image(cv::Mat &mat_dst);
+            void get_masked_largest_label_loc_image_high(cv::Mat &mat_dst);
             void get_image_roi(cv::Mat &mat_src, cv::Mat &mat_dst);
             void label_image(cv::Mat &mat_dst, double confidence, cv::Point classIdPoint);
             void label_image(cv::Mat &mat_dst, std::vector<cv::Rect> &src_pos
