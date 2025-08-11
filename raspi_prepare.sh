@@ -8,6 +8,7 @@ fi
 if true; then
 
 if  [ ! -d "/home/pi/motion" ] ; then
+if  [ ! -d "/home/pi/motion" ] ; then
 cd ~
 git clone https://github.com/2konrad/motion.git
 fi
