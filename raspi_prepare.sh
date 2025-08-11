@@ -42,10 +42,15 @@ echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDLhr5xe/PWHILgxfYpIkeP8qOc/oIgsKdKcl
 sudo apt install -y autoconf automake autopoint build-essential pkgconf libtool libzip-dev libjpeg-dev git libavformat-dev libavcodec-dev libavutil-dev libswscale-dev libavdevice-dev 
 sudo apt install -y libopencv-dev libwebp-dev gettext libmicrohttpd-dev libmariadb-dev libcamera-dev libcamera-tools libcamera-v4l2 libasound2-dev libpulse-dev libfftw3-dev
 sudo apt install -y apache2
+#sudo apt install -y realvnc-vnc-server realvnc-vnc-viewer
+sudo apt install -y wayvnc
+sudo systemctl enable wayvnc.service
+
+
 
 
 ##### apache2.conf
-cat << EOF >> /etc/aoache2/apache2.conf
+cat << EOF >> /etc/apache2/apache2.conf
 ServerName localhost
 <Directory /home/pi/motion/web>
         Options Indexes FollowSymLinks
@@ -76,14 +81,15 @@ cat << EOF > /etc/logrotate.d/motion.conf
 
 EOF
 
-sudo cp /home/pi/motion/conf/motion.service /etc/systemd/motion.service 
-sudo systemctl enable motion
 
 cd /home/pi/motion
 autoreconf -fiv
 ./configure
-make
+make -j4
 
+cp /home/pi/motion/conf/motion.service /etc/systemd/system/motion.service 
+systemctl daemon-reload
+systemctl enable motion
 
 sudo reboot
 
