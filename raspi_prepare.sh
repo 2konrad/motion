@@ -16,7 +16,8 @@ ssh-keygen -t rsa -q -f "$HOME/.ssh/id_rsa" -N ""
 
 cat /home/pi/.ssh/id_rsa.pub
 
-git remote add origin git@github.com/2konrad/motion.git
+git remote add origin git@github.com:2konrad/motion.git
+git remote set-url origin git@github.com:2konrad/motion.git
 git config --global user.name "K Meyer"
 git config --global user.email "km@web.de"
 
