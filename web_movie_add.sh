@@ -7,7 +7,7 @@ if [ ! -d $d ]
  then 
  mkdir $d
  cp /home/pi/motion/web_movie_index.htm /home/pi/motion/web/$d/index.htm
-fi
+### fi
 
 cd /home/pi/motion/web/$d
 
@@ -34,6 +34,22 @@ else
     </div>
     " >> index.htm
 fi
+fi
 
-find /home/pi/motion/web/  -maxdepth 1 -mindepth 1 -type d -mtime +14 -exec rm -r {} \;
+
+minfree_gb=10     # min 10 GB free
+minfree=$(( 1000000*minfree_gb ))
+# echo "Min free: $minfree"
+avail=$(df | grep 0p2 | awk '{print $4}')
+# echo "Available: $avail"
+cd /home/pi/motion/web
+oldestdir=$(ls -ltcd */ --time=birth | tail -1 | awk '{print $9}')
+
+while [[ $avail -lt $minfree ]] ; do 
+    echo "delete mp4 in $oldestdir"
+    rm $oldestdir/*.mp4 
+    break
+done 
+
+find /home/pi/motion/web/  -maxdepth 1 -mindepth 1 -type d -mtime +33 -exec rm -r {} \;
 

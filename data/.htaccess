@@ -1,0 +1,5 @@
+Options +Indexes
+IndexOptions FancyIndexing SuppressDescription SuppressLastModified SuppressSize SuppressHTMLPreamble
+IndexOrderDefault Descending Date
+HeaderName .header.htm
+# ReadmeName footer.htm
