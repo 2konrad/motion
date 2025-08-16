@@ -39,6 +39,8 @@ fi
 
 #### SSH
 if [ "$(tail -n 1 /etc/ssh/sshd_config )" != "ClientAliveCountMax 20" ] ; then
+sed -i -e 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+sed -i -e 's/KbdInteractiveAuthentication no/KbdInteractiveAuthentication yes/g' /etc/ssh/sshd_config
 cat << EOF >> /etc/ssh/sshd_config
 KbdInteractiveAuthentication yes
 PasswordAuthentication yes
@@ -120,10 +122,12 @@ cp /home/pi/motion/conf/motion.service /etc/systemd/system/motion.service
 systemctl daemon-reload
 systemctl enable motion
 
-ssh-keygen -t rsa -q -f "/home/pi/.ssh/id_rsa" -N ""
+
+cat /home/pi/.ssh/id_rsa.pub
 echo "add this to https://github.com/settings/keys"
 
-read -p "Press enter to reboot"
+echo "Press enter to reboot"
+read _
 
 sudo reboot
 
