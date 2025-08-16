@@ -14,6 +14,7 @@ git clone https://github.com/2konrad/motion.git
 fi
 
 ssh-keygen -t rsa -q -f "/home/pi/.ssh/id_rsa" -N ""
+chown pi:pi /home/pi/.ssh/id_rsa
 echo "add this to https://github.com/settings/keys"
 
 cat /home/pi/.ssh/id_rsa.pub
