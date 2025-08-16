@@ -7,7 +7,6 @@ if [ "$(id -u)" -ne 0 ]; then
         exit 1
 fi
 
-if true; then
 
 if  [ ! -d "/home/pi/motion" ] ; then
 cd ~
@@ -24,14 +23,22 @@ git remote set-url origin git@github.com:2konrad/motion.git
 git config --global user.name "K Meyer"
 git config --global user.email "km@web.de"
 
+### swap
+sudo bash -c 'echo "CONF_SWAPSIZE=1024" >> /etc/dphys-swapfile'
+sudo service dphys-swapfile restart
+
 
 ##### LED
+if [ "$(tail -n 1 /boot/firmware/config.txt )" != "dtparam=pwr_led_trigger=default-on" ] ; then
 cat << EOF >> /boot/firmware/config.txt
 dtparam=pwr_led_activelow=off
 dtparam=pwr_led_trigger=default-on
 EOF
+echo "config updated"
+fi
 
 #### SSH
+if [ "$(tail -n 1 /etc/ssh/sshd_config )" != "ClientAliveCountMax 20" ] ; then
 cat << EOF >> /etc/ssh/sshd_config
 KbdInteractiveAuthentication yes
 PasswordAuthentication yes
@@ -41,7 +48,8 @@ ClientAliveInterval 7200
 ClientAliveCountMax 20
 EOF
 echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDLhr5xe/PWHILgxfYpIkeP8qOc/oIgsKdKclqGkoNvVaOQDhVeNbUqR8LMJ9REjCu82ztw08DQdW2PBhej5IoKrx9yDEny+uCM+tsxrKyN8P/5LcRB2R0rXFWOTnYetc7+7WJ0watsB52gO5q+Zy1pqKWavwbwlxcR/e/HL3y8Z53UW150CCkK8R0h+bAORdVBdpwnfNktc8Qhu7RV0MaE/dmrUmTGWlJeIp4uzOgF7yEkcYa2GhSdSLZNnUiHLKdUNbDPr9jVD+2S0MJw80Jn77h8yQHZgm0gre8IZoGyloLcI1Isy6O1iBaN0tv9UibpZ4y091kQhL6V+ThKVModmz7Lm1jw5bmEn5VTq2s3IYDnyXln5Uoe3G7bMaT2BT94tzp8VFDOB53LFkGY0KPCe9QPjIX+kt1Dd3UQ3tdr58yxeCpkY5h42V9WliUwUUdSZ+PO9djDKJjPQfJSaax5nKikZjVkqoQqMSR2+EqRaGhcyXebF9tbk51bsB4gMq9h/UW+xst/bURlBxs8/m9RkNVfq7LFqACwRZJssp7cxZR3hNlfmuBV1YSxforNuySgYvqtArc36n0hV1Dz1VKn9kf3la1DXGYOpzZD5cCVf758GA3IAzHK1fhZY5XVBdHTBnJadgv0b3T39gyMoXj1tnaHg/hHOw6NM+b5OhzCbQ== konrad@Air-von-Konrad.fritz.box" >> /home/pi/.ssh/authorized_keys
-
+echo "ssh updated"
+fi
 
 ##install
 apt purge -y linux-image-rpi-2712
@@ -60,8 +68,9 @@ systemctl enable wayvnc.service
 
 
 
-fi
+
 ##### apache2.conf
+if [ "$(tail -n 1 /etc/apache2/envvars )" != "export APACHE_RUN_GROUP=pi" ] ; then
 cat << EOF >> /etc/apache2/apache2.conf
 ServerName localhost
 <Directory /home/pi/motion/web>
@@ -86,6 +95,8 @@ mkdir /home/pi/motion/web
 cd /home/pi/motion/data
 cp .header.htm ../web
 cp .htaccess ../web
+echo "apache updted"
+fi
 
 
 
