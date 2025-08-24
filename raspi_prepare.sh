@@ -12,6 +12,7 @@ if  [ ! -d "/home/pi/motion" ] ; then
 cd ~
 git clone https://github.com/2konrad/motion.git 
 fi
+service motion stop 
 
 ssh-keygen -t rsa -q -f "/home/pi/.ssh/id_rsa" -N ""
 chown pi:pi /home/pi/.ssh/id_rsa
@@ -58,6 +59,8 @@ fi
 apt purge -y linux-image-rpi-2712
 apt purge -y linux-image-*+rpt-rpi-2712
 apt purge -y linux-headers-*+rpt-rpi-2712
+apt purge chromium
+apt purge firefox
 apt autoremove -y
 apt update && apt upgrade -y    
 apt install -y autoconf automake autopoint build-essential pkgconf libtool libzip-dev libjpeg-dev git libavformat-dev libavcodec-dev libavutil-dev libswscale-dev libavdevice-dev 
