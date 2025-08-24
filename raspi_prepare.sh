@@ -70,30 +70,15 @@ apt install -y wayvnc
 systemctl enable wayvnc.service
 
 
-
-
 ##### apache2.conf
 if [ "$(tail -n 1 /etc/apache2/envvars )" != "export APACHE_RUN_GROUP=pi" ] ; then
-cat << EOF >> /etc/apache2/apache2.conf
-ServerName localhost
-<Directory /home/pi/motion/web>
-        Options Indexes FollowSymLinks
-        AllowOverride All
-        Require all granted
-</Directory>
-<VirtualHost *:80>
-        ServerAdmin webmaster@localhost
-        DocumentRoot /home/pi/motion/web
-        ErrorLog \${APACHE_LOG_DIR}/error.log
-        CustomLog \${APACHE_LOG_DIR}/access.log combined
-</VirtualHost>
-LoadModule rewrite_module /usr/lib/apache2/modules/mod_rewrite.so
-EOF
 cat << EOF >> /etc/apache2/envvars
 export APACHE_RUN_USER=pi
 export APACHE_RUN_GROUP=pi
 EOF
 rm /etc/apache2/sites-enabled/000-default.conf
+cp /home/pi/motion/conf/localweb.conf /etc/apache2/sites-abailable/
+a2siteenable localweb.conf
 mkdir /home/pi/motion/web
 cd /home/pi/motion/data
 cp .header.htm ../web
@@ -101,17 +86,8 @@ cp .htaccess ../web
 echo "apache updted"
 fi
 
-
-
 #### log
-cat << EOF > /etc/logrotate.d/motion.conf
-/home/pi/motion/log/motion.log {
-        rotate 14
-        daily
-        nocompress
-}
-
-EOF
+cp /home/pi/motion/conf/motion.logrotate /etc/logrotate.d/
 
 
 cd /home/pi/motion

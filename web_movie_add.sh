@@ -7,7 +7,7 @@ if [ ! -d $d ]
  then 
  mkdir $d
  cp /home/pi/motion/web_movie_index.htm /home/pi/motion/web/$d/index.htm
-### fi
+fi
 
 cd /home/pi/motion/web/$d
 
@@ -34,7 +34,7 @@ else
     </div>
     " >> index.htm
 fi
-fi
+
 
 
 minfree_gb=10     # min 10 GB free

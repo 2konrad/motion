@@ -1,0 +1,6 @@
+/home/pi/motion/log/motion.log {
+        rotate 14
+        daily
+        nocompress
+        copytruncate
+}
