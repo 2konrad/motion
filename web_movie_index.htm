@@ -61,7 +61,7 @@
 </head>
 <body onload='intro()' > 
 <script type='text/javascript'>
-    var modal, span, video1, video2;
+    var modal, span, video1, video2, link;
     var current_event;
     function intro(){
         modal = document.getElementById("myModal");
@@ -71,12 +71,14 @@
         document.getElementById("left").onclick = function() {scroll_prev();  };
         video1 = document.getElementsByTagName('video')[0];
         video2 = document.getElementsByTagName('video')[1];
+        link = document.getElementById('dl_link');
         document.getElementById("person").onclick = function() {toggleall(document.querySelectorAll('.card'));  };
     }
     
     function changeSource(url) {
         video1.src = url + ".mp4";
         video2.src = url + "m.mp4";
+        link.setAttribute("href", url + ".mp4");
         video1.play();
         document.getElementById("time").innerHTML = url.substring(8,10) + " : " + url.substring(10,12);
         modal.style.display = "block";
@@ -104,6 +106,7 @@
         if (document.getElementById('i'+id).nextElementSibling === null){
             document.getElementById('i'+id).insertAdjacentHTML('afterend',  `
             <video width=320  controls autoplay> <source src='${id}.mp4' type=video/mp4 ></video >
+                <a href="${id}.mp4" download="video">Download</a>
             <br><video width=320  controls onerror='hide(this)'> <source src='${id}m.mp4' type=video/mp4 ></video> 
             `);
         }
@@ -143,6 +146,7 @@
         <span id="time">_</span>
 
         <video  width="100%" controls autoplay> <source src='' type=video/mp4 ></video >
+        <a href='#' id ='dl_link' download='video'>Download</a>
         <br>
         <video width="100%" controls onerror='hide(this)'> <source src='' type=video/mp4 ></video> 
     </div>
