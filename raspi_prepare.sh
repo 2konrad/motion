@@ -82,10 +82,12 @@ EOF
 rm /etc/apache2/sites-enabled/000-default.conf
 cp /home/pi/motion/conf/localweb.conf /etc/apache2/sites-abailable/
 a2siteenable localweb.conf
+sudo su pi
 mkdir /home/pi/motion/web
 cd /home/pi/motion/data
 cp .header.htm ../web
 cp .htaccess ../web
+echo "<pre> $(hostname) </pre>" >> ../web/.header.htm
 echo "apache updted"
 fi
 
