@@ -1,9 +1,9 @@
 #!/bin/sh
 
-#git clone https://github.com/2konrad/motion.git && sudo motion/raspi_prepare.sh
+#git clone https://github.com/2konrad/motion.git && motion/raspi_prepare.sh
 
-if [ "$(id -u)" -ne 0 ]; then
-        echo 'This script must be run by root' >&2
+if [ "$(id -u)" -ne 1000 ]; then
+        echo 'This script must be run by pi' >&2
         exit 1
 fi
 
@@ -12,7 +12,7 @@ if  [ ! -d "/home/pi/motion" ] ; then
 cd ~
 git clone https://github.com/2konrad/motion.git 
 fi
-service motion stop 
+sudo service motion stop 
 
 ssh-keygen -t rsa -q -f "/home/pi/.ssh/id_rsa" -N ""
 chown pi:pi /home/pi/.ssh/id_rsa
@@ -32,7 +32,7 @@ sudo service dphys-swapfile restart
 
 ##### LED
 if [ "$(tail -n 1 /boot/firmware/config.txt )" != "dtparam=pwr_led_trigger=default-on" ] ; then
-cat << EOF >> /boot/firmware/config.txt
+sudo cat << EOF >> /boot/firmware/config.txt
 dtparam=pwr_led_activelow=off
 dtparam=pwr_led_trigger=default-on
 EOF
@@ -41,9 +41,9 @@ fi
 
 #### SSH
 if [ "$(tail -n 1 /etc/ssh/sshd_config )" != "ClientAliveCountMax 20" ] ; then
-sed -i -e 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
-sed -i -e 's/KbdInteractiveAuthentication no/KbdInteractiveAuthentication yes/g' /etc/ssh/sshd_config
-cat << EOF >> /etc/ssh/sshd_config
+sudo sed -i -e 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+sudo sed -i -e 's/KbdInteractiveAuthentication no/KbdInteractiveAuthentication yes/g' /etc/ssh/sshd_config
+sudo cat << EOF >> /etc/ssh/sshd_config
 KbdInteractiveAuthentication yes
 PasswordAuthentication yes
 AllowAgentForwarding yes
@@ -56,33 +56,32 @@ echo "ssh updated"
 fi
 
 ##install
-apt purge -y linux-image-rpi-2712
-apt purge -y linux-image-*+rpt-rpi-2712
-apt purge -y linux-headers-*+rpt-rpi-2712
-apt purge chromium
-apt purge firefox
-apt autoremove -y
-apt update && apt upgrade -y    
-apt install -y autoconf automake autopoint build-essential pkgconf libtool libzip-dev libjpeg-dev git libavformat-dev libavcodec-dev libavutil-dev libswscale-dev libavdevice-dev 
-apt install -y libopencv-dev libwebp-dev gettext libmicrohttpd-dev libmariadb-dev libcamera-dev libcamera-tools libcamera-v4l2 libasound2-dev libpulse-dev libfftw3-dev
-apt install -y apache2
-apt autoremove -y
+sudo apt purge -y linux-image-rpi-2712
+sudo apt purge -y linux-image-*+rpt-rpi-2712
+sudo apt purge -y linux-headers-*+rpt-rpi-2712
+sudo apt purge chromium firefox cups -y
+sudo apt autoremove -y
+sudo apt update && apt upgrade -y    
+sudo apt install -y autoconf automake autopoint build-essential pkgconf libtool libzip-dev libjpeg-dev git libavformat-dev libavcodec-dev libavutil-dev libswscale-dev libavdevice-dev 
+sudo apt install -y libopencv-dev libwebp-dev gettext libmicrohttpd-dev libmariadb-dev libcamera-dev libcamera-tools libcamera-v4l2 libasound2-dev libpulse-dev libfftw3-dev
+sudo apt install -y apache2
+sudo apt autoremove -y
 
 #sudo apt install -y realvnc-vnc-server realvnc-vnc-viewer
-apt install -y wayvnc
-systemctl enable wayvnc.service
+sudo apt install -y wayvnc
+sudo systemctl enable wayvnc.service
 
 
 ##### apache2.conf
 if [ "$(tail -n 1 /etc/apache2/envvars )" != "export APACHE_RUN_GROUP=pi" ] ; then
-cat << EOF >> /etc/apache2/envvars
+sudo cat << EOF >> /etc/apache2/envvars
 export APACHE_RUN_USER=pi
 export APACHE_RUN_GROUP=pi
 EOF
-rm /etc/apache2/sites-enabled/000-default.conf
-cp /home/pi/motion/conf/localweb.conf /etc/apache2/sites-abailable/
-a2siteenable localweb.conf
-sudo su pi
+sudo rm /etc/apache2/sites-enabled/000-default.conf
+sudo cp /home/pi/motion/conf/localweb.conf /etc/apache2/sites-abailable/
+sudo a2siteenable localweb.conf
+
 mkdir /home/pi/motion/web
 cd /home/pi/motion/data
 cp .header.htm ../web
@@ -101,8 +100,8 @@ autoreconf -fiv
 make -j4
 
 cp /home/pi/motion/conf/motion.service /etc/systemd/system/motion.service 
-systemctl daemon-reload
-systemctl enable motion
+sudo systemctl daemon-reload
+sudo systemctl enable motion
 
 
 cat /home/pi/.ssh/id_rsa.pub
