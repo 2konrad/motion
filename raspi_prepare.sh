@@ -28,7 +28,7 @@ git config --global user.email "km@web.de"
 
 ##### LED
 if [ "$(tail -n 1 /boot/firmware/config.txt )" != "dtparam=pwr_led_trigger=default-on" ] ; then
-sudo cat << EOF >> /boot/firmware/config.txt
+sudo cat << EOF | sudo tee -a /boot/firmware/config.txt
 dtparam=pwr_led_activelow=off
 dtparam=pwr_led_trigger=default-on
 EOF
@@ -39,7 +39,7 @@ fi
 if [ "$(tail -n 1 /etc/ssh/sshd_config )" != "ClientAliveCountMax 20" ] ; then
 sudo sed -i -e 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
 sudo sed -i -e 's/KbdInteractiveAuthentication no/KbdInteractiveAuthentication yes/g' /etc/ssh/sshd_config
-sudo cat << EOF >> /etc/ssh/sshd_config
+sudo cat << EOF | sudo tee -a /etc/ssh/sshd_config
 KbdInteractiveAuthentication yes
 PasswordAuthentication yes
 AllowAgentForwarding yes
