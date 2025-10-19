@@ -25,10 +25,6 @@ git remote set-url origin git@github.com:2konrad/motion.git
 git config --global user.name "K Meyer"
 git config --global user.email "km@web.de"
 
-### swap
-sudo bash -c 'echo "CONF_SWAPSIZE=1024" >> /etc/dphys-swapfile'
-sudo service dphys-swapfile restart
-
 
 ##### LED
 if [ "$(tail -n 1 /boot/firmware/config.txt )" != "dtparam=pwr_led_trigger=default-on" ] ; then
@@ -61,11 +57,16 @@ sudo apt purge -y linux-image-*+rpt-rpi-2712
 sudo apt purge -y linux-headers-*+rpt-rpi-2712
 sudo apt purge chromium firefox cups -y
 sudo apt autoremove -y
-sudo apt update && apt upgrade -y    
+sudo apt update && sudo apt upgrade -y    
 sudo apt install -y autoconf automake autopoint build-essential pkgconf libtool libzip-dev libjpeg-dev git libavformat-dev libavcodec-dev libavutil-dev libswscale-dev libavdevice-dev 
 sudo apt install -y libopencv-dev libwebp-dev gettext libmicrohttpd-dev libmariadb-dev libcamera-dev libcamera-tools libcamera-v4l2 libasound2-dev libpulse-dev libfftw3-dev
-sudo apt install -y apache2
+sudo apt install -y apache2 dphys-swapfile
 sudo apt autoremove -y
+
+### swap
+sudo bash -c 'echo "CONF_SWAPSIZE=1024" >> /etc/dphys-swapfile'
+sudo service dphys-swapfile restart 
+
 
 #sudo apt install -y realvnc-vnc-server realvnc-vnc-viewer
 sudo apt install -y wayvnc
@@ -74,12 +75,12 @@ sudo systemctl enable wayvnc.service
 
 ##### apache2.conf
 if [ "$(tail -n 1 /etc/apache2/envvars )" != "export APACHE_RUN_GROUP=pi" ] ; then
-sudo cat << EOF >> /etc/apache2/envvars
+sudo cat << EOF | sudo tee -a /etc/apache2/envvars
 export APACHE_RUN_USER=pi
 export APACHE_RUN_GROUP=pi
 EOF
 sudo rm /etc/apache2/sites-enabled/000-default.conf
-sudo cp /home/pi/motion/conf/localweb.conf /etc/apache2/sites-abailable/
+sudo cp /home/pi/motion/conf/localweb.conf /etc/apache2/sites-available/
 sudo a2siteenable localweb.conf
 
 mkdir /home/pi/motion/web
@@ -99,7 +100,7 @@ autoreconf -fiv
 ./configure
 make -j4
 
-cp /home/pi/motion/conf/motion.service /etc/systemd/system/motion.service 
+sudo cp /home/pi/motion/conf/motion.service /etc/systemd/system/motion.service 
 sudo systemctl daemon-reload
 sudo systemctl enable motion
 
