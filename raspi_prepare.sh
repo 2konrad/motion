@@ -81,7 +81,7 @@ export APACHE_RUN_GROUP=pi
 EOF
 sudo rm /etc/apache2/sites-enabled/000-default.conf
 sudo cp /home/pi/motion/conf/localweb.conf /etc/apache2/sites-available/
-sudo a2siteenable localweb.conf
+sudo a2ensite localweb.conf
 
 mkdir /home/pi/motion/web
 cd /home/pi/motion/data
