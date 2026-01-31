@@ -92,7 +92,7 @@ echo "apache updted"
 fi
 
 #### log
-cp /home/pi/motion/conf/motion.logrotate /etc/logrotate.d/
+sudo cp /home/pi/motion/conf/motion.logrotate /etc/logrotate.d/
 
 
 cd /home/pi/motion
