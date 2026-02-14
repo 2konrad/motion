@@ -944,7 +944,7 @@ int cls_libcam::next(ctx_image_data *img_data)
         if (req_queue.empty() == false) {
             Request *request = this->req_queue.front();
 
-            ControlList &meta = request->metadata();
+            const ControlList &meta = request->metadata();
             auto exp = meta.get(controls::AnalogueGain  );
             if (exp) img_data->analogue_gain = *exp;
             exp = meta.get(controls::DigitalGain  );
