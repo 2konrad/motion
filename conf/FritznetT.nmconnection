@@ -1,0 +1,12 @@
+[connection]
+id=FritznetT
+type=wifi
+autoconnect-priority=10
+
+[wifi]
+mode=infrastructure
+ssid=FritznetT
+
+[wifi-security]
+key-mgmt=wpa-psk
+psk=11112222

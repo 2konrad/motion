@@ -94,6 +94,11 @@ fi
 #### log
 sudo cp /home/pi/motion/conf/motion.logrotate /etc/logrotate.d/
 
+### wifi T62
+sudo cp /home/pi/motion/conf/FritznetT.nmconnection /etc/NetworkManager/system-connections/
+sudo chmod 600 /etc/NetworkManager/system-connections/FritznetT.nmconnection
+
+
 
 cd /home/pi/motion
 autoreconf -fiv
