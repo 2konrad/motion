@@ -118,4 +118,6 @@ read _
 
 sudo reboot
 
+##PI3
+##sudo bash -c 'echo none > /sys/class/leds/PWR/trigger'
 

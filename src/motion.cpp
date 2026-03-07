@@ -33,6 +33,10 @@
 
 volatile enum MOTION_SIGNAL motsignal;
 
+bool network_watchdogRunning;
+std::thread network_watchdogThread;
+int network_lost_counter = 3;
+
 /** Handle signals sent */
 static void sig_handler(int signo)
 {
@@ -109,6 +113,56 @@ static void setup_signals(void)
     sig_handler_action.sa_flags = 0;
     sigaction(SIGVTALRM, &sig_handler_action, NULL);
 }
+
+std::string getSystemDNSServer()
+{
+    std::ifstream resolv("/etc/resolv.conf");
+    std::string line;
+
+    while (std::getline(resolv, line))
+    {
+        if (line.rfind("nameserver", 0) == 0)
+        {
+            std::string dns = line.substr(10);
+            // Whitespace entfernen
+            dns.erase(0, dns.find_first_not_of(" \t"));
+            return dns;
+        }
+    }
+
+    return "";
+}
+
+static void network_watchdogLoop()
+{
+    int result;
+
+    MOTION_LOG(NTC, LOG_TYPE_ALL, NO_ERRNO, "thread2");
+    while (network_watchdogRunning)
+    {
+        //std::cout << "[Watchdog] Prüfe Internetverbindung...\n";
+        std::string dns = getSystemDNSServer();
+        MOTION_LOG(NTC, LOG_TYPE_ALL, NO_ERRNO,"Network watchdog - DNS: %s",  dns );
+
+        std::string cmd = "ping -c 1 -W 5 " + dns + " > /dev/null 2>&1";
+        result = system(cmd.c_str());
+        if (result != 0)
+            network_lost_counter--;
+        else 
+            network_lost_counter = 3;
+s
+        if (network_lost_counter == 0){
+            MOTION_LOG(NTC, LOG_TYPE_ALL, NO_ERRNO,"Network watchdog - network lost - restart nm ...." );
+            system("nmcli networking off && nmcli networking on");
+            network_lost_counter = 3;
+            }
+
+        // 60 Minuten warten (unterbrechbar)
+        for (int i = 0; i < 20 && network_watchdogRunning; ++i)
+            std::this_thread::sleep_for(std::chrono::minutes(1));
+    }
+}
+
 
 void cls_motapp::signal_process()
 {
@@ -486,6 +540,9 @@ bool cls_motapp::check_devices()
 
 }
 
+
+
+
 void cls_motapp::init(int p_argc, char *p_argv[])
 {
     int indx;
@@ -650,8 +707,14 @@ int main (int p_argc, char **p_argv)
 
     app = new cls_motapp();
     motlog = new cls_log(app);
+    //motlog->startup();
 
     mythreadname_set("mo",0,"");
+
+    network_watchdogRunning = true;
+    network_lost_counter = 10;
+    MOTION_LOG(NTC, LOG_TYPE_ALL, NO_ERRNO, "thread1");
+    network_watchdogThread = std::thread(network_watchdogLoop);
 
     while (true) {
         app->init(p_argc, p_argv);
@@ -676,6 +739,10 @@ int main (int p_argc, char **p_argv)
     app->deinit();
 
     MOTION_LOG(NTC, LOG_TYPE_ALL, NO_ERRNO, _("Motion terminating"));
+
+    network_watchdogRunning = false;
+    if (network_watchdogThread.joinable()) network_watchdogThread.join();
+
 
     mydelete(motlog);
     mydelete(app);

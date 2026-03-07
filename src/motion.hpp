@@ -218,6 +218,13 @@ class cls_motapp {
         void av_deinit();
         void ntc();
         void watchdog(uint camindx);
+
+        //void network_watchdogLoop();
+        //std::string getSystemDNSServer();
+
+        //bool network_watchdogRunning{false};
+        //std::thread network_watchdogThread; 
+        //int network_lost_counter ;
 };
 
 #endif /* _INCLUDE_MOTION_HPP_ */
