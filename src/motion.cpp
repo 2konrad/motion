@@ -142,7 +142,7 @@ static void network_watchdogLoop()
     {
         //std::cout << "[Watchdog] Prüfe Internetverbindung...\n";
         std::string dns = getSystemDNSServer();
-        MOTION_LOG(NTC, LOG_TYPE_ALL, NO_ERRNO,"Network watchdog - DNS: %s",  dns );
+        MOTION_LOG(NTC, LOG_TYPE_ALL, NO_ERRNO,"Network watchdog - DNS: %s",  dns.c_str() );
 
         std::string cmd = "ping -c 1 -W 5 " + dns + " > /dev/null 2>&1";
         result = system(cmd.c_str());
