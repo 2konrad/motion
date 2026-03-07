@@ -150,7 +150,7 @@ static void network_watchdogLoop()
             network_lost_counter--;
         else 
             network_lost_counter = 3;
-s
+
         if (network_lost_counter == 0){
             MOTION_LOG(NTC, LOG_TYPE_ALL, NO_ERRNO,"Network watchdog - network lost - restart nm ...." );
             system("nmcli networking off && nmcli networking on");
